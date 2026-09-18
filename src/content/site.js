@@ -24,4 +24,5 @@ export const site = {
   },
 
   footer: '© 2026 Fuaad Khan · fuaadkhan.com',
+  attribution: 'Background contours derived from Mapzen Terrain Tiles (AWS Open Data) · USGS 3DEP, SRTM',
 }
