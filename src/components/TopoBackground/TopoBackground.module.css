@@ -1,0 +1,44 @@
+/* Oversized fixed texture; GSAP drifts it upward so it trails the foreground */
+.layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 280svh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  will-change: transform;
+}
+
+.texture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* Chapters, including GSAP's fixed pins, must paint above the texture; never add transform/filter here */
+:global(main) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Smaller raster and a lighter touch where the screen is narrow and the GPU weaker */
+@media (max-width: 767px) {
+  .layer {
+    height: 200svh;
+    opacity: 0.42;
+  }
+}
+
+/* No drift: one viewport-sized static crop */
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    height: 100svh;
+  }
+
+  .texture {
+    object-position: center;
+  }
+}
