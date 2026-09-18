@@ -47,15 +47,28 @@ function routePath(a, b) {
   return `M${x1} ${y1} Q${mx + dy * k} ${my - dx * k} ${x2} ${y2}`
 }
 
-export default function MapInset({ stops, activeIndex }) {
+// Label offsets per placement so labels clear both the marker and the incoming route
+const LABEL = {
+  right: { dx: 14, dy: 3.5, anchor: 'start' },
+  left: { dx: -14, dy: 3.5, anchor: 'end' },
+  above: { dx: 0, dy: -13, anchor: 'middle' },
+  below: { dx: 0, dy: 19, anchor: 'middle' },
+}
+
+/**
+ * The full journey rendered in its final state. The Timeline chapter rewinds it with GSAP
+ * (routes undrawn, marker on the first stop) and plays it forward on scroll.
+ */
+export default function MapInset({ stops }) {
   const pts = stops.map((s) => project(s.coords))
-  const [ax, ay] = pts[activeIndex]
-  const labelLeft = ax > W * 0.72
+  const last = pts[pts.length - 1]
+  const cx = pts.reduce((a, [x]) => a + x, 0) / pts.length
+  const cy = pts.reduce((a, [, y]) => a + y, 0) / pts.length
 
   return (
     <div className={styles.map} aria-hidden="true">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className={styles.svg}>
-        <g data-map-view data-origin={`${ax.toFixed(1)} ${ay.toFixed(1)}`}>
+        <g data-map-view data-origin={`${cx.toFixed(1)} ${cy.toFixed(1)}`}>
           <path d={landPath} className={styles.land} />
           {ISLANDS.map(({ c, rx, ry, rot }) => {
             const [x, y] = project(c)
@@ -86,32 +99,27 @@ export default function MapInset({ stops, activeIndex }) {
             Pacific Ocean
           </text>
 
-          {pts.slice(1, activeIndex + 1).map((p, i) => (
-            <path
-              key={stops[i + 1].id}
-              d={routePath(pts[i], p)}
-              className={styles.route}
-              data-route={i + 1 === activeIndex ? '' : undefined}
-            />
+          {pts.slice(1).map((p, i) => (
+            <path key={stops[i + 1].id} d={routePath(pts[i], p)} className={styles.route} data-route={i + 1} />
           ))}
 
-          {pts.slice(0, activeIndex).map(([x, y], i) => (
-            <circle key={stops[i].id} cx={x} cy={y} r={3.5} className={styles.visited} />
+          {pts.map(([x, y], i) => (
+            <circle key={stops[i].id} cx={x} cy={y} r={3.5} className={styles.visited} data-stop={i} />
           ))}
 
-          <g data-marker>
-            <circle cx={ax} cy={ay} r={10} className={styles.halo} />
-            <circle cx={ax} cy={ay} r={4.5} className={styles.active} />
+          {pts.map(([x, y], i) => {
+            const l = LABEL[stops[i].labelPlacement] ?? LABEL.right
+            return (
+              <text key={stops[i].id} x={x + l.dx} y={y + l.dy} textAnchor={l.anchor} className={styles.label} data-label={i}>
+                {stops[i].location}
+              </text>
+            )
+          })}
+
+          <g data-marker transform={`translate(${last[0]} ${last[1]})`}>
+            <circle r={10} className={styles.halo} />
+            <circle r={4.5} className={styles.active} />
           </g>
-          <text
-            x={labelLeft ? ax - 14 : ax + 14}
-            y={ay + 3.5}
-            textAnchor={labelLeft ? 'end' : 'start'}
-            className={styles.label}
-            data-marker-label
-          >
-            {stops[activeIndex].location}
-          </text>
         </g>
       </svg>
       <span className={styles.caption}>Career map · Southern California</span>
