@@ -1,9 +1,9 @@
 :root {
-  --bg: #0f0f0e;
-  --bg-raised: #171715;
+  --bg: #1e2128;
+  --bg-raised: #272b33;
   --fg: #f4f1ea;
   --fg-muted: #a39e93;
-  --fg-faint: #6d685f;
+  --fg-faint: #918c82;
   --line: rgba(244, 241, 234, 0.14);
   --line-strong: rgba(244, 241, 234, 0.36);
   --accent: #e8b34d;
