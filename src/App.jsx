@@ -1,5 +1,5 @@
 import Hero from './components/Hero/Hero'
-import TimelineChapter from './components/TimelineChapter/TimelineChapter'
+import Timeline from './components/Timeline/Timeline'
 import Transition from './components/Transition/Transition'
 import AppShowcase from './components/AppShowcase/AppShowcase'
 import Close from './components/Close/Close'
@@ -11,9 +11,7 @@ export default function App() {
   return (
     <main>
       <Hero site={site} />
-      {timeline.map((stop, i) => (
-        <TimelineChapter key={stop.id} stop={stop} index={i} stops={timeline} />
-      ))}
+      <Timeline stops={timeline} />
       <Transition content={site.transition} apps={apps} />
       {apps.map((app) => (
         <AppShowcase key={app.id} app={app} />
