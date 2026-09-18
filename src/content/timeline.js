@@ -1,4 +1,5 @@
-// Career timeline stops, in reading order. coords are [lon, lat].
+// Career timeline stops, in reading order. coords are [lon, lat];
+// labelPlacement (right | left | above | below) keeps map labels clear of the route.
 export const timeline = [
   {
     id: 'ucla',
@@ -8,6 +9,7 @@ export const timeline = [
     dates: '2018 – 2020',
     location: 'Los Angeles, CA',
     coords: [-118.4452, 34.0689],
+    labelPlacement: 'above',
     headline: 'Where spatial thinking started.',
     bullets: [
       'Geography major with a minor in Geographic Information Systems and Technologies.',
@@ -24,6 +26,7 @@ export const timeline = [
     dates: 'Oct 2020 – Jul 2021',
     location: 'Anaheim, CA',
     coords: [-117.9145, 33.8353],
+    labelPlacement: 'below',
     headline: 'Maps that ran on data pipelines.',
     bullets: [
       'Maintained HMIS data to HUD standards and wrote SQL for shelter and case reports.',
@@ -41,6 +44,7 @@ export const timeline = [
     dates: 'Jul 2021 – present',
     location: 'San Jacinto, CA',
     coords: [-116.9581, 33.7838],
+    labelPlacement: 'above',
     headline: 'Built the city’s enterprise GIS from zero.',
     bullets: [
       'Sole GIS staff: stood up test and production ArcGIS Enterprise from the ground up.',

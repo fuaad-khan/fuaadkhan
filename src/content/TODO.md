@@ -23,4 +23,5 @@ Placeholders and open items that block a "final" site. Resolve, then delete the 
 
 - Résumé PDF is hosted in-repo at `public/Fuaad_Khan_Resume.pdf` (copied from `resumeMap/documents/`). It includes a phone number.
 - Timeline map inset is pre-rendered SVG, not Leaflet, to keep the bundle small and avoid tile requests.
+- Page background is a pre-generated contour SVG (`src/assets/topo-redlands.svg`): Redlands + Crafton Hills + San Timoteo Canyon, z13 terrain tiles, 20 m interval. Regenerate with `npm run topo` (needs the `d3-contour`/`d3-array`/`pngjs` devDeps and network access). Layer height in `TopoBackground.module.css` sets the parallax speed.
 - Phone number is not shown on the page; only email and GitHub.

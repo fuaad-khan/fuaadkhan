@@ -37,6 +37,7 @@ export default function Close({ site }) {
         </a>
       </div>
       <p className={styles.footer}>{site.footer}</p>
+      <p className={styles.footer}>{site.attribution}</p>
     </footer>
   )
 }

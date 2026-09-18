@@ -5,8 +5,8 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   align-content: center;
-  gap: 1.5rem;
-  padding: 4.5rem var(--gutter) 3rem calc(var(--gutter) + 2.25rem);
+  gap: 1.25rem;
+  padding: 3.5rem var(--gutter) 3rem calc(var(--gutter) + 2.25rem);
 }
 
 .railBase,
@@ -27,21 +27,58 @@
   transform-origin: top;
 }
 
-.text {
-  position: relative;
-  order: 2;
-  max-width: 34rem;
+.nodes {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  bottom: 0;
+  width: 0;
 }
 
 .node {
   position: absolute;
-  left: calc(-2.25rem - 5px);
-  top: 0.15em;
+  left: -5px;
+  margin-top: -5px;
   width: 11px;
   height: 11px;
   border-radius: 50%;
+  background: var(--bg);
+  box-shadow:
+    0 0 0 1px var(--line-strong),
+    0 0 0 4px var(--bg);
+}
+
+.nodeFill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px var(--bg);
+}
+
+.beats {
+  position: relative;
+  order: 2;
+  max-width: 34rem;
+  display: grid;
+  gap: 3rem;
+}
+
+/* Beats stack in place only when scripts run and motion is allowed; otherwise they flow */
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .beats {
+    display: block;
+  }
+
+  :global(.js) .beat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+.beat {
+  display: block;
 }
 
 .eyebrow {
@@ -67,7 +104,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   font-size: var(--step-0);
 }
 
@@ -81,9 +118,9 @@
 
 .bullets {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.45rem;
   color: var(--fg-muted);
-  font-size: var(--step-0);
+  font-size: var(--step--1);
 }
 
 .bullets li {
@@ -104,8 +141,15 @@
 
 .visual {
   order: 1;
-  height: 24svh;
+  height: 20svh;
   min-height: 150px;
+}
+
+@media (max-height: 700px) and (max-width: 767px) {
+  .visual {
+    height: 15svh;
+    min-height: 110px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -114,15 +158,20 @@
     grid-template-rows: none;
     align-items: center;
     gap: clamp(2rem, 5vw, 5rem);
-    padding-left: calc(var(--gutter) + 3rem);
+    padding: 4.5rem var(--gutter) 3rem calc(var(--gutter) + 3rem);
   }
 
-  .node {
-    left: calc(-3rem - 5px);
-  }
-
-  .text {
+  .beats {
     order: 1;
+  }
+
+  .bullets {
+    gap: 0.6rem;
+    font-size: var(--step-0);
+  }
+
+  .role {
+    margin-bottom: 1.25rem;
   }
 
   .visual {
@@ -131,32 +180,8 @@
     min-height: 0;
     aspect-ratio: 400 / 245;
     max-height: 62vh;
-  }
-}
-
-@media (max-width: 767px) {
-  .chapter {
-    padding-top: 3.5rem;
-    gap: 1.25rem;
-  }
-
-  .bullets {
-    font-size: var(--step--1);
-    gap: 0.45rem;
-  }
-
-  .role {
-    margin-bottom: 1rem;
-  }
-
-  .visual {
-    height: 20svh;
-  }
-}
-
-@media (max-height: 700px) and (max-width: 767px) {
-  .visual {
-    height: 15svh;
-    min-height: 110px;
+    /* Keeps the one map in view while the beats flow past under reduced motion */
+    position: sticky;
+    top: 19vh;
   }
 }
