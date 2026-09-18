@@ -1,0 +1,164 @@
+.chapter {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  align-content: center;
+  gap: 1.5rem;
+  padding: 4.5rem var(--gutter) 3rem calc(var(--gutter) + 2.25rem);
+}
+
+.railBase {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--app-accent);
+  opacity: 0.7;
+}
+
+.visual {
+  position: relative;
+  max-height: 36svh;
+}
+
+.frame {
+  position: relative;
+}
+
+/* Frames stack only once JS is running; without it they flow so nothing hides */
+:global(.js) .frame + .frame {
+  position: absolute;
+  inset: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  max-width: 34rem;
+}
+
+.eyebrow {
+  margin-bottom: 1rem;
+}
+
+.features {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Same stacking rule for callouts: absolute only with JS and motion allowed */
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .features {
+    min-height: 11rem;
+  }
+
+  :global(.js) .feature {
+    position: absolute;
+    inset: 0 0 auto 0;
+  }
+}
+
+.feature {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--app-accent);
+}
+
+.title {
+  font-size: var(--step-2);
+}
+
+.body {
+  color: var(--fg-muted);
+}
+
+.progressTrack {
+  display: block;
+  height: 1px;
+  margin: 1.5rem 0 1.25rem;
+  background: var(--line);
+}
+
+.progress {
+  display: block;
+  height: 100%;
+  background: var(--app-accent);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressTrack {
+    display: none;
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stackLine {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+.sep {
+  color: var(--app-accent);
+  margin: 0 0.5em;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.link {
+  display: inline-block;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: var(--step--1);
+  transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+
+.link:hover {
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+}
+
+@media (min-width: 768px) {
+  .chapter {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-rows: none;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    padding-left: calc(var(--gutter) + 3rem);
+  }
+
+  .visual {
+    max-height: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .features {
+      min-height: 13rem;
+    }
+  }
+}

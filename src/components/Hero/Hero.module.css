@@ -1,0 +1,95 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem var(--gutter) 8rem calc(var(--gutter) + 2.25rem);
+}
+
+.inner {
+  max-width: 52rem;
+}
+
+.eyebrow {
+  margin-bottom: 1.5rem;
+}
+
+.name {
+  margin-bottom: 1.25rem;
+}
+
+.identity {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.25em;
+}
+
+.dot {
+  color: var(--accent);
+  margin-right: 0.35em;
+}
+
+.lede {
+  margin-top: 1.5rem;
+  max-width: var(--measure);
+  color: var(--fg-muted);
+  font-size: var(--step-0);
+}
+
+.railWrap {
+  position: absolute;
+  left: var(--gutter);
+  top: 50%;
+  bottom: 0;
+  width: 1px;
+}
+
+.railStart {
+  position: absolute;
+  top: -6px;
+  left: -5px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.rail {
+  position: absolute;
+  inset: 0;
+  background: var(--line-strong);
+  transform-origin: top;
+}
+
+.cue {
+  position: absolute;
+  bottom: 2rem;
+  left: calc(var(--gutter) + 2.25rem);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding-left: calc(var(--gutter) + 3rem);
+  }
+
+  .cue {
+    left: calc(var(--gutter) + 3rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue {
+    display: none;
+  }
+}

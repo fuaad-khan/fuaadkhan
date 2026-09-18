@@ -1,0 +1,119 @@
+.close {
+  position: relative;
+  min-height: 80svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8rem var(--gutter) 3rem calc(var(--gutter) + 2.25rem);
+}
+
+.rail {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  height: calc(8rem + 0.4em);
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.text {
+  position: relative;
+  max-width: 36rem;
+  flex: 1;
+}
+
+.node {
+  position: absolute;
+  left: calc(-2.25rem - 5px);
+  top: 0.15em;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--bg);
+}
+
+.headline {
+  margin: 1rem 0 1.25rem;
+}
+
+.body {
+  color: var(--fg-muted);
+  margin-bottom: 2.5rem;
+  max-width: var(--measure);
+}
+
+.links {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+  margin-bottom: 2rem;
+}
+
+.links li {
+  border-bottom: 1px solid var(--line);
+}
+
+.link {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1rem 0;
+  text-decoration: none;
+}
+
+.link:hover .linkValue {
+  color: var(--accent);
+}
+
+.linkLabel {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.linkValue {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--step-1);
+  letter-spacing: -0.01em;
+  text-align: right;
+  overflow-wrap: anywhere;
+  transition: color 0.2s var(--ease-out);
+}
+
+.resume {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+
+.resume:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.footer {
+  margin-top: 6rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--fg-faint);
+}
+
+@media (min-width: 768px) {
+  .close {
+    padding-left: calc(var(--gutter) + 3rem);
+  }
+
+  .node {
+    left: calc(-3rem - 5px);
+  }
+}

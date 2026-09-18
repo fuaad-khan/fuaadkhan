@@ -1,0 +1,75 @@
+.frame {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-raised);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 30px 60px -30px rgba(0, 0, 0, 0.7),
+    0 0 80px -40px var(--frame-accent);
+}
+
+.image,
+.video,
+.placeholder {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.phBg {
+  fill: var(--bg-raised);
+}
+
+.phStreets line {
+  stroke: rgba(244, 241, 234, 0.1);
+  stroke-width: 6;
+}
+
+.phParcels rect {
+  fill: rgba(244, 241, 234, 0.03);
+  stroke: rgba(244, 241, 234, 0.22);
+  stroke-width: 0.8;
+}
+
+.phBuffer {
+  fill: var(--frame-accent);
+  fill-opacity: 0.08;
+  stroke: var(--frame-accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.8;
+}
+
+.phHighlight {
+  fill: var(--frame-accent);
+  fill-opacity: 0.5;
+  stroke: var(--frame-accent);
+  stroke-width: 1.5;
+}
+
+.phPanel {
+  fill: rgba(244, 241, 234, 0.04);
+  stroke: rgba(244, 241, 234, 0.1);
+}
+
+.phPanelLines rect {
+  fill: rgba(244, 241, 234, 0.14);
+}
+
+.phSearch {
+  fill: rgba(244, 241, 234, 0.06);
+  stroke: rgba(244, 241, 234, 0.2);
+}
+
+.phLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--fg-faint);
+}
