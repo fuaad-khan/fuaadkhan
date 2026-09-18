@@ -1,0 +1,99 @@
+.map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-raised);
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+}
+
+.land {
+  fill: rgba(244, 241, 234, 0.055);
+  stroke: rgba(244, 241, 234, 0.4);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.border {
+  fill: none;
+  stroke: rgba(244, 241, 234, 0.25);
+  stroke-width: 0.6;
+  stroke-dasharray: 3 3;
+}
+
+.graticule line {
+  stroke: rgba(244, 241, 234, 0.07);
+  stroke-width: 0.6;
+}
+
+.graticule text,
+.ocean {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  fill: var(--fg-faint);
+  letter-spacing: 0.08em;
+}
+
+.ocean {
+  font-style: italic;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.route {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.visited {
+  fill: var(--fg-muted);
+}
+
+.halo {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.active {
+  fill: var(--accent);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--fg);
+  letter-spacing: 0.06em;
+  paint-order: stroke;
+  stroke: var(--bg-raised);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.caption {
+  position: absolute;
+  right: 0.75rem;
+  top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+@media (max-width: 767px) {
+  .caption {
+    display: none;
+  }
+}

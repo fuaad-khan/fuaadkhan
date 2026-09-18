@@ -1,0 +1,53 @@
+// Career timeline stops, in reading order. coords are [lon, lat].
+export const timeline = [
+  {
+    id: 'ucla',
+    kind: 'Education',
+    org: 'UCLA',
+    role: 'B.A. Geography, minor in GIS & Technologies',
+    dates: '2018 – 2020',
+    location: 'Los Angeles, CA',
+    coords: [-118.4452, 34.0689],
+    headline: 'Where spatial thinking started.',
+    bullets: [
+      'Geography major with a minor in Geographic Information Systems and Technologies.',
+      'Foundation in cartography, spatial analysis, and geographic problem framing.',
+      'Arrived with a year of ETL and data engineering at UC Riverside already behind me.',
+    ],
+    media: null,
+  },
+  {
+    id: 'citynet',
+    kind: 'GIS / Data Analysis',
+    org: 'City Net SoCal',
+    role: 'Project Coordinator / GIS Data Analyst',
+    dates: 'Oct 2020 – Jul 2021',
+    location: 'Anaheim, CA',
+    coords: [-117.9145, 33.8353],
+    headline: 'Maps that ran on data pipelines.',
+    bullets: [
+      'Maintained HMIS data to HUD standards and wrote SQL for shelter and case reports.',
+      'Built daily Power BI dashboards for City of Anaheim staff and Anaheim PD.',
+      'Produced ArcGIS map products for the Orange County Point-in-Time count.',
+      'Automated the reporting workflows behind those maps with Python.',
+    ],
+    media: null,
+  },
+  {
+    id: 'sanjacinto',
+    kind: 'Enterprise GIS',
+    org: 'City of San Jacinto',
+    role: 'GIS Coordinator → GIS Supervisor',
+    dates: 'Jul 2021 – present',
+    location: 'San Jacinto, CA',
+    coords: [-116.9581, 33.7838],
+    headline: 'Built the city’s enterprise GIS from zero.',
+    bullets: [
+      'Sole GIS staff: stood up test and production ArcGIS Enterprise from the ground up.',
+      'Integrated GIS with Tyler EPL permitting and OpenGov EAM asset management.',
+      'Led a YOLOv8 computer-vision pipeline that geolocates potholes and traffic assets.',
+      'Promoted to Supervisor in 2025: hiring, leading staff, directing GIS strategy citywide.',
+    ],
+    media: null,
+  },
+]

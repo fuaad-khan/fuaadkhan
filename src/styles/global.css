@@ -1,0 +1,135 @@
+:root {
+  --bg: #0f0f0e;
+  --bg-raised: #171715;
+  --fg: #f4f1ea;
+  --fg-muted: #a39e93;
+  --fg-faint: #6d685f;
+  --line: rgba(244, 241, 234, 0.14);
+  --line-strong: rgba(244, 241, 234, 0.36);
+  --accent: #e8b34d;
+  --accent-map: #5ea8ff;
+  --accent-yard: #e08a5a;
+  --accent-green: #6fcf97;
+
+  --font-display: "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  --font-body: "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Code", Consolas, "Roboto Mono", monospace;
+
+  --step--1: clamp(0.8rem, 0.75rem + 0.25vw, 0.9rem);
+  --step-0: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
+  --step-2: clamp(1.6rem, 1.3rem + 1.4vw, 2.4rem);
+  --step-3: clamp(2.2rem, 1.6rem + 3vw, 4rem);
+  --step-4: clamp(2.8rem, 1.8rem + 5vw, 6rem);
+
+  --gutter: clamp(1.25rem, 5vw, 5rem);
+  --measure: 34rem;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  margin: 0;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-4);
+}
+
+h2 {
+  font-size: var(--step-3);
+}
+
+h3 {
+  font-size: var(--step-1);
+  letter-spacing: -0.015em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
