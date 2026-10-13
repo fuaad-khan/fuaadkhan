@@ -1,42 +1,43 @@
 # Content TODO
 
-What remains after the foundation package (WP0). Resolve, then delete the line.
+What remains after the redesign (WP0–WP9). Resolve, then delete the line.
 
-## Media captures (pipeline: `scripts/capture`, `scripts/encode-media.mjs` → `src/assets/<app>/`, wired in `src/content/media.js`)
+## Owner confirmations before launch
 
-- [ ] **Map My City** — `hero` still (City Hall, lookup rows + assessor sidebar, "Code Enforcement Officer" value blanked, "In Care of" blurred), `f1` search-to-report loop, `f2` zoning + legend with the imagery time slider, `f3` 300 ft buffer with the mailing-labels sheet. Until then `media.js` holds `null` and the page shows the neutral parcel-grid placeholder.
-- [ ] **Yard Plan** — `base` and `hero` stills at City Hall (never the default residential Home view), `f1` concrete-snap loop, `f2` Draw panel with the donut, `f3` Share panel. Until then: placeholder.
-- [ ] **Green Check** — the 438 S State St Microbusiness `base`/`hero` stills, an instant-verdict `f1` on a commercial or industrial parcel (or an honest "Needs More Data"), the automatic-verdict `f2`, and the verify-distance `f3` loop. Blur the neighbouring residence's address wherever the app prints it. Until then: placeholder.
-- [ ] **Privacy** — the three old test captures in `src/assets/green-check/` show residential addresses. `media.js` no longer references them and the pipeline deletes them, but `main` still imports them, so the live deployment may serve them until this branch ships.
+- [ ] **Yard Plan, feature 3** — "Staff upload it back for review." The app has a GeoJSON upload; confirm planning staff actually use it to review plans, or cut the sentence in `apps.js`.
+- [ ] **UCLA bullets** — degree and minor are from the résumé; the "cartography, spatial analysis" line comes from PROJECT_GUIDELINES, not the transcript.
+- [ ] **Lede** — "Six-plus years in public-sector GIS" counts from Oct 2020 (City Net SoCal, a nonprofit working for the City of Anaheim). Confirm the "public-sector" framing.
+- [ ] **City seal** — shown in the Map My City captures and the intro's seal sweep on the strength of permission "in hand or forthcoming". Confirm it is in hand.
+- [ ] **Nearmap imagery** — the Yard Plan and Green Check captures and the Map My City loops use Nearmap aerials with the "© Nearmap" credit visible. Confirm the licence covers a public portfolio.
 
-## Coded intros (`src/components/Intros`, one lazy chunk per app)
+## Privacy and the repository
 
-- [ ] `Intros/CityDraw` — vector city drawn from data and pushed into the Map My City hero capture (stub shows the driver's progress today).
-- [ ] `Intros/GlassDraw` — Yard Plan map-under-glass drawing sequence (stub today).
-- [ ] `Intros/MeasuredLine` — Green Check measured line and verify-by-hand flip (stub today). Its numbers come from the capture sidecar (`hero.intro.values`) over the demo values in `apps.js` → `intro.values`; the Green Check feature copy (95 ft, 100 ft) must be aligned with the sidecar by hand.
+- [ ] The three old Green Check test captures (`eligibility-fail`, `eligibility-pass`, `smoke-final` WebPs) show residential addresses. This branch no longer has them, but `main` and the git history do, and the live deployment may still serve them. The history rewrite is prepared by the orchestrator; the owner force-pushes `main` and `redesign/apple-scroll` and redeploys.
+- [ ] Keep the repository private until that rewrite is pushed.
 
-## Sections still on the interim layout
+## Hosting (out of scope for the redesign)
 
-- [ ] Journey (hero + timeline around one sticky map) replaces the pinned Hero/Timeline pair.
-- [ ] Transition app cards, the Showcase shell (replaces AppIntro/AppFeatures) and Close on the shared `Rail`.
-- [ ] Topographic background moves to a tokenised `mask-image`.
+- [ ] Cut fuaadkhan.com over to Cloudflare Pages (it still serves the old host).
+- [ ] `www` → apex: `public/_redirects` cannot do a domain-level redirect on Cloudflare Pages. Add a Bulk Redirect or a Redirect Rule for `www.fuaadkhan.com`, then delete the line from `_redirects`.
+- [ ] If Cloudflare Web Analytics or Rocket Loader is switched on, the CSP in `public/_headers` blocks it; adjust the CSP deliberately.
 
-## Build and launch
+## Not verified on this machine
 
-- [ ] Build-time prerender (`react-dom/static`) so the page is complete without JavaScript; `main.jsx` already hydrates when `#root` has children.
-- [ ] Social card `public/og.jpg` (1200×630) and `public/apple-touch-icon.png` (180×180); `index.html` already points at both.
-- [ ] Out of scope here: hosting and DNS cut-over (fuaadkhan.com still serves the old host). `public/_redirects` cannot express a domain-level `www` → apex redirect on Cloudflare Pages; use a Cloudflare redirect rule when cutting over.
+- [ ] Safari (desktop and iOS): `backdrop-filter` with `clip-path: path()` in the Yard Plan intro, `@property` colour tokens, the dashed march in the Green Check intro, and the address bar during the Transition pin.
+- [ ] Real-GPU frame timings; every measurement so far is headless Chrome without a GPU.
 
-## Copy to confirm
+## Optional polish
 
-- [ ] UCLA bullets — degree and minor are from the résumé; the "cartography, spatial analysis" line is from PROJECT_GUIDELINES, not the transcript.
-- [ ] Yard Plan "Staff upload it back for review" — the app has a GeoJSON upload; confirm staff use it for review.
+- [ ] Green Check intro: the pass rows have no `detail` strings, so they are shorter than the hero still's and shift slightly during the dissolve. Add the app's exact strings to `apps.js → green-check.intro.rows` for a tighter match.
+- [ ] Lucide icon paths (ISC licence) are copied into `Intros/MeasuredLine/Icon.jsx` with an attribution comment; add the ISC notice to the README if a formal credit is wanted.
+- [ ] Media weight: a full scroll transfers about 3.1 MB at 1x but 4.3–4.4 MB on 2x/3x screens, over the 4 MB page budget (1600w stills and about 2 MB of WebM loops). Re-encoding the largest loops (`map-my-city/f1.webm`, `map-my-city/f2.webm`) with `encode-media.mjs`, or adding a 400w thumbnail size, would bring it under.
 
 ## Decisions taken (revisit if needed)
 
 - Repositories stay private, so showcases carry no repository links (`apps[].links` is empty).
 - Statuses: Map My City "In production · internal" (deployed as Map My San Jacinto), Yard Plan "In development", Green Check "Pilot · internal preview".
+- Every number on the page traces to the app sources or the measured captures (PLAN §11, Appendix B; the Yard Plan and Green Check intro values come from the capture sidecars, and `apps.js` keeps the same numbers as a fallback).
 - Résumé PDF is hosted in-repo at `public/Fuaad_Khan_Resume.pdf` and includes a phone number by the owner's choice; the page itself never prints it (only email, GitHub and LinkedIn).
 - Inter 800/600 is self-hosted from `public/fonts` (SIL OFL, `public/fonts/OFL.txt`); body text stays on the system font.
-- Timeline map inset is pre-rendered SVG, not Leaflet, to keep the bundle small and avoid tile requests.
-- Page background is a pre-generated contour SVG (`src/assets/topo-redlands.svg`): Redlands + Crafton Hills + San Timoteo Canyon, z13 terrain tiles, 20 m interval. Regenerate with `npm run topo` (needs the `d3-contour`/`d3-array`/`pngjs` devDeps and network access).
+- The career map is pre-rendered SVG, not Leaflet, to keep the bundle small and avoid tile requests.
+- Page background is a pre-generated contour SVG (`src/assets/topo-redlands.svg`): Redlands, Crafton Hills and San Timoteo Canyon, z13 terrain tiles, 20 m interval, drawn at about 1.8:1 against the background so it stays behind the copy. Regenerate with `npm run topo`.
