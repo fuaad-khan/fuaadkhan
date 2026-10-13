@@ -13,3 +13,6 @@ npm-debug.log*
 audit/
 .cache/
 .claude/worktrees/
+
+# Owner-supplied private strings for scripts/privacy-sweep.mjs (never committed)
+privacy.local.json

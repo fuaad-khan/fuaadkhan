@@ -1,0 +1,40 @@
+{
+  "app": "green-check",
+  "name": "f1",
+  "kind": "still",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "view": {
+    "lat": 33.77413545540256,
+    "lng": -116.96510553359987,
+    "zoom": 17
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-13T21:08:59.064Z",
+  "basemap": "maptiler streets",
+  "apn": "435211038",
+  "zone": "IL",
+  "useType": "300",
+  "license": "manufacturing",
+  "verdict": "Eligible",
+  "tried": 1,
+  "state": "instant verdict: Eligible for Manufacturing at an industrial-use parcel zoned IL/BP"
+}

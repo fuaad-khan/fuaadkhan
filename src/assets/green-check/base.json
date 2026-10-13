@@ -1,0 +1,55 @@
+{
+  "app": "green-check",
+  "name": "base",
+  "kind": "still",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "view": {
+    "lat": 33.78273724731565,
+    "lng": -116.97202871799999,
+    "zoom": 19
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-13T21:08:50.952Z",
+  "basemap": "nearmap",
+  "search": "438 S STATE ST",
+  "license": "microbusiness",
+  "verdict": "Eligible",
+  "values": {
+    "auto": 95,
+    "hand": 101
+  },
+  "state": "the hero view with the result overlays and the verdict card, rows and tip hidden",
+  "hidden": [
+    ".leaflet-marker-pane",
+    ".leaflet-selection-pane",
+    ".leaflet-siteFootprints-pane",
+    ".leaflet-measure-pane",
+    ".leaflet-userMeasure-pane",
+    ".leaflet-verify-pane",
+    ".leaflet-tooltip-pane",
+    "#resultPanel .verdict",
+    "#resultPanel .why-title",
+    "#resultPanel .check-list",
+    "#resultPanel .passed-block",
+    "#resultPanel .tip-card"
+  ]
+}

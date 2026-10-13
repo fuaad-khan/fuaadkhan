@@ -1,0 +1,46 @@
+{
+  "app": "yard-plan",
+  "name": "f2",
+  "kind": "still",
+  "width": 960,
+  "height": 600,
+  "dpr": 4,
+  "view": {
+    "lat": 33.782382,
+    "lng": -116.95846,
+    "zoom": 21
+  },
+  "mapRect": [
+    0,
+    0,
+    1600,
+    1000
+  ],
+  "viewport": [
+    960,
+    600
+  ],
+  "clip": [
+    620,
+    90,
+    960,
+    600
+  ],
+  "scrubs": [
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-13T21:04:06.159Z",
+  "basemap": "nearmap",
+  "apn": "437076013",
+  "state": "Draw panel (rows and donut) beside the traced areas, clipped at 4x",
+  "values": {
+    "turf": 1914,
+    "concrete": 3544,
+    "total": 5458,
+    "turfPct": 35,
+    "pct": 65
+  }
+}
