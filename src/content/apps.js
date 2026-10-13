@@ -89,6 +89,18 @@ export const apps = [
         donutValue: '{pct}%',
         donutLabel: 'Concrete',
       },
+      // The app's own interface text, which the intro redraws around the map (GlassDraw)
+      chrome: {
+        subtitle: 'City of San Jacinto — Planning Department',
+        search: 'Search by address or APN…',
+        rail: ['Draw', 'Share', 'Upload', 'About'],
+        basemap: 'Aerial',
+        sections: ['Yard Composition', 'Drawing Tools', 'Quick Actions', 'Drawn Areas'],
+        tools: ['Add Turf', 'Add Concrete', 'Edit', 'Undo', 'Redo', 'Snap to Shapes'],
+        quick: ['Clear All', 'Reset View', 'Share'],
+        legend: ['Turf', 'Concrete', 'Property'],
+        attribution: 'Leaflet | Powered by Esri | © Nearmap',
+      },
     },
     links: {},
   },
