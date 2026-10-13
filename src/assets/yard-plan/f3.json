@@ -1,0 +1,33 @@
+{
+  "app": "yard-plan",
+  "name": "f3",
+  "kind": "still",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "view": {
+    "lat": 33.782382,
+    "lng": -116.95846,
+    "zoom": 21
+  },
+  "mapRect": [
+    0,
+    0,
+    1600,
+    1000
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "scrubs": [
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-13T21:04:09.018Z",
+  "basemap": "nearmap",
+  "apn": "437076013",
+  "state": "Share panel: PDF report, GeoJSON, Copy link, Print"
+}

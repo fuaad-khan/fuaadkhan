@@ -1,0 +1,39 @@
+{
+  "app": "green-check",
+  "name": "f2",
+  "kind": "still",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "view": {
+    "lat": 33.78273661734278,
+    "lng": -116.9720283150673,
+    "zoom": 19
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-13T21:08:41.554Z",
+  "basemap": "maptiler streets",
+  "search": "438 S STATE ST",
+  "license": "microbusiness",
+  "verdict": "Not Eligible",
+  "feet": 95,
+  "passed": 5,
+  "state": "automatic verdict: Not Eligible, the 95 ft line, exclusion zone and Why? rows"
+}

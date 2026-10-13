@@ -1,0 +1,37 @@
+{
+  "app": "map-my-city",
+  "name": "hero",
+  "kind": "still",
+  "width": 1440,
+  "height": 900,
+  "dpr": 2,
+  "view": {
+    "lat": 33.782270318423784,
+    "lng": -116.95851778983089,
+    "zoom": 20
+  },
+  "mapRect": [
+    0,
+    88,
+    1440,
+    812
+  ],
+  "viewport": [
+    1440,
+    900
+  ],
+  "scrubs": [
+    "redact.js: owner, mailing and sale rows blurred unless the owner is a public agency",
+    "redact.js: In Care of always blurred",
+    "redact.js: mailing labels blurred unless the owner is a public agency",
+    "Code Enforcement Officer value set to \"—\" (lookup row and property report)",
+    "internal hosts, keys and local origins blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "b11772a",
+  "capturedAt": "2026-10-13T21:00:50.730Z",
+  "basemap": "nearmap",
+  "apn": "437076013",
+  "state": "City Hall selected, lookup rows filled, assessor sidebar and legend open (match-cut target for CityDraw)",
+  "path": "/index.html?apn=437076013&z=18&panels=lookup,legend"
+}

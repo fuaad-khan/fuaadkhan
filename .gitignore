@@ -12,3 +12,6 @@ npm-debug.log*
 .wp/
 audit/
 .cache/
+
+# Owner-supplied private strings for scripts/privacy-sweep.mjs (never committed)
+privacy.local.json
