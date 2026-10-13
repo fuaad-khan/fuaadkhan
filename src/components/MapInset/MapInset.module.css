@@ -73,20 +73,20 @@
 
 .island {
   fill: var(--bg-raised);
-  stroke: rgba(244, 241, 234, 0.45);
+  stroke: color-mix(in srgb, var(--fg) 45%, transparent);
   stroke-width: 0.8;
 }
 
 .coast {
   fill: none;
-  stroke: rgba(244, 241, 234, 0.45);
+  stroke: color-mix(in srgb, var(--fg) 45%, transparent);
   stroke-width: 1;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
 .graticule line {
-  stroke: rgba(244, 241, 234, 0.07);
+  stroke: color-mix(in srgb, var(--fg) 7%, transparent);
   stroke-width: 0.6;
 }
 
