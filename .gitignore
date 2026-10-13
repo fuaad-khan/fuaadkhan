@@ -12,3 +12,4 @@ npm-debug.log*
 .wp/
 audit/
 .cache/
+.claude/worktrees/
