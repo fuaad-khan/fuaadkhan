@@ -25,8 +25,8 @@
 /* The mask loads after window load (html.loaded) so the SVG never competes with fonts; without JS there is no later, so it applies at once */
 :global(.loaded) .contours,
 :global(html:not(.js)) .contours {
-  /* --line-strong on --bg is 3.07:1 for the index contours; minor contours carry 72% of it through the mask */
-  background-color: var(--line-strong);
+  /* About 1.8:1 for the index contours on --bg: present behind the copy without crossing it; minor contours carry 72% through the mask */
+  background-color: var(--topo-ink, color-mix(in srgb, var(--fg) 20%, transparent));
   -webkit-mask-image: url('../../assets/topo-redlands.svg');
   mask-image: url('../../assets/topo-redlands.svg');
 }
