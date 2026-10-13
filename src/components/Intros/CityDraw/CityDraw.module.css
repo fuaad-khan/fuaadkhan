@@ -1,33 +1,288 @@
-.stub {
+/* Fills its frame layer; every value below is written by overlay.js as a function of t, CSS turns it into opacity and transforms */
+.root {
+  --vignette: 0;
+  --legend: 0;
+  --row0: 0;
+  --row1: 0;
+  --row2: 0;
+  --seal: 0;
+  --sealScale: 1.16;
+  --sweep: 0;
+  --sweepOn: 0;
+  --glow: 0;
+  --divider: 0;
+  --sub: 0;
+  --subRise: 0;
+  --scrim: 0;
+  --m: 0;
+  --lu: 1;
+  --lx: 0;
+  --ly: 0;
+  --lp: 50;
+  --lockup: 0;
+  --header: 0;
+  --cy: 0;
+  --suby: 0;
+  --headerH: 0;
+  --gold: #f2c14e;
+  --parcel: #9ec3e2;
+
   position: absolute;
   inset: 0;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: var(--space-2);
-  background: rgba(1, 31, 51, 0.82);
-  color: var(--fg);
+  overflow: hidden;
+  contain: strict;
+  pointer-events: none;
+  color: #fff;
 }
 
-.name {
-  font-family: var(--font-display);
-  font-size: var(--step--1);
-  font-weight: 600;
-  color: var(--fg-muted);
+/* Hidden until the city data and raster are in, so the poster underneath stays the frame's picture */
+.root:not([data-city]) {
+  visibility: hidden;
 }
 
-.t {
-  font-family: var(--font-mono);
-  font-size: var(--step-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.bar {
+.canvas {
   position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 10, 18, 0) 55%, rgba(0, 10, 18, 0.55));
+  opacity: var(--vignette);
+}
+
+/* The capture's header bar (the app's --brand navy), so the map ends where the app's map ends */
+.header {
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 3px;
-  background: var(--intro-accent);
-  transform-origin: left;
+  height: calc(var(--headerH) * 1px);
+  background: #02365a;
+  opacity: var(--header);
+}
+
+.scrim {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--cy) * 1px);
+  width: 86%;
+  height: 64%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(1, 24, 40, 0.82), rgba(1, 24, 40, 0.55) 55%, rgba(1, 24, 40, 0));
+  opacity: var(--scrim);
+}
+
+/* Laid out in the app header's own px (seal 72 at x 20, hairline at 106, title at 121, 88 tall), then placed by one transform */
+.lockup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  height: 88px;
+  padding-left: 20px;
+  white-space: nowrap;
+  transform-origin: 0 0;
+  transform: translate(calc(var(--lx) * 1px), calc(var(--ly) * 1px)) scale(var(--lu)) translate(calc(var(--lp) * -1%), -50%);
+  opacity: var(--lockup);
+}
+
+.sealBox {
+  position: relative;
+  flex: none;
+  width: 72px;
+  height: 72px;
+  margin-right: 14px;
+  transform: scale(var(--sealScale));
+}
+
+.glow {
+  position: absolute;
+  inset: -45%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(242, 193, 78, 0.24), rgba(242, 193, 78, 0.07) 55%, rgba(242, 193, 78, 0));
+  opacity: var(--glow);
+}
+
+.seal {
+  position: relative;
+  display: block;
+  width: 72px;
+  height: 72px;
+  opacity: var(--seal);
+}
+
+/* The light sweep is a band clipped to the seal's own alpha */
+.sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask: url('../../../assets/map-my-city/seal.webp') center / 100% 100% no-repeat;
+  mask: url('../../../assets/map-my-city/seal.webp') center / 100% 100% no-repeat;
+  opacity: var(--sweepOn);
+}
+
+.sweep::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(90deg, rgba(255, 248, 225, 0), rgba(255, 248, 225, 0.62) 50%, rgba(255, 248, 225, 0));
+  transform: translateX(calc((var(--sweep) * 3.2 - 1.4) * 100%)) skewX(-18deg);
+}
+
+/* Gold hairline in the lockup, the header's white 35 % hairline once it lands */
+.divider {
+  position: relative;
+  flex: none;
+  width: 1px;
+  height: 44px;
+  margin-right: 14px;
+  transform: scaleY(calc(var(--divider) * (1 + 0.36 * (1 - var(--m)))));
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.divider::before {
+  background: var(--gold);
+  opacity: calc(1 - var(--m));
+}
+
+.divider::after {
+  background: rgba(255, 255, 255, 0.35);
+  opacity: var(--m);
+}
+
+/* In the header Inter 800 runs 6 % wider and taller than the app's Public Sans 700 title (286 px ink at 32 px), so it settles at 0.935 */
+.title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #fff;
+  transform-origin: 0 94%;
+  transform: scale(calc(1 - 0.065 * var(--m)));
+}
+
+/* Each word rises inside its own clip, with the app's spring */
+.word {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.2em 0 0.15em;
+  margin: -0.2em 0 -0.15em;
+  vertical-align: top;
+}
+
+.word > span {
+  display: inline-block;
+  transform: translateY(calc((1 - var(--w, 0)) * 118%));
+  opacity: var(--wo, 0);
+}
+
+.subtitle {
+  position: absolute;
+  top: calc(var(--suby) * 1px);
+  left: 50%;
+  width: max-content;
+  max-width: 88%;
+  margin: 0;
+  transform: translate(-50%, calc(var(--subRise) * 1px));
+  font-family: var(--font-display);
+  font-size: clamp(10.5px, 1.75cqw, 22px);
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.86);
+  text-align: center;
+  text-wrap: balance;
+  opacity: var(--sub);
+}
+
+/* Map-style key in the lower left; rows arrive with their beats */
+.legend {
+  position: absolute;
+  left: 4.2cqw;
+  bottom: 4cqw;
+  display: grid;
+  gap: 0.5em;
+  font-family: var(--font-display);
+  font-size: clamp(10.5px, 1.45cqw, 19px);
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.88);
+  opacity: var(--legend);
+  isolation: isolate;
+}
+
+/* A soft key panel, so the labels stay legible where a small frame puts the city under them */
+.legend::before {
+  content: '';
+  position: absolute;
+  inset: -1.4em -2.4em -1.2em -1.6em;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(1, 24, 40, 0.82), rgba(1, 24, 40, 0.6) 55%, rgba(1, 24, 40, 0));
+}
+
+.row {
+  --p: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  opacity: var(--p);
+  transform: translateX(calc((1 - var(--p)) * -0.6em));
+}
+
+.row:nth-child(1) {
+  --p: var(--row0);
+}
+
+.row:nth-child(2) {
+  --p: var(--row1);
+}
+
+.row:nth-child(3) {
+  --p: var(--row2);
+}
+
+.swatch {
+  flex: none;
+  width: 2.3em;
+  height: 1em;
+  clip-path: inset(0 calc((1 - var(--p)) * 100%) 0 0);
+}
+
+.limits {
+  background: repeating-linear-gradient(90deg, var(--gold) 0 0.55em, transparent 0.55em 0.9em) center / 100% 0.14em no-repeat;
+}
+
+.streets {
+  background: linear-gradient(#fff, #fff) center / 100% 0.13em no-repeat;
+  opacity: 0.9;
+}
+
+.parcels {
+  fill: none;
+  stroke: var(--parcel);
+  stroke-width: 1.5;
+}
+
+.count {
+  display: inline-block;
+  min-width: 6ch;
+  margin-left: -0.2em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
 }

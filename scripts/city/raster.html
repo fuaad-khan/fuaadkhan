@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CityDraw parcel raster</title>
+  </head>
+  <body>
+    <script>
+      // Build-time page driven by scripts/derive-city.mjs over CDP: strokes every parcel ring once and returns a WebP data URL of the lines on black
+      window.renderParcels = function renderParcels(job) {
+        const { width, height, scale, rings, boundary, color, lineWidth, outsideAlpha, levels, intensity = 1, quality } = job
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const g = canvas.getContext('2d', { willReadFrequently: true })
+        // One path and one stroke, so edges shared by neighbouring parcels are painted once, not twice
+        g.setTransform(scale, 0, 0, scale, 0, 0)
+        g.beginPath()
+        for (const r of rings) {
+          g.moveTo(r[0], r[1])
+          for (let i = 2; i < r.length; i += 2) g.lineTo(r[i], r[i + 1])
+          g.closePath()
+        }
+        g.lineJoin = 'round'
+        g.strokeStyle = '#ffffff'
+        g.lineWidth = lineWidth / scale
+        g.stroke()
+        // Parcels beyond the city limits stay, dimmed to outsideAlpha (the film's treatment)
+        if (outsideAlpha < 1 && boundary.length) {
+          const outside = new Path2D()
+          outside.rect(0, 0, width / scale, height / scale)
+          for (const r of boundary) {
+            outside.moveTo(r[0], r[1])
+            for (let i = 2; i < r.length; i += 2) outside.lineTo(r[i], r[i + 1])
+            outside.closePath()
+          }
+          g.globalCompositeOperation = 'destination-out'
+          g.globalAlpha = 1 - outsideAlpha
+          g.fill(outside, 'evenodd')
+        }
+        // Coverage becomes the line colour on black, which the painter adds with 'lighter'; `levels` snaps it to a few steps so lossless WebP stays small
+        const rgb = [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16))
+        const image = g.getImageData(0, 0, width, height)
+        const d = image.data
+        for (let i = 0; i < d.length; i += 4) {
+          let a = d[i + 3] / 255
+          if (levels) a = Math.round(a * (levels - 1)) / (levels - 1)
+          a *= intensity
+          d[i] = Math.round(rgb[0] * a)
+          d[i + 1] = Math.round(rgb[1] * a)
+          d[i + 2] = Math.round(rgb[2] * a)
+          d[i + 3] = 255
+        }
+        g.putImageData(image, 0, 0)
+        // Chromium writes lossless WebP (VP8L) at quality 1, lossy below
+        return canvas.toDataURL('image/webp', quality)
+      }
+      document.documentElement.dataset.ready = '1'
+    </script>
+  </body>
+</html>
