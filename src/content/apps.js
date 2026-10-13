@@ -14,7 +14,7 @@ export const apps = [
     audience: 'Residents, planners, and permit staff at the City of San Jacinto.',
     metrics: [
       { value: '18,459', label: 'parcels' },
-      { value: '22', label: 'parallel queries per click' },
+      { value: '~22', label: 'parallel queries per click' },
       { value: '54', label: 'imagery dates, 2014–2026' },
     ],
     features: [
@@ -74,8 +74,8 @@ export const apps = [
     stack: ['JavaScript', 'Leaflet', 'Leaflet Draw', 'Esri Leaflet', 'Turf.js', 'jsPDF', 'Nearmap imagery'],
     intro: {
       captions: [],
-      // Demo plan until the capture sidecar supplies the real areas (sq ft) and shares (%)
-      values: { turf: 1240, concrete: 610, total: 1850, turfPct: 67, pct: 33 },
+      // Areas (sq ft) and shares (%) measured in the City Hall capture; its sidecar (hero.intro.values) carries the same numbers and wins
+      values: { turf: 1914, concrete: 3544, total: 5458, turfPct: 35, pct: 65 },
       rows: [
         { label: 'Turf', value: '{turf} sq ft', pct: '{turfPct}%' },
         { label: 'Concrete', value: '{concrete} sq ft', pct: '{pct}%' },
@@ -130,14 +130,14 @@ export const apps = [
       },
       {
         title: 'Disagree? Measure it yourself.',
-        body: 'Auto-measured at 95 ft from a home, the site fails. Measure by hand to the property line: at 100 ft or more, the verdict turns Eligible, stamped “Measured by hand.”',
+        body: 'Auto-measured at 95 ft from a home, the site fails the 100 ft rule. Measured by hand to the property line, the distance is 101 ft: the verdict turns Eligible, stamped “Measured by hand.”',
       },
     ],
     stack: ['React', 'Vite', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'Overture building footprints'],
     footnote: 'Results do not constitute a zoning determination.',
     intro: {
       captions: [],
-      // Demo distances (ft) until the capture sidecar supplies the measured ones
+      // Distances (ft) measured in the 438 S State St capture; its sidecar (hero.intro.values) carries the same numbers and wins
       values: { auto: 95, hand: 101 },
       rows: [
         { id: 'cityLimits', status: 'pass', title: 'Inside San Jacinto city limits' },
