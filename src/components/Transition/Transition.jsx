@@ -11,6 +11,10 @@ import styles from './Transition.module.css'
 // Pin timeline (PLAN §5.2): the fill runs 0 → 1, each card follows its node, then a short hold before release
 const CARD_DELAY = 0.02
 const HOLD = 0.16
+// Stacked (narrow) layouts: the first and last card arrive at these points of the pin instead of where the nodes sit
+const CARDS_EARLY = [0.1, 0.7]
+// Thumbnail widths from Transition.module.css (--thumb-w): clamp(6.75rem, 30vw, 15rem) when narrow, at most 27.5rem beside the rail
+const THUMB_SIZES = '(max-width: 479px) 120px, (max-width: 1023px) 240px, 340px'
 
 export default function Transition({ content, apps }) {
   const ref = useRef(null)
@@ -59,7 +63,7 @@ export default function Transition({ content, apps }) {
             <div className={styles.card} data-card>
               <div className={styles.thumb}>
                 <DeviceFrame accent={app.accent} className={styles.mini}>
-                  <Media media={media[app.id]?.hero ?? null} alt="" sizes="440px" />
+                  <Media media={media[app.id]?.hero ?? null} alt="" sizes={THUMB_SIZES} />
                 </DeviceFrame>
               </div>
               <div className={styles.info}>

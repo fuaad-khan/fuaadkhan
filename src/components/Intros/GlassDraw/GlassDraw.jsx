@@ -8,6 +8,8 @@ import { buildTimeline, clickTimes, textsAt } from './timeline'
 import styles from './GlassDraw.module.css'
 
 const LABEL_NATIVE = 11.84
+// Same hint as the Showcase frame it fills: two columns only from 1024 px, nearly full width below
+const BASE_SIZES = '(min-width: 1024px) 50vw, 90vw'
 const ARROW = 'M0 0V17L4.2 13L7 19.4L9.6 18.3L6.9 12.1H12.5Z'
 
 // Map labels sit at their polygon centres like Leaflet tooltips; on small frames they grow to a legible floor unless that would make them collide
@@ -104,7 +106,7 @@ export default function GlassDraw({ app, media, driver, target, onError }) {
               className={styles.base}
               src={base.poster.x1}
               srcSet={`${base.poster.x1} 800w, ${base.poster.x2} 1600w`}
-              sizes="(min-width: 768px) 56vw, 92vw"
+              sizes={BASE_SIZES}
               alt=""
               decoding="async"
               onError={() => onError?.(new Error('GlassDraw: the base still failed to load'))}

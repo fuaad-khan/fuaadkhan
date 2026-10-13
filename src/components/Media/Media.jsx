@@ -10,10 +10,11 @@ const GRID = parcelGrid()
 const join = (...names) => names.filter(Boolean).join(' ')
 
 // Responsive still from an entry's 1x/2x posters, sized up front so nothing shifts while it loads
-function Still({ entry, alt, className, sizes = SIZES }) {
+function Still({ ref, entry, alt, className, sizes = SIZES }) {
   const { x1, x2 } = entry.poster
   return (
     <img
+      ref={ref}
       className={join(styles.img, className)}
       src={x1}
       srcSet={`${x1} 800w, ${x2} 1600w`}
@@ -30,14 +31,21 @@ function Still({ entry, alt, className, sizes = SIZES }) {
 // Poster always; the clip mounts on the client near the viewport when motion is allowed, and plays only while in view
 function Loop({ entry, alt, className, playing, sizes }) {
   const ref = useRef(null)
+  const still = useRef(null)
   const video = useRef(null)
   const allow = useRef(false)
   const motionOK = useMotionOK()
   const near = useNearViewport(ref, '50%')
   const [inView, setInView] = useState(false)
   const [paused, setPaused] = useState(false)
+  const [poster, setPoster] = useState()
   const live = motionOK && near && entry.sources?.length > 0
   const shouldPlay = live && inView && !paused && playing !== false
+
+  // The clip's poster reuses whichever srcset candidate the still underneath picked, so a phone never fetches the 2x poster
+  useEffect(() => {
+    if (live) setPoster(still.current?.currentSrc || entry.poster.x1)
+  }, [live, entry])
 
   useEffect(() => {
     const v = video.current
@@ -59,7 +67,7 @@ function Loop({ entry, alt, className, playing, sizes }) {
 
   return (
     <div ref={ref} className={join(styles.loop, className)}>
-      <Still entry={entry} alt={live ? '' : alt} sizes={sizes} />
+      <Still ref={still} entry={entry} alt={live ? '' : alt} sizes={sizes} />
       {live && (
         <>
           <video
@@ -70,7 +78,7 @@ function Loop({ entry, alt, className, playing, sizes }) {
             loop
             playsInline
             preload="none"
-            poster={entry.poster.x2}
+            poster={poster}
             aria-label={alt}
             onPlay={(e) => {
               if (!allow.current) e.currentTarget.pause()
