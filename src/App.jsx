@@ -1,8 +1,7 @@
 import TopoBackground from './components/TopoBackground/TopoBackground'
-import Hero from './components/Hero/Hero'
-import Timeline from './components/Timeline/Timeline'
+import Journey from './components/Journey/Journey'
 import Transition from './components/Transition/Transition'
-import AppShowcase from './components/AppShowcase/AppShowcase'
+import Showcase from './components/AppShowcase/Showcase'
 import Close from './components/Close/Close'
 import { site } from './content/site'
 import { timeline } from './content/timeline'
@@ -13,14 +12,13 @@ export default function App() {
     <>
       <TopoBackground />
       <main>
-        <Hero site={site} />
-        <Timeline stops={timeline} />
+        <Journey site={site} stops={timeline} />
         <Transition content={site.transition} apps={apps} />
         {apps.map((app) => (
-          <AppShowcase key={app.id} app={app} />
+          <Showcase key={app.id} app={app} />
         ))}
-        <Close site={site} />
       </main>
+      <Close site={site} />
     </>
   )
 }

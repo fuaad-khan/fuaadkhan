@@ -1,103 +1,161 @@
-import gcHome from '../assets/green-check/smoke-final.webp'
-import gcPass from '../assets/green-check/eligibility-pass.webp'
-import gcFail from '../assets/green-check/eligibility-fail.webp'
-
-// Application showcases, in page order. media: { type: 'image' | 'video' | 'placeholder', src, alt, width, height }
+// Showcases in page order: accent is a token, media lives in media.js by id, links stays empty (repos are private)
+// intro feeds the coded intros: {key} placeholders are filled from intro.values, which the capture sidecar overrides (Intros/values.js)
 export const apps = [
   {
     id: 'map-my-city',
     name: 'Map My City',
     kind: 'Parcel lookup',
-    status: 'In production',
-    accent: '#5ea8ff',
+    status: 'In production · internal',
+    deployedAs: 'Map My San Jacinto · City of San Jacinto',
+    accent: 'map',
+    frameTitle: 'Map My San Jacinto',
     tagline: 'Every parcel, one search.',
     problem: 'Residents and staff need fast, self-serve answers about any parcel: zoning, city services, hazards, and assessor records in one place.',
     audience: 'Residents, planners, and permit staff at the City of San Jacinto.',
-    hero: { type: 'placeholder' },
+    metrics: [
+      { value: '18,459', label: 'parcels' },
+      { value: '22', label: 'parallel queries per click' },
+      { value: '54', label: 'imagery dates, 2014–2026' },
+    ],
     features: [
       {
         title: 'Parcel query and property reports',
         body: 'Search by address or APN, or click any parcel, and print a one-page property report.',
-        media: null,
       },
       {
-        title: 'Layers, legend, and measurement',
-        body: 'Zoning, land use, and hazard zones with a legend that tracks what’s visible. Measure distance and area on the fly.',
-        media: null,
+        title: 'Layers, legend, and imagery history',
+        body: 'Zoning, land use, and hazard layers with a legend that tracks what’s visible. Measure on the fly, or scrub aerial imagery back to 2014.',
       },
       {
         title: 'Proximity buffer and mailing labels',
         body: 'Draw a radius around a parcel, export the neighbors, and print Avery 5160 labels for hearing notices.',
-        media: null,
       },
     ],
     stack: ['JavaScript', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'esbuild'],
-    links: {
-      repo: { label: 'Repository', href: 'https://github.com/fuaad-khan/mapMyCity' },
+    intro: {
+      captions: ['City limits', 'Streets', 'Parcels'],
+      rows: [],
+      labels: {
+        lockup: 'Map My San Jacinto',
+        subtitle: 'Property information for every parcel in the city',
+      },
     },
+    links: {},
   },
   {
     id: 'yard-plan',
     name: 'Yard Plan',
     kind: 'Residential yard drafting',
-    status: 'Shipped · redesign in progress',
-    accent: '#e08a5a',
+    status: 'In development',
+    accent: 'yard',
+    frameTitle: 'Yard Plan',
     tagline: 'Sketch a front yard without CAD.',
     problem: 'Homeowners need to show the Planning Department how much of a front yard will be turf versus hardscape, without learning CAD.',
     audience: 'San Jacinto residents planning a front yard, and the planning staff who review it.',
-    hero: { type: 'placeholder' },
+    metrics: [
+      { value: '13', label: 'JavaScript modules' },
+      { value: '0', label: 'frameworks' },
+      { value: '~1,200', label: 'characters to link a 10-shape plan' },
+    ],
     features: [
       {
         title: 'Draw to scale on your own parcel',
         body: 'Find the property by address or APN, then trace turf and hardscape on aerial imagery with snapping and vertex editing.',
-        media: null,
       },
       {
         title: 'Live composition',
         body: 'Square footage per type, total area, and the concrete percentage update as you draw.',
-        media: null,
       },
       {
         title: 'Export and share the plan',
         body: 'Download a PDF or GeoJSON, print, or send a permalink that carries the whole drawing. Staff upload it back for review.',
-        media: null,
       },
     ],
     stack: ['JavaScript', 'Leaflet', 'Leaflet Draw', 'Esri Leaflet', 'Turf.js', 'jsPDF', 'Nearmap imagery'],
-    links: {
-      repo: { label: 'Repository', href: 'https://github.com/fuaad-khan/YardPlan' },
+    intro: {
+      captions: [],
+      // Demo plan until the capture sidecar supplies the real areas (sq ft) and shares (%)
+      values: { turf: 1240, concrete: 610, total: 1850, turfPct: 67, pct: 33 },
+      rows: [
+        { label: 'Turf', value: '{turf} sq ft', pct: '{turfPct}%' },
+        { label: 'Concrete', value: '{concrete} sq ft', pct: '{pct}%' },
+        { label: 'Total drawn', value: '{total} sq ft' },
+      ],
+      labels: {
+        turf: 'Turf 1',
+        turfArea: '{turf} sq ft',
+        concrete: 'Concrete 1',
+        concreteArea: '{concrete} sq ft',
+        donutValue: '{pct}%',
+        donutLabel: 'Concrete',
+      },
     },
+    links: {},
   },
   {
     id: 'green-check',
     name: 'Green Check',
     kind: 'Cannabis site eligibility',
-    status: 'In development',
-    accent: '#6fcf97',
+    status: 'Pilot · internal preview',
+    accent: 'green',
+    frameTitle: 'Green Check',
     tagline: 'Can a cannabis business go here?',
-    problem: 'Answering that means cross-referencing zoning and buffer rules by hand. Green Check does it in one search.',
+    problem: 'Checking whether a cannabis business can open at an address means cross-referencing zoning and buffer rules by hand. Green Check does it in one search.',
     audience: 'City planners, code enforcement, and prospective cannabis and alcohol license applicants.',
-    hero: { type: 'image', src: gcHome, alt: 'Green Check home screen: a parcel map of San Jacinto with a search bar, license type picker, and legend.', width: 1385, height: 805 },
+    metrics: [
+      { value: '~2 s', label: 'from address to verdict' },
+      { value: '20,211', label: 'building footprints' },
+      { value: '226', label: 'automated tests' },
+    ],
     features: [
       {
         title: 'Address lookup, instant verdict',
-        body: 'Pick a license type, search an address or APN, and get an eligible or not-eligible answer under the city’s Development Code.',
-        media: { type: 'image', src: gcPass, alt: 'Green Check showing an eligibility result and property details for an industrial parcel.', width: 1385, height: 805 },
+        body: 'Pick one of 10 license types, search an address or APN, and get Eligible, Not Eligible, or Needs More Data under the city’s Development Code.',
       },
       {
         title: 'Buffer checks against sensitive uses',
-        body: 'Distances run from building footprint to property line for schools, day cares, youth centers, and homes. A failed rule draws the measurement on the map.',
-        media: { type: 'image', src: gcFail, alt: 'Green Check drawing a 4 ft measurement line between a parcel and a neighboring residence.', width: 1385, height: 805 },
+        body: 'Distances run from building footprint to property line for schools, day cares, youth centers, and homes. Every rule is explained in plain language; failed distances are drawn on the map.',
       },
       {
-        title: 'Plain-language reasons',
-        body: 'Every verdict lists which rule passed or failed and why, with the offending distance in feet.',
-        media: { type: 'image', src: gcFail, alt: 'Green Check result panel explaining a zoning restriction and a too-close-to-residence failure.', width: 1385, height: 805 },
+        title: 'Disagree? Measure it yourself.',
+        body: 'Auto-measured at 95 ft from a home, the site fails. Measure by hand to the property line: at 100 ft or more, the verdict turns Eligible, stamped “Measured by hand.”',
       },
     ],
     stack: ['React', 'Vite', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'Overture building footprints'],
-    links: {
-      repo: { label: 'Repository', href: 'https://github.com/fuaad-khan/GreenCheck' },
+    footnote: 'Results do not constitute a zoning determination.',
+    intro: {
+      captions: [],
+      // Demo distances (ft) until the capture sidecar supplies the measured ones
+      values: { auto: 95, hand: 101 },
+      rows: [
+        { id: 'cityLimits', status: 'pass', title: 'Inside San Jacinto city limits' },
+        { id: 'zoning', status: 'pass', title: 'Zoning permits microbusiness' },
+        {
+          id: 'residential',
+          status: 'fail',
+          title: 'Too Close to a Residence',
+          detail: '{auto} ft from the building to the property line; 100 ft required.',
+          verifiedTitle: 'At least 100 ft from any residential dwelling',
+          verifiedDetail: 'Verified on the map: {hand} ft from the building (the app measured {auto} ft); 100 ft required.',
+        },
+        { id: 'school', status: 'pass', title: 'At least 600 ft from any K-12 school' },
+        { id: 'dayCare', status: 'pass', title: 'At least 600 ft from any day care center' },
+        { id: 'youthCenter', status: 'pass', title: 'At least 600 ft from any youth center' },
+      ],
+      labels: {
+        address: '438 S State St',
+        licenseType: 'Microbusiness',
+        verdictBefore: 'Not Eligible',
+        verdictAfter: 'Eligible',
+        why: 'Why?',
+        allMet: 'All requirements met',
+        autoFeet: '{auto} ft',
+        handFeet: '{hand} ft',
+        verify: 'Verify distance',
+        complete: 'Complete',
+        stamp: 'Measured by hand',
+      },
     },
+    links: {},
   },
 ]

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { gsap, MOTION_OK } from '../../hooks/useChapter'
+import { gsap, MOTION_OK, setupGsap } from '../../hooks/useChapter'
 import topoUrl from '../../assets/topo-redlands.svg'
 import styles from './TopoBackground.module.css'
 
@@ -10,6 +10,7 @@ export default function TopoBackground() {
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
+    setupGsap()
     const mm = gsap.matchMedia()
 
     mm.add(MOTION_OK, () => {

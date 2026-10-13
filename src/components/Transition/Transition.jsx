@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { useChapter, gsap } from '../../hooks/useChapter'
+import { accentVar } from '../../styles/accent'
 import styles from './Transition.module.css'
 
 const fadeIn = (q, el) =>
@@ -24,7 +25,7 @@ export default function Transition({ content, apps }) {
         .from(q('[data-applabel]'), { opacity: 0, y: 10, duration: 0.2, stagger: 0.1, ease: 'power2.out' }, 0.74)
         .to({}, { duration: 0.3 })
     },
-    { length: 1.1, reduced: fadeIn },
+    { pin: true, length: 1.1, reduced: fadeIn },
   )
 
   return (
@@ -52,7 +53,7 @@ export default function Transition({ content, apps }) {
 
       <ul className={styles.nodes}>
         {apps.map((app, i) => (
-          <li key={app.id} className={styles.nodeItem} style={{ left: `${X[i]}%`, '--node-accent': app.accent }}>
+          <li key={app.id} className={styles.nodeItem} style={{ left: `${X[i]}%`, '--node-accent': accentVar(app.accent) }}>
             <span className={styles.node} data-appnode aria-hidden="true" />
             <span className={styles.label} data-applabel>
               <span className={styles.labelName}>{app.name}</span>

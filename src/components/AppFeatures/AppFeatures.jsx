@@ -1,6 +1,9 @@
 import { useRef } from 'react'
 import { useChapter, gsap } from '../../hooks/useChapter'
+import DeviceFrame from '../Media/DeviceFrame'
 import Media from '../Media/Media'
+import { media } from '../../content/media'
+import { site } from '../../content/site'
 import styles from './AppFeatures.module.css'
 
 const fadeIn = (q, el) =>
@@ -8,11 +11,14 @@ const fadeIn = (q, el) =>
 
 const pad = (n) => String(n).padStart(2, '0')
 
+const aspectOf = (m) => (m ? `${m.width} / ${m.height}` : undefined)
+
 export default function AppFeatures({ app }) {
   const ref = useRef(null)
-  const frames = app.features.map((f) => f.media ?? app.hero)
+  const assets = media[app.id]
+  const frames = app.features.map((_, i) => assets?.features[i] ?? assets?.hero ?? null)
   // Crossfading identical frames is invisible, so collapse to one when nothing changes
-  const singleFrame = new Set(frames.map((m) => m?.src ?? 'placeholder')).size === 1
+  const singleFrame = new Set(frames.map((m) => m?.poster.x2 ?? 'placeholder')).size === 1
 
   useChapter(
     ref,
@@ -32,20 +38,24 @@ export default function AppFeatures({ app }) {
         .from(q('[data-stack]'), { opacity: 0, y: 20, duration: 0.35, ease: 'power2.out' }, n - 0.1)
         .to({}, { duration: 0.35 })
     },
-    { length: 2.2, reduced: fadeIn },
+    { pin: true, length: 2.2, reduced: fadeIn },
   )
 
   return (
-    <section ref={ref} className={styles.chapter} aria-label={`${app.name} features`}>
+    <section ref={ref} className={styles.chapter} aria-label={`${app.name}: ${site.ui.featuresLabel}`}>
       <span className={styles.railBase} aria-hidden="true" />
 
       <div className={styles.visual}>
         {singleFrame ? (
-          <Media media={frames[0]} accent={app.accent} label={app.name} />
+          <DeviceFrame title={app.frameTitle} accent={app.accent} aspect={aspectOf(frames[0])}>
+            <Media media={frames[0]} />
+          </DeviceFrame>
         ) : (
           frames.map((m, i) => (
             <div key={i} className={styles.frame} data-frame>
-              <Media media={m} accent={app.accent} label={app.name} />
+              <DeviceFrame title={app.frameTitle} accent={app.accent} aspect={aspectOf(m)}>
+                <Media media={m} />
+              </DeviceFrame>
             </div>
           ))
         )}
@@ -76,16 +86,6 @@ export default function AppFeatures({ app }) {
               </span>
             ))}
           </p>
-          <ul className={styles.links}>
-            {Object.entries(app.links).map(([key, link]) => (
-              <li key={key}>
-                <a href={link.href} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                  {link.label}
-                  <span aria-hidden="true"> ↗</span>
-                </a>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useChapter, gsap, ScrollTrigger, MOTION_OK } from '../../hooks/useChapter'
 import MapInset from '../MapInset/MapInset'
+import { site } from '../../content/site'
 import styles from './Timeline.module.css'
 
 // Rail progress at each stop; must match the node positions in the stylesheet
@@ -72,11 +73,11 @@ export default function Timeline({ stops }) {
         .fromTo(view, { scale: 1 }, { scale: 1.05, svgOrigin: view.dataset.origin, duration: n + 0.4 }, 0)
         .to({}, { duration: 0.1 })
     },
-    { length: 3.6, reduced: fadeIn },
+    { pin: true, length: 3.6, reduced: fadeIn },
   )
 
   return (
-    <section ref={ref} className={styles.chapter} aria-label="Career timeline">
+    <section ref={ref} className={styles.chapter} aria-label={site.ui.careerTimeline}>
       <span className={styles.railBase} aria-hidden="true" />
       <span className={styles.rail} data-rail aria-hidden="true" />
       <span className={styles.nodes} aria-hidden="true">

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { gsap, MOTION_OK } from '../../hooks/useChapter'
+import { gsap, MOTION_OK, setupGsap } from '../../hooks/useChapter'
 import styles from './Hero.module.css'
 
 export default function Hero({ site }) {
@@ -7,6 +7,7 @@ export default function Hero({ site }) {
 
   useLayoutEffect(() => {
     const el = ref.current
+    setupGsap()
     const mm = gsap.matchMedia()
 
     mm.add(MOTION_OK, () => {
@@ -51,7 +52,7 @@ export default function Hero({ site }) {
         <span className={styles.rail} data-rail />
       </div>
       <p className={styles.cue} data-cue aria-hidden="true">
-        {site.scrollCue}
+        {site.ui.scroll}
       </p>
     </header>
   )

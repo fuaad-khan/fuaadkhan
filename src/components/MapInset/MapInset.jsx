@@ -1,3 +1,4 @@
+import { site } from '../../content/site'
 import styles from './MapInset.module.css'
 
 // Plate carrée over Southern California, width-corrected for latitude so shapes read true
@@ -96,7 +97,7 @@ export default function MapInset({ stops }) {
             })}
           </g>
           <text x={project([-119.6, 33.3])[0]} y={project([-119.6, 33.3])[1]} className={styles.ocean}>
-            Pacific Ocean
+            {site.journey.ocean}
           </text>
 
           {pts.slice(1).map((p, i) => (
@@ -122,7 +123,7 @@ export default function MapInset({ stops }) {
           </g>
         </g>
       </svg>
-      <span className={styles.caption}>Career map · Southern California</span>
+      <span className={styles.caption}>{site.journey.mapCaption}</span>
     </div>
   )
 }

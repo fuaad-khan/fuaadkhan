@@ -1,6 +1,9 @@
 import { useRef } from 'react'
 import { useChapter, gsap } from '../../hooks/useChapter'
+import DeviceFrame from '../Media/DeviceFrame'
 import Media from '../Media/Media'
+import { media } from '../../content/media'
+import { site } from '../../content/site'
 import styles from './AppIntro.module.css'
 
 const fadeIn = (q, el) =>
@@ -8,6 +11,7 @@ const fadeIn = (q, el) =>
 
 export default function AppIntro({ app }) {
   const ref = useRef(null)
+  const hero = media[app.id]?.hero ?? null
 
   useChapter(
     ref,
@@ -21,7 +25,7 @@ export default function AppIntro({ app }) {
         .from(q('[data-visual]'), { opacity: 0, scale: 0.9, y: 48, duration: 0.7, ease: 'power2.out' }, 0.15)
         .to({}, { duration: 0.3 })
     },
-    { length: 1.2, reduced: fadeIn },
+    { pin: true, length: 1.2, reduced: fadeIn },
   )
 
   return (
@@ -42,12 +46,14 @@ export default function AppIntro({ app }) {
           {app.problem}
         </p>
         <p className={styles.audience} data-audience>
-          <span className={styles.audienceLabel}>Built for</span>
+          <span className={styles.audienceLabel}>{site.ui.builtFor}</span>
           {app.audience}
         </p>
       </div>
       <div className={styles.visual} data-visual>
-        <Media media={app.hero} accent={app.accent} label={app.name} priority={false} />
+        <DeviceFrame title={app.frameTitle} accent={app.accent} aspect={hero ? `${hero.width} / ${hero.height}` : undefined}>
+          <Media media={hero} />
+        </DeviceFrame>
       </div>
     </section>
   )
