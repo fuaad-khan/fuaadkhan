@@ -1,53 +1,42 @@
+/* Contentinfo footer: the rail ends in a gold node beside the eyebrow, contact links beside the pitch */
 .close {
+  --close-top: clamp(5rem, 14svh, 8rem);
+
   position: relative;
   min-height: 80svh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 8rem var(--gutter) 3rem calc(var(--gutter) + 2.25rem);
+  padding: var(--close-top) var(--gutter) var(--space-7) var(--content-x);
 }
 
-.rail {
-  position: absolute;
-  left: var(--gutter);
-  top: 0;
-  height: calc(8rem + 0.4em);
-  width: 1px;
-  background: var(--line-strong);
+/* The rail stops at the eyebrow's centre line, where the lit node sits; two classes outrank Rail's own box */
+.close .rail {
+  bottom: auto;
+  height: calc(var(--close-top) + var(--step--1) * 0.75);
 }
 
-.text {
-  position: relative;
-  max-width: 36rem;
-  flex: 1;
+/* The last showcase ends fully filled, so this short stretch is drawn from the start rather than scrubbed */
+.close .rail [data-rail] {
+  transform: none;
 }
 
-.node {
-  position: absolute;
-  left: calc(-2.25rem - 5px);
-  top: 0.15em;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px var(--bg);
+.inner {
+  display: grid;
+  align-content: start;
+  gap: var(--space-7);
 }
 
 .headline {
-  margin: 1rem 0 1.25rem;
+  margin: var(--space-4) 0 var(--space-5);
 }
 
 .body {
-  color: var(--fg-muted);
-  margin-bottom: 2.5rem;
   max-width: var(--measure);
+  color: var(--fg-muted);
 }
 
 .links {
-  display: grid;
-  gap: 0;
   border-top: 1px solid var(--line);
-  margin-bottom: 2rem;
 }
 
 .links li {
@@ -58,8 +47,8 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 1rem;
-  padding: 1rem 0;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
   text-decoration: none;
 }
 
@@ -68,6 +57,7 @@
 }
 
 .linkLabel {
+  flex: none;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.12em;
@@ -76,9 +66,10 @@
 }
 
 .linkValue {
+  min-width: 0;
   font-family: var(--font-display);
-  font-weight: 600;
   font-size: var(--step-1);
+  font-weight: 600;
   letter-spacing: -0.01em;
   text-align: right;
   overflow-wrap: anywhere;
@@ -87,12 +78,15 @@
 
 .resume {
   display: inline-block;
-  padding: 0.75rem 1.25rem;
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-5);
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  text-decoration: none;
   font-weight: 600;
-  transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  text-decoration: none;
+  transition:
+    border-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
 }
 
 .resume:hover {
@@ -101,23 +95,42 @@
 }
 
 .footer {
-  margin-top: 6rem;
+  display: grid;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-9);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   color: var(--fg-faint);
 }
 
-.footer + .footer {
-  margin-top: 0.4rem;
-}
-
-@media (min-width: 768px) {
-  .close {
-    padding-left: calc(var(--gutter) + 3rem);
+/* Phones: label above value, sized so the longest address (the LinkedIn slug) stays on one line */
+@media (max-width: 479px) {
+  .link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
   }
 
-  .node {
-    left: calc(-3rem - 5px);
+  .linkValue {
+    font-size: min(var(--step-1), 4vw);
+    text-align: left;
+  }
+}
+
+/* Wide screens: pitch on the left, links on the right with their top rule level with the headline */
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    column-gap: clamp(3rem, 6vw, 7rem);
+  }
+
+  .contact {
+    padding-top: calc(var(--step--1) * 1.5 + var(--space-4));
+  }
+
+  .linkValue {
+    font-size: var(--step-0);
   }
 }

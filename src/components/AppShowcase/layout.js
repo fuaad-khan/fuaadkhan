@@ -5,6 +5,9 @@ export const TRACK = { intro: 200, feature: 80, stack: 30, pad: 10 }
 export const SHORT_SCREEN = '(max-height: 700px)'
 export const TRACK_SHORT = { ...TRACK, intro: 160 }
 
+// Two-column breakpoint of the Showcase and Transition stylesheets; chapters rebuild when it flips because node timings are measured
+export const WIDE_SCREEN = '(min-width: 1024px), (min-width: 640px) and (orientation: landscape)'
+
 // Timeline positions (0–1) for one Showcase scrubbed from 'top top' to 'bottom bottom'; lead = svh of in-flow content above the copy track
 export function fractions(featureCount = 3, track = TRACK, lead = 0) {
   const { intro, feature, stack, pad } = track
