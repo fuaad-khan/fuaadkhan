@@ -1,4 +1,4 @@
-import { BEATS, EASE, dimAt, hash01, lerp, revealAt, seg, smooth, stageAt } from './beats'
+import { BEATS, EASE, dimAt, hash01, lerp, revealAt, seg, smooth, stageAt, underlayAt } from './beats'
 
 const STAGE = '#011f33'
 const STAGE_RGB = '1,31,51'
@@ -302,10 +302,11 @@ export function createPainter(canvas, city) {
       g.globalCompositeOperation = 'source-over'
       g.globalAlpha = 1
       const stage = stageAt(t)
-      // An opaque stage overwrites every pixel, so the clear is only needed while it fades in
-      if (stage < 1) g.clearRect(0, 0, canvas.width, canvas.height)
+      const fill = stage * (1 - underlayAt(t))
+      // An opaque stage overwrites every pixel, so the clear is only needed while it fades in or clears for the capture
+      if (fill < 1) g.clearRect(0, 0, canvas.width, canvas.height)
       if (stage <= 0) return
-      g.globalAlpha = stage
+      g.globalAlpha = fill
       g.fillStyle = STAGE
       g.fillRect(0, 0, canvas.width, canvas.height)
       const dim = dimAt(t)

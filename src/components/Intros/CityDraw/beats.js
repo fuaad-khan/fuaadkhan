@@ -84,12 +84,17 @@ export const BEATS = {
   // The lockup settles into the capture's header before the Showcase's dissolve starts (t ≈ .95)
   morph: [0.76, 0.95],
   header: [0.88, 0.95],
-  // The parcel raster fades while the push magnifies it 2.5x to 4x over the city fit
-  parcelFade: [2.5, 4],
+  // The parcel raster fades while the push magnifies it 3x to 12x over the city fit (about t .83-.87)
+  parcelFade: [3, 12],
+  // Then the navy stage clears, so the capture comes in under the street vectors as the push closes on it, before the Showcase's dissolve
+  underlay: [0.87, 0.95],
 }
 
 // Opacity of the stage (and everything drawn on it) over the poster
 export const stageAt = (t) => EASE.inOutSine(seg(t, BEATS.stage[0], BEATS.stage[1]))
+
+// Share of the navy stage cleared away for the capture underneath
+export const underlayAt = (t) => EASE.inOutSine(seg(t, BEATS.underlay[0], BEATS.underlay[1]))
 
 // The city dims to half under the lockup and comes back as the push starts
 export const dimAt = (t) =>
