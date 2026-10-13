@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && vite build --ssr src/entry-prerender.jsx --outDir dist/.ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
-    "topo": "node scripts/build-topo.mjs"
+    "topo": "node scripts/build-topo.mjs",
+    "og": "node scripts/og-card.mjs"
   },
   "dependencies": {
     "gsap": "^3.13.0",
