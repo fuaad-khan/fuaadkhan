@@ -19,7 +19,7 @@ function fitLabels(root, plan, s, width) {
   const [p, q] = [centroid(plan.turf), centroid(plan.concrete)]
   // Largest size at which the two boxes still clear each other on one axis, less a small gap
   const fit = 0.9 * Math.max((Math.abs(p[0] - q[0]) * s) / ((a[0] + b[0]) / 2), (Math.abs(p[1] - q[1]) * s) / ((a[1] + b[1]) / 2))
-  const floor = width >= 560 ? 10 : 8
+  const floor = width >= 560 ? 10 : 6.5
   root.style.setProperty('--label-size', `${Math.max(LABEL_NATIVE * s, Math.min(floor, fit)).toFixed(2)}px`)
 }
 
