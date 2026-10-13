@@ -23,14 +23,32 @@ export default function Transition({ content, apps }) {
 
   useChapter(
     ref,
-    (tl, q, el) => {
-      tl.fromTo(q('[data-rail]'), { scaleY: 0 }, { scaleY: 1, duration: 1 }, 0)
-      // Each app's node lights where the fill (0 → 1 down the section) reaches it; connector and card follow
+    (tl, q, el, { wide }) => {
+      const [rail] = q('[data-rail]')
+      const items = q('[data-card-item]')
+      // Where each app's node sits down the section (0 → 1), which is where the linear rail fill reaches it
       const box = el.getBoundingClientRect()
-      q('[data-card-item]').forEach((item) => {
+      const pos = items.map((item) => {
+        const r = item.querySelector('[data-card-node]').getBoundingClientRect()
+        return gsap.utils.clamp(0, 0.9, (r.top + r.height / 2 - box.top) / box.height)
+      })
+      const first = pos[0]
+      const last = pos[pos.length - 1]
+      // Stacked layouts put the nodes low in the pinned screen, so the fill hurries to the first and the cards spread over CARDS_EARLY
+      const early = !wide && last > first
+      const times = early ? pos.map((p) => CARDS_EARLY[0] + ((CARDS_EARLY[1] - CARDS_EARLY[0]) * (p - first)) / (last - first)) : pos
+      if (early) {
+        const end = times[times.length - 1]
+        tl.fromTo(rail, { scaleY: 0 }, { scaleY: first, duration: times[0] }, 0)
+          .to(rail, { scaleY: last, duration: end - times[0] }, times[0])
+          .to(rail, { scaleY: 1, duration: 1 - end }, end)
+      } else {
+        tl.fromTo(rail, { scaleY: 0 }, { scaleY: 1, duration: 1 }, 0)
+      }
+      // Each node lights as the fill reaches it; connector and card follow
+      items.forEach((item, i) => {
         const node = item.querySelector('[data-card-node]')
-        const r = node.getBoundingClientRect()
-        const at = gsap.utils.clamp(0, 0.9, (r.top + r.height / 2 - box.top) / box.height)
+        const at = times[i]
         // fromTo mirrors the hidden states declared in CSS, so first paint and the timeline agree
         tl.fromTo(node.firstElementChild, { scale: 0 }, { scale: 1, duration: 0.04, ease: 'power2.out' }, at)
           .fromTo(item.querySelector('[data-connector]'), { scaleX: 0 }, { scaleX: 1, duration: 0.08, ease: 'power1.inOut' }, at)
