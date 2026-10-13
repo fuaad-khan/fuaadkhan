@@ -1,0 +1,108 @@
+{
+  "generatedBy": "scripts/derive-city.mjs",
+  "source": {
+    "data": "Map My City video studio data (video/data: boundary.json, streets.json, parcels.json)",
+    "publisher": "City of San Jacinto GIS: public city limits, road centerline classification and parcel layers",
+    "fetched": "2026-09-29"
+  },
+  "units": "EPSG:3857 (Leaflet) world px at zoom 18, relative to origin",
+  "origin": [
+    11732778,
+    26844336
+  ],
+  "anchor": {
+    "at": [
+      19005.63,
+      12435.65
+    ],
+    "view": {
+      "lat": 33.78227,
+      "lng": -116.95852,
+      "zoom": 20
+    },
+    "note": "City Hall: the hero capture's map centre; the reveal, the street growth and the precision grading centre here"
+  },
+  "bbox": {
+    "boundary": [
+      0,
+      0,
+      26688,
+      19387
+    ],
+    "parcels": [
+      -1284,
+      -8411,
+      28621,
+      20009
+    ]
+  },
+  "raster": {
+    "files": {
+      "x2": "parcels-city.webp",
+      "x1": "parcels-city@1x.webp"
+    },
+    "extent": [
+      -1284,
+      -2908,
+      29905,
+      22917
+    ],
+    "scale": 0.053503,
+    "width": 1600,
+    "height": 1226,
+    "encoding": "lossless 3 levels",
+    "x1": {
+      "width": 800,
+      "height": 613,
+      "encoding": "lossless 3 levels"
+    },
+    "lineWidth": 0.8,
+    "color": "#9ec3e2",
+    "background": "#000000, composited additively (lighter) by CityDraw",
+    "intensity": 1,
+    "outsideAlpha": 0.34
+  },
+  "parcelCount": 18459,
+  "rings": 18556,
+  "streets": {
+    "classes": {
+      "Highway": 2,
+      "Major": 13,
+      "Arterial": 18,
+      "Collector": 47,
+      "Local": 923
+    },
+    "dropped": [
+      "Future"
+    ]
+  },
+  "precision": {
+    "rule": "per vertex, max(tMin, distance from the anchor / k) z18 px; each path takes the coarsest grid its nearest point allows (roundShare of the tolerance, or the lossless source grid) and Douglas-Peucker uses the rest",
+    "tMin": 0.35,
+    "k": 1000,
+    "roundShare": 0.3,
+    "pathsPerLevel": {
+      "16": 128,
+      "17": 412,
+      "18": 339,
+      "19": 125
+    },
+    "points": {
+      "boundary": 188,
+      "sourceBoundary": 292,
+      "streets": 3322,
+      "sourceStreets": 4247
+    },
+    "measuredScreenErrorPx": {
+      "frame": "1440x900",
+      "insideFinalView": 0,
+      "anywhereDuringPush": 1.62
+    }
+  },
+  "encoding": "b (boundary rings) and s.<class> (street paths) are lists of [L, sx, sy, dx, dy, ...]: integers at zoom L, so z18 px = value * 2^(18 - L) relative to o; the start (sx, sy) is relative to round(previous start / 2^(18 - L)) in the same list (the origin for the first), later points are deltas; streets run outward from the anchor; q = parcel-centroid distances from the anchor at 64 even quantiles; r = raster extent [x, y, w, h]; ri = line intensity baked into the raster (lines on black, added with lighter); rmax = farthest parcel-box corner",
+  "seal": {
+    "file": "seal.webp",
+    "size": 400,
+    "quality": 80
+  }
+}
