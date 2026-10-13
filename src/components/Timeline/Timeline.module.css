@@ -1,91 +1,21 @@
-.chapter {
-  position: relative;
-  min-height: 100svh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
-  align-content: center;
-  gap: 1.25rem;
-  padding: 3.5rem var(--gutter) 3rem calc(var(--gutter) + 2.25rem);
-}
-
-.railBase,
-.rail {
-  position: absolute;
-  left: var(--gutter);
-  top: 0;
-  bottom: 0;
-  width: 1px;
-}
-
-.railBase {
-  background: var(--line);
-}
-
-.rail {
-  background: var(--line-strong);
-  transform-origin: top;
-}
-
-.nodes {
-  position: absolute;
-  left: var(--gutter);
-  top: 0;
-  bottom: 0;
-  width: 0;
-}
-
-.node {
-  position: absolute;
-  left: -5px;
-  margin-top: -5px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--bg);
-  box-shadow:
-    0 0 0 1px var(--line-strong),
-    0 0 0 4px var(--bg);
-}
-
-.nodeFill {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.beats {
-  position: relative;
-  order: 2;
-  max-width: 34rem;
-  display: grid;
-  gap: 3rem;
-}
-
-/* Beats stack in place only when scripts run and motion is allowed; otherwise they flow */
-@media (prefers-reduced-motion: no-preference) {
-  :global(.js) .beats {
-    display: block;
-  }
-
-  :global(.js) .beat {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-  }
-}
-
+/* Each beat is a viewport-scale stop with its copy centred, so it reads centred beside the sticky map */
 .beat {
-  display: block;
+  min-height: var(--beat-min, 80svh);
+  display: grid;
+  align-content: center;
+  padding-block: var(--space-6);
+}
+
+.body {
+  max-width: var(--measure);
 }
 
 .eyebrow {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6em;
-  margin-bottom: 1rem;
+  column-gap: 0.6em;
+  margin-bottom: var(--space-4);
 }
 
 .eyebrow span {
@@ -96,16 +26,37 @@
   color: var(--accent);
 }
 
+/* The stop's rail node, centred on the rail line beside the eyebrow's first line (copy starts at --content-x) */
+.node {
+  position: absolute;
+  top: 0.75em;
+  left: calc(var(--rail-x) - var(--content-x) + 0.5px);
+  width: var(--node-size);
+  height: var(--node-size);
+  margin: calc(var(--node-size) / -2) 0 0 calc(var(--node-size) / -2);
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow:
+    inset 0 0 0 1px var(--accent),
+    0 0 0 var(--node-ring) var(--bg);
+}
+
+.nodeFill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
 .headline {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .role {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  margin-bottom: 1rem;
-  font-size: var(--step-0);
+  margin-bottom: var(--space-4);
 }
 
 .role strong {
@@ -139,49 +90,20 @@
   background: var(--accent);
 }
 
-.visual {
-  order: 1;
-  height: 20svh;
-  min-height: 150px;
-}
-
-@media (max-height: 700px) and (max-width: 767px) {
-  .visual {
-    height: 15svh;
-    min-height: 110px;
-  }
-}
-
 @media (min-width: 768px) {
-  .chapter {
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    grid-template-rows: none;
-    align-items: center;
-    gap: clamp(2rem, 5vw, 5rem);
-    padding: 4.5rem var(--gutter) 3rem calc(var(--gutter) + 3rem);
-  }
-
-  .beats {
-    order: 1;
+  .role {
+    margin-bottom: var(--space-5);
   }
 
   .bullets {
     gap: 0.6rem;
     font-size: var(--step-0);
   }
+}
 
-  .role {
-    margin-bottom: 1.25rem;
-  }
-
-  .visual {
-    order: 2;
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 400 / 245;
-    max-height: 62vh;
-    /* Keeps the one map in view while the beats flow past under reduced motion */
-    position: sticky;
-    top: 19vh;
+/* With scripts and motion the node starts empty and lights when the rail fill reaches it; otherwise it shows lit */
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .nodeFill {
+    transform: scale(0);
   }
 }

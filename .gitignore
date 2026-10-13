@@ -7,3 +7,12 @@ dist
 Thumbs.db
 npm-debug.log*
 .vite
+
+# Redesign working folders (per-package builds, audits, plan copy)
+.wp/
+audit/
+.cache/
+.claude/worktrees/
+
+# Owner-supplied private strings for scripts/privacy-sweep.mjs (never committed)
+privacy.local.json

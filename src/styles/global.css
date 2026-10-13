@@ -1,9 +1,11 @@
+@import './fonts.css';
+
 :root {
   --bg: #1e2128;
   --bg-raised: #272b33;
   --fg: #f4f1ea;
   --fg-muted: #a39e93;
-  --fg-faint: #918c82;
+  --fg-faint: #9c978c;
   --line: rgba(244, 241, 234, 0.14);
   --line-strong: rgba(244, 241, 234, 0.36);
   --accent: #e8b34d;
@@ -11,8 +13,9 @@
   --accent-yard: #e08a5a;
   --accent-green: #6fcf97;
 
-  --font-display: "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
-  --font-body: "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  /* Inter only for display; body stays on the platform UI font (no Inter here, its 600 face would win) */
+  --font-display: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   --font-mono: "SF Mono", "Cascadia Code", Consolas, "Roboto Mono", monospace;
 
   --step--1: clamp(0.8rem, 0.75rem + 0.25vw, 0.9rem);
@@ -22,11 +25,48 @@
   --step-3: clamp(2.2rem, 1.6rem + 3vw, 4rem);
   --step-4: clamp(2.8rem, 1.8rem + 5vw, 6rem);
 
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6rem;
+
   --gutter: clamp(1.25rem, 5vw, 5rem);
+  --rail-x: var(--gutter);
+  --rail-inset: 2.25rem;
+  --content-x: calc(var(--gutter) + var(--rail-inset));
+  --node-size: 11px;
+  --node-ring: 4px;
+  --chapter-pad-y: clamp(3.5rem, 8svh, 4.5rem);
+  --frame-radius: 12px;
+
+  /* Showcase scroll tracks; AppShowcase/layout.js mirrors these numbers */
+  --track-intro: 200svh;
+  --track-feature: 80svh;
+  --track-stack: 30svh;
+  --track-pad: 10svh;
+
   --measure: 34rem;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --rail-inset: 3rem;
+  }
+}
+
+/* Short screens get a shorter intro window so the showcase never feels stuck */
+@media (max-height: 700px) {
+  :root {
+    --track-intro: 160svh;
+  }
 }
 
 *,
@@ -55,7 +95,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.02;
   margin: 0;
@@ -72,6 +112,7 @@ h2 {
 
 h3 {
   font-size: var(--step-1);
+  font-weight: 600;
   letter-spacing: -0.015em;
 }
 
@@ -102,7 +143,8 @@ svg {
   max-width: 100%;
 }
 
-ul {
+ul,
+ol {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -116,7 +158,7 @@ ul {
   color: var(--fg-muted);
 }
 
-.visually-hidden {
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;

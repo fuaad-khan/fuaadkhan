@@ -1,0 +1,159 @@
+{
+  "map-my-city": {
+    "label": "Map My City (deployed as Map My San Jacinto)",
+    "root": "C:\\dev\\mapMyCity",
+    "rootEnv": "MMC_ROOT",
+    "port": 8796,
+    "cdpPort": 9376,
+    "viewport": [
+      1440,
+      900
+    ],
+    "dpr": 2,
+    "basemap": "nearmap",
+    "seed": {
+      "mapMyCity.disclaimerAcknowledgedPersistent.v1": "1"
+    },
+    "shots": [
+      {
+        "name": "hero",
+        "kind": "still",
+        "path": "/index.html?apn=437076013&z=18&panels=lookup,legend",
+        "apn": "437076013",
+        "state": "City Hall selected, lookup rows filled, assessor sidebar and legend open (match-cut target for CityDraw)"
+      },
+      {
+        "name": "f1",
+        "kind": "loop",
+        "seconds": 8,
+        "path": "/index.html?lat=33.78227&lon=-116.95852&z=18&panels=lookup",
+        "apn": "437076013",
+        "state": "type 595 S San Jacinto, pick the suggestion, zoom, rows fill, open the property report",
+        "poster": "the property report"
+      },
+      {
+        "name": "f2",
+        "kind": "loop",
+        "seconds": 6,
+        "still": true,
+        "path": "/index.html?lat=33.79525&lon=-116.98565&z=17&layers=parcels,zoning&panels=legend",
+        "state": "zoning on with its legend; the imagery slider steps 2014 to 2026 over post-2014 subdivisions, no parcel selected",
+        "seed": {
+          "mapMyCity.nearmapHistoryCollapsed": "0"
+        },
+        "poster": "Jul 26, 2014 imagery under the zoning layer"
+      },
+      {
+        "name": "f3",
+        "kind": "still",
+        "path": "/index.html?lat=33.78907&lon=-116.96290&z=17&panels=&base=streets",
+        "apn": "434130011",
+        "state": "300 ft proximity buffer around the SJUSD parcel; the buffer panel with Export Parcels (CSV) and Mailing Labels (Avery 5160); the label sheet is captured too, as the alternate f3-labels",
+        "basemap": "streets"
+      }
+    ]
+  },
+  "yard-plan": {
+    "label": "Yard Plan",
+    "root": "C:\\dev\\YardPlan",
+    "rootEnv": "YP_ROOT",
+    "port": 8797,
+    "cdpPort": 9377,
+    "viewport": [
+      1600,
+      1000
+    ],
+    "dpr": 2,
+    "basemap": "nearmap",
+    "seed": {
+      "yardplan.theme": "light"
+    },
+    "shots": [
+      {
+        "name": "hero",
+        "kind": "still",
+        "apn": "437076013",
+        "state": "City Hall parcel at z19, turf + concrete drawn (shapes injected through the app's own plEncode into the permalink hash), Draw panel with rows and donut"
+      },
+      {
+        "name": "base",
+        "kind": "still",
+        "apn": "437076013",
+        "state": "the hero view with the drawings, glass sheet and chrome hidden: the map under the glass"
+      },
+      {
+        "name": "f1",
+        "kind": "loop",
+        "seconds": 7,
+        "apn": "437076013",
+        "state": "drawing the concrete polygon: snap ring on the shared corner, outline closes, rows and donut update",
+        "poster": "the snap ring on the shared corner"
+      },
+      {
+        "name": "f2",
+        "kind": "still",
+        "clip": "draw-panel",
+        "apn": "437076013",
+        "state": "Draw panel and the drawn shapes, a 16:10 clip at 4x"
+      },
+      {
+        "name": "f3",
+        "kind": "still",
+        "apn": "437076013",
+        "state": "Share panel: PDF, GeoJSON, Copy link, Print"
+      }
+    ]
+  },
+  "green-check": {
+    "label": "Green Check",
+    "root": "C:\\dev\\GreenCheck\\dist-portable",
+    "rootEnv": "GC_ROOT",
+    "port": 8798,
+    "cdpPort": 9378,
+    "viewport": [
+      1600,
+      1000
+    ],
+    "dpr": 2,
+    "basemap": "nearmap (hero, base, f3 end); maptiler streets (f1, f2)",
+    "seed": {},
+    "shots": [
+      {
+        "name": "f2",
+        "kind": "still",
+        "search": "438 S STATE ST",
+        "license": "microbusiness",
+        "state": "automatic verdict: Not Eligible, 95 ft line, exclusion ring, Why? rows"
+      },
+      {
+        "name": "hero",
+        "kind": "still",
+        "search": "438 S STATE ST",
+        "license": "microbusiness",
+        "state": "Verify distance, endpoint dragged to the property line (>= 100 ft), Complete: Measured by hand, Eligible (Nearmap aerial)"
+      },
+      {
+        "name": "base",
+        "kind": "still",
+        "search": "438 S STATE ST",
+        "license": "microbusiness",
+        "state": "the hero view with the overlay panes and the verdict card and rows hidden"
+      },
+      {
+        "name": "f3",
+        "kind": "loop",
+        "seconds": 6,
+        "search": "438 S STATE ST",
+        "license": "microbusiness",
+        "state": "the verify flip: Verify distance, handle drag 95 to 101 ft, Complete, stamp, card turns Eligible",
+        "poster": "line dragged past 100 ft, before Complete"
+      },
+      {
+        "name": "f1",
+        "kind": "still",
+        "license": "manufacturing",
+        "state": "instant Eligible at a commercial or industrial-zoned (CG/IL/BP), non-residential parcel found by querying the City parcels layer; Needs More Data if none"
+      }
+    ]
+  }
+}

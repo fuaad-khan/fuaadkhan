@@ -3,14 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Sets html.js before first paint (same-origin file: the CSP allows no inline scripts) -->
+    <script src="/js-flag.js"></script>
     <meta name="description" content="Fuaad Khan — GIS Supervisor and GIS Developer in the Inland Empire, CA. Enterprise GIS architecture and web mapping applications." />
     <meta name="theme-color" content="#1e2128" />
+    <link rel="canonical" href="https://fuaadkhan.com/" />
     <meta property="og:title" content="Fuaad Khan — GIS Supervisor · GIS Developer" />
     <meta property="og:description" content="Enterprise GIS architecture and web mapping applications, built and deployed." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://fuaadkhan.com" />
+    <meta property="og:url" content="https://fuaadkhan.com/" />
+    <meta property="og:image" content="https://fuaadkhan.com/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Fuaad Khan, GIS Supervisor and GIS Developer, over a Southern California route map from Los Angeles to San Jacinto." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Fuaad Khan — GIS Supervisor · GIS Developer" />
+    <meta name="twitter:description" content="Enterprise GIS architecture and web mapping applications, built and deployed." />
+    <meta name="twitter:image" content="https://fuaadkhan.com/og.jpg" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/inter-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin />
     <title>Fuaad Khan — GIS Supervisor · GIS Developer</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Fuaad Khan",
+        "jobTitle": "GIS Supervisor",
+        "worksFor": { "@type": "GovernmentOrganization", "name": "City of San Jacinto" },
+        "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of California, Los Angeles", "alternateName": "UCLA" },
+        "url": "https://fuaadkhan.com/",
+        "sameAs": ["https://github.com/fuaad-khan", "https://www.linkedin.com/in/fuaad-khan-7b3549115/"]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

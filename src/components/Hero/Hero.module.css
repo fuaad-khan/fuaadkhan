@@ -1,76 +1,59 @@
+/* The Journey's first viewport (minus the phone map band), copy vertically centred */
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: var(--hero-min, 100svh);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 6rem var(--gutter) 8rem calc(var(--gutter) + 2.25rem);
+  padding-block: var(--space-6) var(--space-8);
 }
 
-.inner {
-  max-width: 52rem;
+@media (min-width: 768px) {
+  .hero {
+    padding-block: var(--space-8) var(--space-9);
+  }
 }
 
 .eyebrow {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-5);
 }
 
 .name {
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-4);
 }
 
 .identity {
   font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--fg);
   display: flex;
   flex-wrap: wrap;
-  column-gap: 0.25em;
+  column-gap: 0.35em;
 }
 
+/* Separators trail each part, so a wrapped line never starts with one */
 .dot {
   color: var(--accent);
-  margin-right: 0.35em;
+  margin-left: 0.35em;
 }
 
 .lede {
-  margin-top: 1.5rem;
+  margin-top: var(--space-5);
   max-width: var(--measure);
   color: var(--fg-muted);
-  font-size: var(--step-0);
 }
 
-.railWrap {
-  position: absolute;
-  left: var(--gutter);
-  top: 50%;
-  bottom: 0;
-  width: 1px;
-}
-
-.railStart {
-  position: absolute;
-  top: -6px;
-  left: -5px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.rail {
-  position: absolute;
-  inset: 0;
-  background: var(--line-strong);
-  transform-origin: top;
-}
-
+/* Scroll cue: a label at the foot of the hero and a short dash sliding down the rail above it */
 .cue {
   position: absolute;
-  bottom: 2rem;
-  left: calc(var(--gutter) + 2.25rem);
+  left: 0;
+  bottom: var(--space-6);
+  display: flex;
+  align-items: center;
+}
+
+.cueLabel {
   font-family: var(--font-mono);
   font-size: var(--step--1);
   letter-spacing: 0.12em;
@@ -78,18 +61,71 @@
   color: var(--fg-faint);
 }
 
-@media (min-width: 768px) {
-  .hero {
-    padding-left: calc(var(--gutter) + 3rem);
+/* The hero's left edge is --content-x, so this lands the track on the rail line */
+.cueTrack {
+  position: absolute;
+  left: calc(var(--rail-x) - var(--content-x));
+  bottom: 50%;
+  width: 1px;
+  height: 4.5rem;
+  overflow: hidden;
+}
+
+.cueDash {
+  display: block;
+  width: 1px;
+  height: 24px;
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 0.9s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
   }
 
-  .cue {
-    left: calc(var(--gutter) + 3rem);
+  .cueDash {
+    animation: cue 2.2s var(--ease-out) 1.2s 2;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cue {
     display: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+}
+
+/* Slides to the foot of the track, fades, and reappears at the top: it ends at rest, so nothing pops afterwards */
+@keyframes cue {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  55% {
+    transform: translateY(calc(4.5rem - 24px));
+    opacity: 1;
+  }
+
+  70% {
+    transform: translateY(calc(4.5rem - 24px));
+    opacity: 0;
+  }
+
+  71% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }

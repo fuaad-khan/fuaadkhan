@@ -1,16 +1,19 @@
 import styles from './MapInset.module.css'
 
-// Plate carrée over Southern California, width-corrected for latitude so shapes read true
-const BOUNDS = { lonMin: -120.75, lonMax: -116.05, latMin: 32.45, latMax: 34.85 }
+// Equirectangular frame centred on the three stops (they span ~60 % of the width), width-corrected for latitude
+const BOUNDS = { lonMin: -118.977, lonMax: -116.427, latMin: 33.25, latMax: 34.55 }
 const W = 400
 const H = Math.round(
-  W * ((BOUNDS.latMax - BOUNDS.latMin) / ((BOUNDS.lonMax - BOUNDS.lonMin) * Math.cos((33.65 * Math.PI) / 180))),
+  (W * (BOUNDS.latMax - BOUNDS.latMin)) /
+    ((BOUNDS.lonMax - BOUNDS.lonMin) * Math.cos((((BOUNDS.latMin + BOUNDS.latMax) / 2) * Math.PI) / 180)),
 )
 
 const project = ([lon, lat]) => [
   ((lon - BOUNDS.lonMin) / (BOUNDS.lonMax - BOUNDS.lonMin)) * W,
   ((BOUNDS.latMax - lat) / (BOUNDS.latMax - BOUNDS.latMin)) * H,
 ]
+
+const round = (n) => Math.round(n * 10) / 10
 
 // Coastline from Point Conception to the Mexican border, simplified by hand
 const COAST = [
@@ -22,107 +25,137 @@ const COAST = [
   [-117.26, 32.9], [-117.26, 32.82], [-117.2, 32.72], [-117.15, 32.68], [-117.12, 32.6], [-117.12, 32.53],
 ]
 
-const ISLANDS = [
-  { c: [-118.42, 33.38], rx: 18, ry: 5, rot: -40 },
-  { c: [-119.75, 34.0], rx: 22, ry: 6, rot: -10 },
-  { c: [-118.5, 32.9], rx: 12, ry: 4, rot: -50 },
-]
+// Santa Catalina, the only island inside the frame; it runs north-west to south-east
+const CATALINA = { c: [-118.42, 33.38], rx: 22, ry: 5, rot: 33 }
 
-const pathFrom = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ')
+const pathFrom = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${round(x)} ${round(y)}`).join(' ')
 
-const coastPts = COAST.map(project)
-const border = project([BOUNDS.lonMax + 1, 32.53])
-const landPath = `${pathFrom(coastPts)} L${border[0]} ${border[1]} L${border[0]} -20 L-20 -20 Z`
-const borderPath = pathFrom([project([-117.12, 32.53]), border])
+// Only the stretch of coast near the frame, so the drawn line enters at the edge instead of off-screen
+const coastPts = COAST.filter(([lon, lat]) => lon >= BOUNDS.lonMin - 0.3 && lat >= BOUNDS.latMin - 0.3).map(project)
+const coastPath = pathFrom(coastPts)
+const first = coastPts[0]
+const last = coastPts[coastPts.length - 1]
+const landPath = `${coastPath} L${W + 40} ${round(last[1])} L${W + 40} -40 L-40 -40 L-40 ${round(first[1])} Z`
+
+// Half-degree graticule, unlabelled: the camera's push would crop edge labels
+const GRID = 0.5
+const steps = (min, max) => {
+  const out = []
+  for (let v = Math.ceil(min / GRID) * GRID; v < max; v += GRID) out.push(v)
+  return out
+}
+const MERIDIANS = steps(BOUNDS.lonMin, BOUNDS.lonMax)
+const PARALLELS = steps(BOUNDS.latMin, BOUNDS.latMax)
+
+// The ocean name, one word per line, in the San Pedro Channel between Palos Verdes and Catalina
+const OCEAN_AT = project([-118.62, 33.6])
 
 // Gentle arc between two stops so the route reads as travel, not a ruler line
-function routePath(a, b) {
-  const [x1, y1] = a
-  const [x2, y2] = b
-  const mx = (x1 + x2) / 2
-  const my = (y1 + y2) / 2
-  const dx = x2 - x1
-  const dy = y2 - y1
-  const k = 0.18
-  return `M${x1} ${y1} Q${mx + dy * k} ${my - dx * k} ${x2} ${y2}`
+function routePath([x1, y1], [x2, y2]) {
+  const k = 0.12
+  const cx = (x1 + x2) / 2 + (y2 - y1) * k
+  const cy = (y1 + y2) / 2 - (x2 - x1) * k
+  return `M${round(x1)} ${round(y1)} Q${round(cx)} ${round(cy)} ${round(x2)} ${round(y2)}`
 }
 
-// Label offsets per placement so labels clear both the marker and the incoming route
+// Marker halo radius; labels clear it in viewBox units, then an em baseline shift scales with the label size
+const HALO = 10
 const LABEL = {
-  right: { dx: 14, dy: 3.5, anchor: 'start' },
-  left: { dx: -14, dy: 3.5, anchor: 'end' },
-  above: { dx: 0, dy: -13, anchor: 'middle' },
-  below: { dx: 0, dy: 19, anchor: 'middle' },
+  right: { dx: HALO + 3, dy: 0, em: '0.35em', anchor: 'start' },
+  left: { dx: -HALO - 3, dy: 0, em: '0.35em', anchor: 'end' },
+  above: { dx: 0, dy: -HALO - 4, em: '-0.3em', anchor: 'middle' },
+  below: { dx: 0, dy: HALO + 2, em: '0.95em', anchor: 'middle' },
 }
 
-/**
- * The full journey rendered in its final state. The Timeline chapter rewinds it with GSAP
- * (routes undrawn, marker on the first stop) and plays it forward on scroll.
- */
-export default function MapInset({ stops }) {
+// The career map drawn complete (no-JS, reduced motion); under scripts + motion its CSS rewinds it for the Journey timeline
+export default function MapInset({ stops, journey }) {
   const pts = stops.map((s) => project(s.coords))
-  const last = pts[pts.length - 1]
-  const cx = pts.reduce((a, [x]) => a + x, 0) / pts.length
-  const cy = pts.reduce((a, [, y]) => a + y, 0) / pts.length
+  const [startX, startY] = pts[0]
+  const [endX, endY] = pts[pts.length - 1]
+  const markerVars = {
+    '--start-x': `${round(startX)}px`,
+    '--start-y': `${round(startY)}px`,
+    '--end-x': `${round(endX)}px`,
+    '--end-y': `${round(endY)}px`,
+  }
+  const [cx, cy] = project(CATALINA.c)
+  const [oceanX, oceanY] = OCEAN_AT
 
   return (
     <div className={styles.map} aria-hidden="true">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className={styles.svg}>
-        <g data-map-view data-origin={`${cx.toFixed(1)} ${cy.toFixed(1)}`}>
-          <path d={landPath} className={styles.land} />
-          {ISLANDS.map(({ c, rx, ry, rot }) => {
-            const [x, y] = project(c)
-            return <ellipse key={c.join()} cx={x} cy={y} rx={rx} ry={ry} transform={`rotate(${rot} ${x} ${y})`} className={styles.land} />
-          })}
-          <path d={borderPath} className={styles.border} />
-          <g className={styles.graticule}>
-            {[-120, -119, -118, -117].map((lon) => {
-              const [x] = project([lon, 33])
+      <div className={styles.frame} style={{ aspectRatio: `${W} / ${H}` }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className={styles.svg}>
+          <g className={styles.view} data-map-view>
+            <path d={landPath} className={styles.land} />
+            <ellipse
+              cx={round(cx)}
+              cy={round(cy)}
+              rx={CATALINA.rx}
+              ry={CATALINA.ry}
+              transform={`rotate(${CATALINA.rot} ${round(cx)} ${round(cy)})`}
+              className={styles.island}
+            />
+            <path d={coastPath} pathLength="1" className={styles.coast} />
+
+            <g className={styles.graticule}>
+              {MERIDIANS.map((lon) => {
+                const [x] = project([lon, BOUNDS.latMin])
+                return <line key={lon} x1={round(x)} y1={0} x2={round(x)} y2={H} />
+              })}
+              {PARALLELS.map((lat) => {
+                const [, y] = project([BOUNDS.lonMin, lat])
+                return <line key={lat} x1={0} y1={round(y)} x2={W} y2={round(y)} />
+              })}
+            </g>
+
+            <text x={round(oceanX)} y={round(oceanY)} textAnchor="middle" className={styles.ocean} data-ocean>
+              {journey.ocean.split(' ').map((word, i) => (
+                <tspan key={word} x={round(oceanX)} dy={i ? '1.3em' : 0}>
+                  {word}
+                </tspan>
+              ))}
+            </text>
+
+            {pts.slice(1).map((p, i) => (
+              <path key={stops[i + 1].id} d={routePath(pts[i], p)} className={styles.route} data-route={i + 1} />
+            ))}
+
+            {pts.map(([x, y], i) => (
+              <circle
+                key={stops[i].id}
+                cx={round(x)}
+                cy={round(y)}
+                r={3.5}
+                className={i ? `${styles.stop} ${styles.late}` : styles.stop}
+                data-stop={i}
+              />
+            ))}
+
+            {pts.map(([x, y], i) => {
+              const l = LABEL[stops[i].labelPlacement] ?? LABEL.right
               return (
-                <g key={lon}>
-                  <line x1={x} y1={0} x2={x} y2={H} />
-                  <text x={x + 3} y={H - 5}>{Math.abs(lon)}°W</text>
-                </g>
+                <text
+                  key={stops[i].id}
+                  x={round(x + l.dx)}
+                  y={round(y + l.dy)}
+                  dy={l.em}
+                  textAnchor={l.anchor}
+                  className={i ? `${styles.label} ${styles.late}` : styles.label}
+                  data-label={i}
+                >
+                  {stops[i].location}
+                </text>
               )
             })}
-            {[33, 34].map((lat) => {
-              const [, y] = project([-118, lat])
-              return (
-                <g key={lat}>
-                  <line x1={0} y1={y} x2={W} y2={y} />
-                  <text x={4} y={y - 3}>{lat}°N</text>
-                </g>
-              )
-            })}
+
+            <g className={styles.marker} style={markerVars} data-marker>
+              <circle r={HALO} className={styles.halo} />
+              <circle r={4.5} className={styles.active} />
+            </g>
           </g>
-          <text x={project([-119.6, 33.3])[0]} y={project([-119.6, 33.3])[1]} className={styles.ocean}>
-            Pacific Ocean
-          </text>
-
-          {pts.slice(1).map((p, i) => (
-            <path key={stops[i + 1].id} d={routePath(pts[i], p)} className={styles.route} data-route={i + 1} />
-          ))}
-
-          {pts.map(([x, y], i) => (
-            <circle key={stops[i].id} cx={x} cy={y} r={3.5} className={styles.visited} data-stop={i} />
-          ))}
-
-          {pts.map(([x, y], i) => {
-            const l = LABEL[stops[i].labelPlacement] ?? LABEL.right
-            return (
-              <text key={stops[i].id} x={x + l.dx} y={y + l.dy} textAnchor={l.anchor} className={styles.label} data-label={i}>
-                {stops[i].location}
-              </text>
-            )
-          })}
-
-          <g data-marker transform={`translate(${last[0]} ${last[1]})`}>
-            <circle r={10} className={styles.halo} />
-            <circle r={4.5} className={styles.active} />
-          </g>
-        </g>
-      </svg>
-      <span className={styles.caption}>Career map · Southern California</span>
+        </svg>
+      </div>
+      <p className={styles.caption}>{journey.mapCaption}</p>
     </div>
   )
 }

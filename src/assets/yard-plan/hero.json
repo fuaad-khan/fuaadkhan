@@ -1,0 +1,158 @@
+{
+  "app": "yard-plan",
+  "name": "hero",
+  "kind": "still",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "view": {
+    "lat": 33.782382,
+    "lng": -116.95846,
+    "zoom": 21
+  },
+  "mapRect": [
+    0,
+    0,
+    1600,
+    1000
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "scrubs": [
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-13T21:03:59.493Z",
+  "basemap": "nearmap",
+  "apn": "437076013",
+  "theme": "light",
+  "permalink": "/index.html#v=1&c=33.782382,-116.95846&z=21&apn=437076013&s=t1,,gt9tgCvhzi_GAsYzC0CA_a;c1,,mj9tgC73yi_GAsRmHAArR",
+  "state": "City Hall at z21: Turf 1 and Concrete 1 drawn, Draw panel with rows and donut",
+  "intro": {
+    "turf": {
+      "d": "M376 324L958 324L1020 400L376 400Z",
+      "pts": [
+        [
+          376,
+          324
+        ],
+        [
+          958,
+          324
+        ],
+        [
+          1020,
+          400
+        ],
+        [
+          376,
+          400
+        ]
+      ]
+    },
+    "concrete": {
+      "d": "M606 606L1020 606L1020 400L606 400Z",
+      "pts": [
+        [
+          606,
+          606
+        ],
+        [
+          1020,
+          606
+        ],
+        [
+          1020,
+          400
+        ],
+        [
+          606,
+          400
+        ]
+      ]
+    },
+    "snap": [
+      1020,
+      400
+    ],
+    "values": {
+      "turf": 1914,
+      "concrete": 3544,
+      "total": 5458,
+      "turfPct": 35,
+      "pct": 65
+    },
+    "labels": {
+      "turf": "Turf 1",
+      "concrete": "Concrete 1"
+    },
+    "printed": {
+      "turf": "1,914 sq ft",
+      "concrete": "3,544 sq ft",
+      "total": "5,458 sq ft",
+      "donut": "65%"
+    },
+    "ui": {
+      "window": [
+        200,
+        64,
+        1400,
+        936
+      ],
+      "panel": [
+        1204,
+        100,
+        360,
+        864
+      ],
+      "donut": [
+        1225.5,
+        233,
+        108,
+        108
+      ],
+      "composition": [
+        1225.5,
+        233,
+        317,
+        108
+      ],
+      "header": [
+        0,
+        0,
+        1600,
+        64
+      ],
+      "rail": [
+        0,
+        64,
+        200,
+        936
+      ],
+      "dock": [
+        663.3,
+        908,
+        273.4,
+        56
+      ],
+      "search": [
+        570,
+        11,
+        460,
+        42
+      ],
+      "legend": [
+        320,
+        907.1,
+        241.1,
+        35.2
+      ],
+      "frameRadius": 120,
+      "glassPath": "M320 64 A120 120 0 0 0 200 184 V880 A120 120 0 0 0 320 1000 H1480 A120 120 0 0 0 1600 880 V184 A120 120 0 0 0 1480 64 Z"
+    }
+  }
+}

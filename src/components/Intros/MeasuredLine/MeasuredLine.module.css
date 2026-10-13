@@ -1,0 +1,896 @@
+/* Green Check's own palette (greenCheck.css:3-33, 375-427), scoped to the replica; the site's tokens do not apply inside the app */
+.root {
+  --gc-brand: #2e7d4f;
+  --gc-brand-dark: #245c3c;
+  --gc-brand-bright: #3fa34d;
+  --gc-brand-deep: #276b44;
+  --gc-brand-press: #1d4a30;
+  --gc-mint: #e8f1ea;
+  --gc-mint-2: #d4e7da;
+  --gc-mint-3: #f2f7f3;
+  --gc-press: #c3dccb;
+  --gc-ink: #1f2d24;
+  --gc-ink-2: #3f4f46;
+  --gc-muted: #5b6b61;
+  --gc-line: #d9e2dc;
+  --gc-skel: #e3ebe5;
+  --gc-pass: #2e9e44;
+  --gc-pass-bg: #e9f6ec;
+  --gc-pass-line: #b7dfc0;
+  --gc-pass-ink: #1e7b34;
+  --gc-fail: #e53935;
+  --gc-fail-bg: #fdecec;
+  --gc-fail-line: #f5b5b5;
+  --gc-fail-ink: #c62828;
+  --gc-measure: #d50000;
+  --gc-elev-1: 0 1px 2px rgba(20, 40, 30, 0.12), 0 2px 8px rgba(20, 40, 30, 0.1);
+  --gc-elev-2: 0 8px 24px rgba(20, 40, 30, 0.12);
+  --gc-elev-3: 0 2px 8px rgba(20, 40, 30, 0.18), 0 12px 32px rgba(20, 40, 30, 0.2);
+  --gc-elev-map: 0 1px 4px rgba(0, 0, 0, 0.45);
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--gc-mint);
+  contain: layout paint;
+}
+
+/* The app at capture size (px of the 1600×1000 viewport); the camera scales and pans this one box */
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  background: var(--gc-mint);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: var(--gc-ink);
+}
+
+.base {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.stack {
+  display: grid;
+}
+
+.stack > * {
+  grid-area: 1 / 1;
+}
+
+/* Header: white brand block and the dark green swoosh */
+.header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  height: 88px;
+  padding: 0 28px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 0 var(--gc-line);
+}
+
+.brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--gc-brand-bright);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(20, 40, 30, 0.12), 0 4px 12px rgba(20, 40, 30, 0.14);
+}
+
+.brandTitle {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.4px;
+  color: var(--gc-brand-dark);
+}
+
+.brandTagline {
+  display: block;
+  margin-top: 3px;
+  font-size: 15px;
+  color: #3d5546;
+}
+
+.swoosh {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 100%;
+  max-width: none;
+  fill: var(--gc-brand-dark);
+}
+
+.headerActions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.headerPill {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  color: #fff;
+}
+
+/* Nav rail */
+.sidebar {
+  position: absolute;
+  left: 0;
+  top: 88px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 232px;
+  padding: 18px 14px 22px;
+  border-right: 1px solid var(--gc-line);
+  background: var(--gc-mint);
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--gc-ink);
+}
+
+.navItem svg {
+  color: var(--gc-brand-dark);
+}
+
+.navActive {
+  background: var(--gc-mint-2);
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--gc-brand-dark);
+}
+
+.navActive::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--gc-brand);
+}
+
+/* Search row */
+.search {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  height: 54px;
+  padding: 0 6px 0 4px;
+  border: 1px solid var(--gc-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--gc-elev-1);
+}
+
+.searchIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  height: 44px;
+  color: var(--gc-ink);
+}
+
+.searchText {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 4px;
+  overflow: hidden;
+  font-size: 16px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: var(--gc-ink);
+}
+
+.picker {
+  position: absolute;
+  height: 54px;
+  border: 1px solid var(--gc-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--gc-elev-1);
+}
+
+.pickerLabel {
+  position: absolute;
+  top: 7px;
+  left: 14px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--gc-muted);
+}
+
+.pickerValue {
+  display: block;
+  padding: 18px 40px 6px 14px;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--gc-brand-dark);
+}
+
+.pickerChevron {
+  position: absolute;
+  top: 18px;
+  right: 12px;
+  color: var(--gc-muted);
+}
+
+/* Map card and Leaflet's controls */
+.mapCard {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid var(--gc-line);
+  border-radius: 16px;
+  background: #cfd8d2;
+  box-shadow: var(--gc-elev-3);
+}
+
+.street {
+  font: 700 12px Arial, 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: #fff;
+  stroke: rgba(20, 30, 25, 0.9);
+  stroke-width: 3px;
+  paint-order: stroke;
+}
+
+.controls {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--gc-elev-1);
+}
+
+.bar > span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--gc-ink);
+}
+
+.bar > span + span {
+  border-top: 1px solid var(--gc-line);
+}
+
+/* Map overlays, styled as createMap.js draws them */
+.mapClip {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 15px;
+}
+
+.parcel {
+  fill: #43a047;
+  fill-opacity: 0.25;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.footprint {
+  fill: #ef6c00;
+  fill-opacity: 0.75;
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.neighbour {
+  fill: var(--gc-measure);
+  fill-opacity: 0.3;
+  stroke: var(--gc-measure);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.ring {
+  fill: var(--gc-measure);
+  fill-opacity: 0.07;
+  stroke: var(--gc-measure);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+}
+
+.measure {
+  fill: none;
+  stroke: var(--gc-measure);
+  stroke-width: 3;
+  stroke-dasharray: 6 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Butt caps: an undrawn reveal paints nothing, so the dashed line starts invisible */
+.reveal {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 14;
+  stroke-linecap: butt;
+}
+
+.dot {
+  fill: #fff;
+  stroke: var(--gc-measure);
+  stroke-width: 2;
+}
+
+.handle {
+  fill: #fff;
+  stroke: var(--gc-measure);
+  stroke-width: 3;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+.pulse {
+  fill: none;
+  stroke: rgba(213, 0, 0, 0.5);
+  stroke-width: 3;
+}
+
+.halo {
+  fill: rgba(213, 0, 0, 0.24);
+}
+
+.pin {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+.pinBody {
+  fill: #fff;
+  stroke: #1f6b3a;
+  stroke-width: 1.7;
+}
+
+.pinDot {
+  fill: #1f6b3a;
+}
+
+.ping {
+  fill: rgba(31, 107, 58, 0.35);
+}
+
+/* Leaflet's top tooltip: the arrow tip sits on the line's midpoint */
+.label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.pill {
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: var(--gc-measure);
+  box-shadow: var(--gc-elev-map);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #fff;
+  transform: translateX(-50%);
+}
+
+.pill::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -6px;
+  border: 6px solid transparent;
+  border-top-color: var(--gc-measure);
+}
+
+/* Result column and the Eligibility Result card */
+.column {
+  position: absolute;
+  width: 420px;
+  background: var(--gc-mint);
+}
+
+.card {
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: -48px;
+  width: 404px;
+  padding: 12px 14px 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--gc-elev-2);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 74px;
+  margin-bottom: 14px;
+  padding: 12px 16px 22px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, var(--gc-brand), var(--gc-brand-deep));
+  color: #fff;
+}
+
+.bannerIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--gc-brand);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.bannerTitle {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid;
+  border-radius: 12px;
+}
+
+.vPending {
+  border-color: var(--gc-line);
+  background: var(--gc-mint-3);
+  color: var(--gc-muted);
+}
+
+.vFail {
+  border-color: var(--gc-fail-line);
+  background: var(--gc-fail-bg);
+  color: var(--gc-fail-ink);
+}
+
+.vPass {
+  border-color: var(--gc-pass-line);
+  background: var(--gc-pass-bg);
+  color: var(--gc-pass-ink);
+}
+
+.vIcon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  height: 54px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.vPending .vIcon {
+  background: var(--gc-muted);
+}
+
+.vFail .vIcon {
+  background: var(--gc-fail);
+}
+
+.vPass .vIcon {
+  background: var(--gc-pass);
+}
+
+.vArc {
+  position: absolute;
+  inset: -4px;
+  border: 3px solid transparent;
+  border-top-color: var(--gc-brand);
+  border-radius: 50%;
+}
+
+.vStatus {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.vSub {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+}
+
+.why {
+  display: block;
+  margin: 16px 4px 6px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gc-ink);
+}
+
+.skel {
+  margin-top: 16px;
+}
+
+.skelRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-top: 1px solid var(--gc-line);
+}
+
+.skelRow:first-child {
+  border-top: 0;
+}
+
+.skelDot {
+  flex: 0 0 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gc-skel);
+}
+
+.skelLines {
+  display: grid;
+  flex: 1;
+  gap: 6px;
+}
+
+.skelLine {
+  display: block;
+  height: 12px;
+  border-radius: 8px;
+  background: var(--gc-skel);
+}
+
+.skelShort {
+  width: 60%;
+}
+
+.skelMetric {
+  flex: 0 0 52px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--gc-skel);
+}
+
+/* Rule rows: icon disc with a status badge, title, feet chip and map pin, detail underneath */
+.check {
+  position: relative;
+  border-top: 1px solid var(--gc-line);
+}
+
+.check:first-child {
+  border-top: 0;
+}
+
+.rowBg {
+  position: absolute;
+  inset: 0;
+  background: var(--gc-mint-3);
+}
+
+.res > .stack {
+  position: relative;
+}
+
+.checkRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(36px, auto) auto;
+  grid-template-areas:
+    'icon title metric go'
+    'icon detail detail detail';
+  align-items: start;
+  padding: 12px 8px;
+}
+
+.rowIcon {
+  position: relative;
+  grid-area: icon;
+  width: 36px;
+  height: 36px;
+}
+
+.disc {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.discFail {
+  background: var(--gc-fail-bg);
+  color: var(--gc-fail);
+}
+
+.discPass {
+  background: var(--gc-pass-bg);
+  color: var(--gc-pass);
+}
+
+.badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #fff;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.badgeFail {
+  background: var(--gc-fail-ink);
+}
+
+.badgePass {
+  background: var(--gc-pass-ink);
+}
+
+.title {
+  grid-area: title;
+  align-self: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gc-ink);
+}
+
+.detail {
+  grid-area: detail;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--gc-ink-2);
+}
+
+.metric {
+  grid-area: metric;
+  align-self: center;
+  justify-items: end;
+  margin-left: 10px;
+}
+
+.feet {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.feetFail {
+  background: var(--gc-fail-bg);
+  color: var(--gc-fail-ink);
+}
+
+.feetVerify {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--gc-measure);
+  color: var(--gc-measure);
+}
+
+.feetPass {
+  background: var(--gc-pass-bg);
+  color: var(--gc-pass-ink);
+}
+
+.go {
+  grid-area: go;
+  align-self: center;
+  margin-left: 8px;
+  color: var(--gc-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 12px 56px;
+}
+
+.hint {
+  flex: 1 1 100%;
+  font-size: 13px;
+  color: var(--gc-muted);
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  overflow: hidden;
+  border: 1px solid var(--gc-line);
+  border-radius: 8px;
+  background: var(--gc-mint-3);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--gc-brand-dark);
+}
+
+.btnOutline {
+  border-color: var(--gc-brand);
+  background: #fff;
+}
+
+.btnPrimary {
+  border-color: var(--gc-brand);
+  background: var(--gc-brand);
+  color: #fff;
+}
+
+/* Hover and press as one tint layer under the label */
+.tint {
+  position: absolute;
+  inset: 0;
+  background: var(--gc-press);
+}
+
+.btnPrimary .tint {
+  background: var(--gc-brand-press);
+}
+
+.btnIcon,
+.btnText {
+  position: relative;
+}
+
+.stamp {
+  display: inline-flex;
+  flex: 1 1 160px;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gc-brand-dark);
+}
+
+.fold {
+  margin-top: 4px;
+  border-top: 1px solid var(--gc-line);
+}
+
+.foldHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 6px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gc-brand-dark);
+}
+
+.foldCaret {
+  margin-left: auto;
+  color: var(--gc-muted);
+  transform: rotate(180deg);
+}
+
+/* The pointer lives in screen space, so it keeps its size whatever the camera does */
+.cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.arrow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(12px, 1.6cqw, 20px);
+  height: auto;
+  max-width: none;
+  overflow: visible;
+  fill: #fff;
+  stroke: #1f2d24;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.4));
+}
+
+.ripple {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(31, 45, 36, 0.55);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}

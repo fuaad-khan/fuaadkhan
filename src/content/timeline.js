@@ -16,7 +16,6 @@ export const timeline = [
       'Foundation in cartography, spatial analysis, and geographic problem framing.',
       'Arrived with a year of ETL and data engineering at UC Riverside already behind me.',
     ],
-    media: null,
   },
   {
     id: 'citynet',
@@ -34,13 +33,12 @@ export const timeline = [
       'Produced ArcGIS map products for the Orange County Point-in-Time count.',
       'Automated the reporting workflows behind those maps with Python.',
     ],
-    media: null,
   },
   {
     id: 'sanjacinto',
     kind: 'Enterprise GIS',
     org: 'City of San Jacinto',
-    role: 'GIS Coordinator → GIS Supervisor',
+    role: 'GIS Coordinator to GIS Supervisor',
     dates: 'Jul 2021 – present',
     location: 'San Jacinto, CA',
     coords: [-116.9581, 33.7838],
@@ -52,6 +50,5 @@ export const timeline = [
       'Led a YOLOv8 computer-vision pipeline that geolocates potholes and traffic assets.',
       'Promoted to Supervisor in 2025: hiring, leading staff, directing GIS strategy citywide.',
     ],
-    media: null,
   },
 ]
