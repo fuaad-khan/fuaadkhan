@@ -7,3 +7,8 @@ dist
 Thumbs.db
 npm-debug.log*
 .vite
+
+# Redesign working folders (per-package builds, audits, plan copy)
+.wp/
+audit/
+.cache/
