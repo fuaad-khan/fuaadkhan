@@ -17,6 +17,38 @@ export function setupGsap() {
   document.fonts?.ready.then(() => ScrollTrigger.refresh())
 }
 
+// Setup jobs queued by afterPaint, run in document order one per task once the hydration commit has painted
+const jobs = []
+let draining = false
+let rebuilt = false
+
+function drain() {
+  jobs.shift()?.run()
+  if (jobs.length) {
+    setTimeout(drain, 0)
+    return
+  }
+  draining = false
+  // Triggers made after the load event missed ScrollTrigger's own load refresh, and a rebuilt pin moves everything below it
+  if (rebuilt || document.readyState === 'complete') ScrollTrigger.refresh()
+  rebuilt = false
+}
+
+// Runs fn after the next paint in a task of its own, so hydration and chapter setup never form one long task; returns a cancel function
+export function afterPaint(fn, { rebuild = false } = {}) {
+  const job = { run: fn }
+  jobs.push(job)
+  rebuilt ||= rebuild
+  if (!draining) {
+    draining = true
+    requestAnimationFrame(() => setTimeout(drain, 0))
+  }
+  return () => {
+    const i = jobs.indexOf(job)
+    if (i >= 0) jobs.splice(i, 1)
+  }
+}
+
 // Unpinned chapters place tweens at layout.js fractions of the scroll range, so their timeline must last exactly 1
 function fitToRange(tl) {
   const duration = tl.duration()
@@ -35,35 +67,58 @@ export function useChapter(
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    setupGsap()
-    const mm = gsap.matchMedia()
+    let mm = null
+    let built = null
+    // Width and section height decide every position a build measures (beat centres, node fills, card times)
+    const size = () => `${window.innerWidth}x${el.offsetHeight}`
 
-    // Extra queries (e.g. { short: SHORT_SCREEN }) rebuild the chapter whenever one flips; the two motion keys always win
-    mm.add({ ...conditions, motionOK: MOTION_OK, reduceMotion: MOTION_REDUCED }, (context) => {
-      const flags = context.conditions
-      const q = gsap.utils.selector(el)
-      if (flags.reduceMotion) {
-        reduced?.(q, el)
-        return
-      }
-      if (!flags.motionOK) return
-      const tl = gsap.timeline({
-        defaults: { ease: 'none' },
-        scrollTrigger: {
-          trigger: el,
-          start,
-          end: pin && length != null ? () => `+=${Math.round(length * window.innerHeight)}` : end,
-          pin,
-          anticipatePin,
-          scrub,
-          invalidateOnRefresh: true,
-        },
+    const setup = () => {
+      setupGsap()
+      mm?.revert()
+      mm = gsap.matchMedia()
+      // Extra queries (e.g. { short: SHORT_SCREEN }) rebuild the chapter whenever one flips; the two motion keys always win
+      mm.add({ ...conditions, motionOK: MOTION_OK, reduceMotion: MOTION_REDUCED }, (context) => {
+        const flags = context.conditions
+        const q = gsap.utils.selector(el)
+        built = null
+        if (flags.reduceMotion) {
+          reduced?.(q, el)
+          return
+        }
+        if (!flags.motionOK) return
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: el,
+            start,
+            end: pin && length != null ? () => `+=${Math.round(length * window.innerHeight)}` : end,
+            pin,
+            anticipatePin,
+            scrub,
+            invalidateOnRefresh: true,
+          },
+        })
+        build(tl, q, el, flags)
+        if (!pin) fitToRange(tl)
+        built = size()
       })
-      build(tl, q, el, flags)
-      if (!pin) fitToRange(tl)
-    })
+    }
 
-    return () => mm.revert()
+    let cancel = afterPaint(setup)
+    // A refresh inside one breakpoint (resize, late font swap) moves start and end but not measured positions, so rebuild then
+    const onRefresh = () => {
+      if (!built || size() === built) return
+      built = null
+      cancel()
+      cancel = afterPaint(setup, { rebuild: true })
+    }
+    ScrollTrigger.addEventListener('refresh', onRefresh)
+
+    return () => {
+      cancel()
+      ScrollTrigger.removeEventListener('refresh', onRefresh)
+      mm?.revert()
+    }
     // Chapters are static content; layout changes rebuild through matchMedia conditions, never through React renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -74,23 +129,28 @@ export function useReveal(ref, selector = '[data-reveal]', { stagger = 0.08 } = 
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    setupGsap()
     const mm = gsap.matchMedia()
 
-    mm.add(MOTION_OK, () => {
-      const items = el.querySelectorAll(selector)
-      if (!items.length) return
-      gsap.from(items, {
-        autoAlpha: 0,
-        y: 24,
-        duration: 0.9,
-        ease: 'power3.out',
-        stagger,
-        scrollTrigger: { trigger: el, start: 'top 75%', once: true },
+    const cancel = afterPaint(() => {
+      setupGsap()
+      mm.add(MOTION_OK, () => {
+        const items = el.querySelectorAll(selector)
+        if (!items.length) return
+        gsap.from(items, {
+          autoAlpha: 0,
+          y: 24,
+          duration: 0.9,
+          ease: 'power3.out',
+          stagger,
+          scrollTrigger: { trigger: el, start: 'top 75%', once: true },
+        })
       })
     })
 
-    return () => mm.revert()
+    return () => {
+      cancel()
+      mm.revert()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }
