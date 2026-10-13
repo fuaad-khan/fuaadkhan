@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   // Per-package builds (.wp/<name>/dist) and audit output are generated, never linted
-  { ignores: ['dist', '.wp', 'audit'] },
+  { ignores: ['dist', '.wp', 'audit', '.claude'] },
   {
     // Build-time generators run under Node, not the browser
     files: ['scripts/**/*.mjs'],
