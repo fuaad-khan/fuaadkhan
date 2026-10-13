@@ -45,7 +45,7 @@ export default function Close({ site }) {
           </ul>
           <a href={close.resume.href} download className={styles.resume} data-reveal>
             {close.resume.label}
-            <span aria-hidden="true"> ↓</span>
+            <span aria-hidden="true"> {site.ui.downloadMark}</span>
           </a>
         </div>
       </div>

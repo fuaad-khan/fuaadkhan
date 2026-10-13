@@ -16,9 +16,9 @@ export default function Hero({ site, titleId }) {
             {part}
             {i < site.identity.length - 1 && (
               <>
-                <span className="sr-only">,</span>
+                <span className="sr-only">{site.ui.listSep}</span>
                 <span className={styles.dot} aria-hidden="true">
-                  ·
+                  {site.ui.sep}
                 </span>
               </>
             )}

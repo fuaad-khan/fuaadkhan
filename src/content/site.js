@@ -20,6 +20,11 @@ export const site = {
     illustration: 'Illustration',
     stackLabel: 'Built with',
     deployedAs: 'Deployed as',
+    // Separators and marks the components print between copy (decorative ones are aria-hidden)
+    sep: '·',
+    listSep: ',',
+    countSep: '/',
+    downloadMark: '↓',
   },
 
   journey: {

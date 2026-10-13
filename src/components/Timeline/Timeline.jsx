@@ -1,3 +1,4 @@
+import { site } from '../../content/site'
 import styles from './Timeline.module.css'
 
 // The career beats, flowing beside the Journey map; each eyebrow carries the rail node its stop lights
@@ -13,7 +14,7 @@ export default function Timeline({ stops, label }) {
               </span>
               <span>{stop.kind}</span>
               <span className={styles.sep} aria-hidden="true">
-                ·
+                {site.ui.sep}
               </span>
               <span>{stop.dates}</span>
             </p>
@@ -23,7 +24,7 @@ export default function Timeline({ stops, label }) {
             <p className={styles.role}>
               <strong>{stop.role}</strong>
               <span className={styles.org}>
-                {stop.org} · {stop.location}
+                {stop.org} {site.ui.sep} {stop.location}
               </span>
             </p>
             <ul className={styles.bullets}>

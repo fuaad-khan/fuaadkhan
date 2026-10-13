@@ -130,7 +130,7 @@ export default function Showcase({ app }) {
                 <span className={styles.featureNode} data-feature-node>
                   <span className={styles.featureFill} />
                 </span>
-                {pad(i + 1)} / {pad(count)}
+                {pad(i + 1)} {site.ui.countSep} {pad(count)}
               </p>
               <h3 className={styles.featureTitle}>{feature.title}</h3>
               <p className={styles.featureBody}>{feature.body}</p>
