@@ -1,0 +1,387 @@
+/* One app: copy (intro, features, stack) beside a device frame that never changes column */
+.showcase {
+  --frame-chrome: calc(1.75rem + 3px);
+  --zone-pad: var(--space-3);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: var(--chapter-pad-y) var(--gutter) var(--space-9) var(--content-x);
+}
+
+.copy {
+  min-width: 0;
+}
+
+/* Static layout (no JS, reduced motion): on narrow screens the frame leads and the copy follows */
+.visual {
+  order: -1;
+  margin-bottom: var(--space-7);
+}
+
+.stage {
+  width: 100%;
+}
+
+/* Persistent layer wrappers: definite boxes for the intro and the stacked feature frames */
+.introLayer,
+.featureFrame {
+  position: absolute;
+  inset: 0;
+}
+
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.kind {
+  position: relative;
+}
+
+/* Nodes ride the rail line (rail-x + 0.5px), centred on their text line */
+.introNode,
+.featureNode {
+  position: absolute;
+  top: 50%;
+  left: calc(0.5px - var(--rail-inset));
+  width: var(--node-size);
+  height: var(--node-size);
+  margin: calc(var(--node-size) / -2) 0 0 calc(var(--node-size) / -2);
+  border-radius: 50%;
+}
+
+.introNode {
+  background: var(--app-accent);
+  box-shadow: 0 0 0 var(--node-ring) var(--bg);
+}
+
+.featureNode {
+  background: var(--bg);
+  box-shadow:
+    inset 0 0 0 1px var(--app-accent),
+    0 0 0 var(--node-ring) var(--bg);
+}
+
+.featureFill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--app-accent);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.3em 0.75em;
+  border: 1px solid color-mix(in srgb, var(--app-accent) 45%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--app-accent);
+}
+
+.tagline {
+  margin-top: var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.problem {
+  margin-top: var(--space-4);
+  max-width: var(--measure);
+  color: var(--fg-muted);
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+}
+
+.fact dt,
+.stackLabel {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--app-accent);
+}
+
+.fact dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.metricValue {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricLabel {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--step--1);
+  line-height: 1.35;
+  color: var(--fg-muted);
+  text-wrap: balance;
+}
+
+.features {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+.feature {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+.index {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--app-accent);
+}
+
+.featureTitle {
+  font-size: var(--step-2);
+}
+
+.featureBody {
+  max-width: var(--measure);
+  color: var(--fg-muted);
+}
+
+.still {
+  margin-top: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--frame-radius);
+  background: var(--bg-raised);
+}
+
+.stackTrack {
+  margin-top: var(--space-8);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.stackList {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.stackList li {
+  white-space: nowrap;
+}
+
+/* Separators trail their item, so a wrapped line never starts with one */
+.stackList li:not(:last-child)::after {
+  content: '·';
+  margin: 0 0.6em;
+  color: var(--app-accent);
+}
+
+.footnote {
+  font-size: var(--step--1);
+  color: var(--fg-faint);
+}
+
+/* Scripts + motion: scroll tracks, sticky copy and stacked frames (narrow layout first, wide overrides below) */
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .showcase {
+    --col-w: calc(100vw - var(--content-x) - var(--gutter));
+    --stage-w: min(var(--col-w), calc((38svh - 2 * var(--zone-pad) - var(--frame-chrome)) * 1.6 + 2px));
+    --zone-h: calc(var(--stage-w) * 0.625 + var(--frame-chrome) + 2 * var(--zone-pad));
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  /* The frame zone sticks to the top over the copy (same grid cell, so the timeline needs no lead) */
+  :global(.js) .visual {
+    grid-area: 1 / 1;
+    align-self: start;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: 0;
+    padding: var(--zone-pad) 0;
+  }
+
+  /* Edge-to-edge opaque backdrop fading out below the frame: copy, rail and nodes all slide under it */
+  :global(.js) .visual::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: -2.5rem;
+    left: calc(-1 * var(--content-x));
+    right: calc(-1 * var(--gutter));
+    background: linear-gradient(var(--bg) calc(100% - 2.5rem), transparent);
+  }
+
+  :global(.js) .stage {
+    width: var(--stage-w);
+  }
+
+  :global(.js) .copy {
+    grid-area: 1 / 1;
+  }
+
+  :global(.js) .introTrack {
+    height: var(--track-intro);
+    padding-top: var(--zone-h);
+  }
+
+  /* Sticky just below the zone, padded clear of its 2.5rem fade */
+  :global(.js) .introText {
+    position: sticky;
+    top: var(--zone-h);
+    padding-top: calc(2.5rem + var(--space-2));
+  }
+
+  :global(.js) .features {
+    gap: 0;
+    margin-top: 0;
+  }
+
+  /* Padding by the zone height centres each feature in the part of the screen the frame leaves free */
+  :global(.js) .feature {
+    min-height: var(--track-feature);
+    align-content: center;
+    padding-top: var(--zone-h);
+  }
+
+  :global(.js) .stackTrack {
+    min-height: calc(var(--track-stack) + var(--track-pad));
+    margin-top: 0;
+  }
+
+  /* Initial states the timeline's fromTo tweens start from */
+  :global(.js) .still {
+    display: none;
+  }
+
+  :global(.js) .featureFrame,
+  :global(.js) .stack {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  :global(.js) .featureFill {
+    transform: scale(0);
+  }
+}
+
+/* Short narrow screens: a sticky intro below the frame zone would not fit, so it flows */
+@media (prefers-reduced-motion: no-preference) and (max-height: 700px) {
+  :global(.js) .introText {
+    position: relative;
+    top: auto;
+  }
+}
+
+/* Wide screens (and landscape phones): 5fr copy beside a 7fr frame centred in a viewport-tall sticky box */
+@media (min-width: 1024px), (min-width: 640px) and (orientation: landscape) {
+  .showcase {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .copy {
+    grid-area: 1 / 1;
+  }
+
+  .visual {
+    grid-area: 1 / 2;
+    order: 0;
+    align-self: start;
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    margin: 0;
+  }
+
+  .stage {
+    width: min(100%, calc((100svh - 2 * var(--chapter-pad-y) - var(--frame-chrome)) * 1.6 + 2px));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .visual {
+      grid-area: 1 / 2;
+      z-index: auto;
+      padding: 0;
+    }
+
+    :global(.js) .visual::before {
+      content: none;
+    }
+
+    :global(.js) .stage {
+      width: min(100%, calc((100svh - 2 * var(--chapter-pad-y) - var(--frame-chrome)) * 1.6 + 2px));
+    }
+
+    :global(.js) .introTrack,
+    :global(.js) .feature {
+      padding-top: 0;
+    }
+
+    /* Sticky for the intro window, vertically centred while it holds */
+    :global(.js) .introText {
+      position: sticky;
+      top: 0;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: var(--chapter-pad-y);
+    }
+  }
+}
