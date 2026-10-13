@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Social card template: scripts/og-card.mjs calls renderCard() with the site's tokens and copy, then captures 1200x630 -->
+    <title>Social card</title>
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 800;
+        src: url('../../public/fonts/inter-800.woff2') format('woff2');
+      }
+
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 600;
+        src: url('../../public/fonts/inter-600.woff2') format('woff2');
+      }
+
+      html,
+      body {
+        margin: 0;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+
+      .map {
+        position: absolute;
+        inset: 0;
+        width: 1200px;
+        height: 630px;
+      }
+
+      .land {
+        fill: var(--bg-raised);
+      }
+
+      .contours {
+        opacity: 0.1;
+      }
+
+      .coast {
+        fill: none;
+        stroke: var(--line-strong);
+        stroke-width: 1.5;
+        stroke-linejoin: round;
+      }
+
+      .graticule line {
+        stroke: var(--fg);
+        stroke-opacity: 0.07;
+        stroke-width: 1;
+      }
+
+      .graticule text {
+        fill: var(--fg-faint);
+        font: 13px var(--font-mono);
+        letter-spacing: 0.08em;
+      }
+
+      .ocean {
+        fill: var(--fg-faint);
+        font: 14px var(--font-mono);
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+
+      .route {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 3.5;
+        stroke-linecap: round;
+      }
+
+      .stop {
+        fill: var(--accent);
+        stroke: var(--bg-raised);
+        stroke-width: 4;
+      }
+
+      .halo {
+        fill: var(--accent);
+        opacity: 0.2;
+      }
+
+      .label {
+        fill: var(--fg-muted);
+        font-weight: 600;
+        font-size: 19px;
+        letter-spacing: -0.005em;
+      }
+
+      .label.here {
+        fill: var(--fg);
+      }
+
+      .text {
+        position: absolute;
+        left: 72px;
+        bottom: 66px;
+      }
+
+      .eyebrow {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 18px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+      }
+
+      h1 {
+        margin: 14px 0 20px -5px;
+        font-weight: 800;
+        font-size: 124px;
+        letter-spacing: -0.035em;
+        line-height: 1;
+      }
+
+      .identity {
+        margin: 0;
+        font-weight: 600;
+        font-size: 28px;
+        letter-spacing: -0.01em;
+      }
+
+      .identity .dot {
+        margin: 0 0.4em;
+        color: var(--accent);
+      }
+
+      .apps {
+        display: flex;
+        gap: 30px;
+        margin: 34px 0 0;
+        padding: 0;
+        list-style: none;
+        font-weight: 600;
+        font-size: 20px;
+        color: var(--fg-muted);
+      }
+
+      .app {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .node {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--node);
+        box-shadow: 0 0 0 4px var(--bg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <svg class="map" viewBox="0 0 1200 630" aria-hidden="true"></svg>
+      <div class="text"></div>
+    </div>
+    <script>
+      // Framing: latitude scale in px per degree, longitude scaled by cos(latitude), San Jacinto near the right edge and the ocean under the type
+      const FRAME = { lonMin: -120.82, latMax: 34.58, pxPerLat: 330, kx: Math.cos((33.65 * Math.PI) / 180) }
+
+      // Point Sal to San Diego, simplified by hand (the site's map inset uses the same outline from Point Conception); the first point lies above the frame
+      const COAST = [
+        [-120.64, 34.9], [-120.65, 34.58], [-120.58, 34.52],
+        [-120.47, 34.45], [-120.2, 34.47], [-119.85, 34.41], [-119.69, 34.41], [-119.5, 34.38], [-119.3, 34.27],
+        [-119.22, 34.15], [-119.1, 34.09], [-118.95, 34.04], [-118.8, 34.02], [-118.6, 34.03], [-118.5, 34.01],
+        [-118.45, 33.97], [-118.42, 33.9], [-118.41, 33.8], [-118.38, 33.73], [-118.3, 33.71], [-118.24, 33.75],
+        [-118.15, 33.76], [-118.1, 33.72], [-118.0, 33.65], [-117.92, 33.6], [-117.85, 33.56], [-117.75, 33.49],
+        [-117.68, 33.43], [-117.6, 33.39], [-117.5, 33.32], [-117.4, 33.2], [-117.33, 33.1], [-117.29, 33.0],
+        [-117.26, 32.9], [-117.26, 32.82], [-117.2, 32.72], [-117.15, 32.68], [-117.12, 32.6], [-117.12, 32.53],
+      ]
+
+      const SVG = 'http://www.w3.org/2000/svg'
+
+      const project = ([lon, lat]) => [(lon - FRAME.lonMin) * FRAME.pxPerLat * FRAME.kx, (FRAME.latMax - lat) * FRAME.pxPerLat]
+
+      const f = (n) => n.toFixed(1)
+
+      // Catmull-Rom through the hand-picked points, so the outline reads as a coast rather than a polyline
+      function smooth(pts) {
+        let d = `M${f(pts[0][0])} ${f(pts[0][1])}`
+        for (let i = 0; i < pts.length - 1; i++) {
+          const [p0, p1, p2, p3] = [pts[Math.max(i - 1, 0)], pts[i], pts[i + 1], pts[Math.min(i + 2, pts.length - 1)]]
+          const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]
+          const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]
+          d += ` C${f(c1[0])} ${f(c1[1])} ${f(c2[0])} ${f(c2[1])} ${f(p2[0])} ${f(p2[1])}`
+        }
+        return d
+      }
+
+      // The site's route arc: a gentle bow between two stops so the line reads as travel
+      function routePath([x1, y1], [x2, y2]) {
+        const k = 0.18
+        return `M${f(x1)} ${f(y1)} Q${f((x1 + x2) / 2 + (y2 - y1) * k)} ${f((y1 + y2) / 2 - (x2 - x1) * k)} ${f(x2)} ${f(y2)}`
+      }
+
+      function el(name, attrs = {}, text) {
+        const node = document.createElementNS(SVG, name)
+        for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value)
+        if (text != null) node.textContent = text
+        return node
+      }
+
+      function html(tag, className, text) {
+        const node = document.createElement(tag)
+        if (className) node.className = className
+        if (text != null) node.textContent = text
+        return node
+      }
+
+      const accentVar = (token) => (!token || token === 'gold' ? 'var(--accent)' : `var(--accent-${token})`)
+
+      // Label offsets per placement; below starts just left of the stop so a label near the coast stays on land
+      const LABEL = {
+        right: { dx: 16, dy: 6, anchor: 'start' },
+        left: { dx: -16, dy: 6, anchor: 'end' },
+        above: { dx: 0, dy: -18, anchor: 'middle' },
+        below: { dx: -10, dy: 32, anchor: 'start' },
+      }
+
+      // The ocean label follows the Santa Barbara Channel coast, clear of the type below it
+      const OCEAN = { at: [-119.36, 34.08], rotate: 28 }
+
+      function drawMap(svg, { stops, ocean, topo }) {
+        const coast = COAST.map(project)
+        const [sx] = coast[0]
+        const [ex] = coast[coast.length - 1]
+        const coastD = smooth(coast)
+        const landD = `${coastD} L${f(ex)} 760 L1260 760 L1260 -160 L${f(sx)} -160 Z`
+
+        const defs = el('defs')
+        const clip = el('clipPath', { id: 'land' })
+        clip.append(el('path', { d: landD }))
+        defs.append(clip)
+        svg.append(defs, el('path', { d: landD, class: 'land' }))
+
+        // Contours from the site background, light on the land only
+        let contours = Promise.resolve()
+        if (topo) {
+          const g = el('g', { class: 'contours', 'clip-path': 'url(#land)' })
+          const image = el('image', { href: topo, x: 0, y: -40, width: 1200, height: 2655, preserveAspectRatio: 'xMidYMin slice', style: 'filter: invert(1)' })
+          contours = new Promise((resolve, reject) => {
+            image.addEventListener('load', resolve, { once: true })
+            image.addEventListener('error', () => reject(new Error(`contour image failed to load: ${topo}`)), { once: true })
+          })
+          g.append(image)
+          svg.append(g)
+        }
+
+        const grid = el('g', { class: 'graticule' })
+        for (const lon of [-120, -119, -118, -117]) {
+          const [x] = project([lon, 34])
+          grid.append(el('line', { x1: f(x), y1: 0, x2: f(x), y2: 630 }), el('text', { x: f(x + 8), y: 30 }, `${Math.abs(lon)}°W`))
+        }
+        for (const lat of [33, 34]) {
+          const [, y] = project([-118, lat])
+          grid.append(el('line', { x1: 0, y1: f(y), x2: 1200, y2: f(y) }), el('text', { x: 1176, y: f(y - 9), 'text-anchor': 'end' }, `${lat}°N`))
+        }
+        svg.append(grid, el('path', { d: coastD, class: 'coast' }))
+
+        const [ox, oy] = project(OCEAN.at)
+        svg.append(el('text', { x: f(ox), y: f(oy), 'text-anchor': 'middle', transform: `rotate(${OCEAN.rotate} ${f(ox)} ${f(oy)})`, class: 'ocean' }, ocean))
+
+        const pts = stops.map((stop) => project(stop.coords))
+        for (let i = 1; i < pts.length; i++) svg.append(el('path', { d: routePath(pts[i - 1], pts[i]), class: 'route' }))
+        const last = pts[pts.length - 1]
+        svg.append(el('circle', { cx: f(last[0]), cy: f(last[1]), r: 19, class: 'halo' }))
+        pts.forEach(([x, y], i) => svg.append(el('circle', { cx: f(x), cy: f(y), r: i === pts.length - 1 ? 8 : 6, class: 'stop' })))
+        pts.forEach(([x, y], i) => {
+          const l = LABEL[stops[i].placement] ?? LABEL.right
+          const here = i === pts.length - 1 ? ' here' : ''
+          svg.append(el('text', { x: f(x + l.dx), y: f(y + l.dy), 'text-anchor': l.anchor, class: `label${here}` }, stops[i].label))
+        })
+        return contours
+      }
+
+      function drawText(box, { eyebrow, name, identity, apps }) {
+        const line = html('p', 'identity')
+        identity.forEach((part, i) => {
+          if (i > 0) line.append(html('span', 'dot', '·'))
+          line.append(part)
+        })
+        const list = html('ul', 'apps')
+        for (const app of apps) {
+          const item = html('li', 'app')
+          const node = html('span', 'node')
+          node.style.setProperty('--node', accentVar(app.accent))
+          item.append(node, app.name)
+          list.append(item)
+        }
+        box.append(html('p', 'eyebrow', eyebrow), html('h1', '', name), line, list)
+      }
+
+      // Called by og-card.mjs; resolves once Inter and the contour image are painted, reporting the Inter faces that loaded per weight
+      window.renderCard = async (data) => {
+        for (const [name, value] of Object.entries(data.tokens)) document.documentElement.style.setProperty(name, value)
+        const contours = drawMap(document.querySelector('.map'), data)
+        drawText(document.querySelector('.text'), data)
+        const faces = await Promise.all(['800 124px Inter', '600 28px Inter'].map((font) => document.fonts.load(font, data.name)))
+        await Promise.all([contours, document.fonts.ready])
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        return faces.map((list) => list.filter((face) => face.status === 'loaded').length)
+      }
+    </script>
+  </body>
+</html>
