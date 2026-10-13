@@ -62,7 +62,10 @@ export default function Showcase({ app }) {
         tl.fromTo(node.firstElementChild, { scale: 0 }, { scale: 1, duration: 0.02, ease: 'power2.out' }, at)
       })
 
+      // Frames start inert; one becomes reachable by keyboard only once it is mostly visible
+      gsap.set(shots, { attr: { inert: '' } })
       tl.fromTo(q('[data-stack]'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.04 }, f.stackAt).eventCallback('onUpdate', () => {
+        shots.forEach((shot) => shot.toggleAttribute('inert', gsap.getProperty(shot, 'opacity') < 0.5))
         const p = tl.progress()
         const next = starts.reduce((last, s, i) => (p >= s ? i : last), -1)
         if (next === activeRef.current) return
