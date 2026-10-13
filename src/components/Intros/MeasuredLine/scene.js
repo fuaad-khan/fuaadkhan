@@ -121,11 +121,20 @@ export function viewFor(roi, W, H, vw, vh) {
   let y = anchored ? roi.top : roi.y + roi.h / 2 - h / 2
   if (box && w <= box[2]) x = clamp(x, box[0], box[0] + box[2] - w)
   if (box && h <= box[3]) y = clamp(y, box[1], box[1] + box[3] - h)
-  // Leaflet's control column (roi.controls: left, top, right, bottom): an edge through it would slice the buttons, so the view takes in the map's edge (and the legend below)
+  // Leaflet's control column (roi.controls): an edge through a button would slice it, so the view steps out to the map's edge (keeping the legend whole) or to the nearest gap
   if (box && roi.controls) {
-    const [c0, c1, c2, c3] = roi.controls
-    if (x > c0 && x < c2) x = box[0]
-    if (x <= c0 && y > c1 && y < c3 && box[1] + h >= roi.y + roi.h) y = box[1]
+    const { x: [c0, c1], bands, slack: [top, bottom] } = roi.controls
+    if (x > c0 && x < c1) x = box[0]
+    const band = x <= c0 && bands.find(([a, b]) => y > a && y < b)
+    if (band) {
+      const up = band[0] - 4
+      const down = band[1] + 4
+      // Either step may give up the region's padding, never the action inside it
+      const fitsUp = up + h >= roi.y + roi.h - bottom
+      const fitsDown = down <= roi.y + top
+      if (fitsUp && (!fitsDown || y - up <= down - y)) y = up
+      else if (fitsDown) y = down
+    }
   }
   return { x: clamp(x, 0, vw - w), y: clamp(y, 0, vh - h), w, h }
 }

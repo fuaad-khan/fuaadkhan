@@ -15,8 +15,8 @@ const LABEL_MIN_PX = 11
 // Margins (capture px) the map view keeps around the action, and how close to the map's top-left corner it must come to frame the corner too
 const MAP_PAD = { x: 60, top: 90, bottom: 60 }
 const CORNER = { x: 140, y: 160 }
-// Leaflet's control column in the capture: zoom, home, locate and layers buttons, inset from the map's corner
-const CONTROLS = { inset: 14, w: 40, h: 236 }
+// Leaflet's control column in the capture, from the map's corner: its x span, then the zoom pair, home + locate, and layers as y bands
+const CONTROLS = { x: [12, 58], bands: [[13, 99], [107, 192], [200, 246]] }
 
 // Position k along a path of named stops: the stops either side of it and how far between them
 const pick = (path, k) => {
@@ -104,7 +104,11 @@ export default function MeasuredLine({ app, media, driver, target, onError }) {
       // Action near the map's top-left corner: frame the corner too, so Leaflet's control stack shows whole instead of sliced
       const left = x0 - MAP_PAD.x - mx < CORNER.x ? mx - 8 : x0 - MAP_PAD.x
       const top = y0 - MAP_PAD.top - my < CORNER.y ? my - 8 : y0 - MAP_PAD.top
-      const controls = [mx + CONTROLS.inset - 2, my + CONTROLS.inset - 2, mx + CONTROLS.inset + CONTROLS.w + 2, my + CONTROLS.inset + CONTROLS.h]
+      const controls = {
+        x: CONTROLS.x.map((v) => mx + v),
+        bands: CONTROLS.bands.map(([a, b]) => [my + a, my + b]),
+        slack: [MAP_PAD.top, MAP_PAD.bottom],
+      }
       rois.map = {
         x: left,
         y: top,
