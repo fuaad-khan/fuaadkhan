@@ -26,7 +26,9 @@
 :global(.loaded) .contours,
 :global(html:not(.js)) .contours {
   /* About 1.8:1 for the index contours on --bg: present behind the copy without crossing it; minor contours carry 72% through the mask */
-  background-color: var(--topo-ink, color-mix(in srgb, var(--fg) 20%, transparent));
+  --ink: var(--topo-ink, color-mix(in srgb, var(--fg) 20%, transparent));
+  /* A flat gradient, not background-color: contrast checkers cannot see the mask and would read the whole box as the text's background */
+  background-image: linear-gradient(var(--ink), var(--ink));
   -webkit-mask-image: url('../../assets/topo-redlands.svg');
   mask-image: url('../../assets/topo-redlands.svg');
 }
