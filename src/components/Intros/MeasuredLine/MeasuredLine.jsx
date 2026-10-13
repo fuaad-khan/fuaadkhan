@@ -12,6 +12,11 @@ const PIN_PATH = 'M13 31C13 31 2.5 18.5 2.5 11.5a10.5 10.5 0 0 1 21 0C23.5 18.5 
 // The map's feet label is 13 px; while the camera reads the map it grows toward this on-screen floor
 const LABEL_PX = 13
 const LABEL_MIN_PX = 11
+// Margins (capture px) the map view keeps around the action, and how close to the map's top-left corner it must come to frame the corner too
+const MAP_PAD = { x: 60, top: 90, bottom: 60 }
+const CORNER = { x: 140, y: 160 }
+// Leaflet's control column in the capture: zoom, home, locate and layers buttons, inset from the map's corner
+const CONTROLS = { inset: 14, w: 40, h: 236 }
 
 // Position k along a path of named stops: the stops either side of it and how far between them
 const pick = (path, k) => {
@@ -97,9 +102,18 @@ export default function MeasuredLine({ app, media, driver, target, onError }) {
       })
       ;[geo.auto.a, geo.auto.b, geo.hand.a, geo.hand.b, geo.pin].forEach(([x, y]) => grow(x, y))
       // Action near the map's top-left corner: frame the corner too, so Leaflet's control stack shows whole instead of sliced
-      const left = x0 - 60 - mx < 140 ? mx - 8 : x0 - 60
-      const top = y0 - 90 - my < 160 ? my - 8 : y0 - 90
-      rois.map = { x: left, y: top, w: x1 + 60 - left, h: y1 + 60 - top, within: [mx - 8, my - 8, mw + 16, mh + 16], scale: MAP_SCALE }
+      const left = x0 - MAP_PAD.x - mx < CORNER.x ? mx - 8 : x0 - MAP_PAD.x
+      const top = y0 - MAP_PAD.top - my < CORNER.y ? my - 8 : y0 - MAP_PAD.top
+      const controls = [mx + CONTROLS.inset - 2, my + CONTROLS.inset - 2, mx + CONTROLS.inset + CONTROLS.w + 2, my + CONTROLS.inset + CONTROLS.h]
+      rois.map = {
+        x: left,
+        y: top,
+        w: x1 + MAP_PAD.x - left,
+        h: y1 + MAP_PAD.bottom - top,
+        within: [mx - 8, my - 8, mw + 16, mh + 16],
+        controls,
+        scale: MAP_SCALE,
+      }
 
       // Card views run from the gap under the banner to just past the residence row (no text cut), opening above the card when there is room
       const colX = vw - COLUMN_W

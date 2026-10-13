@@ -121,6 +121,12 @@ export function viewFor(roi, W, H, vw, vh) {
   let y = anchored ? roi.top : roi.y + roi.h / 2 - h / 2
   if (box && w <= box[2]) x = clamp(x, box[0], box[0] + box[2] - w)
   if (box && h <= box[3]) y = clamp(y, box[1], box[1] + box[3] - h)
+  // Leaflet's control column (roi.controls: left, top, right, bottom): an edge through it would slice the buttons, so the view takes in the map's edge (and the legend below)
+  if (box && roi.controls) {
+    const [c0, c1, c2, c3] = roi.controls
+    if (x > c0 && x < c2) x = box[0]
+    if (x <= c0 && y > c1 && y < c3 && box[1] + h >= roi.y + roi.h) y = box[1]
+  }
   return { x: clamp(x, 0, vw - w), y: clamp(y, 0, vh - h), w, h }
 }
 
