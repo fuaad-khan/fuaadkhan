@@ -23,19 +23,20 @@
         "state": "City Hall selected, lookup rows filled, assessor sidebar and legend open (match-cut target for CityDraw)"
       },
       {
-        "name": "f1",
+        "name": "lookup",
         "kind": "loop",
         "seconds": 8,
+        "order": "rotated (v1): starts on its poster, the property report",
         "path": "/index.html?lat=33.78227&lon=-116.95852&z=18&panels=lookup",
         "apn": "437076013",
         "state": "type 595 S San Jacinto, pick the suggestion, zoom, rows fill, open the property report",
         "poster": "the property report"
       },
       {
-        "name": "f2",
+        "name": "layers",
         "kind": "loop",
         "seconds": 6,
-        "still": true,
+        "order": "rotated (v1): starts on its poster, the 2014 imagery",
         "path": "/index.html?lat=33.79525&lon=-116.98565&z=17&layers=parcels,zoning&panels=legend",
         "state": "zoning on with its legend; the imagery slider steps 2014 to 2026 over post-2014 subdivisions, no parcel selected",
         "seed": {
@@ -44,12 +45,48 @@
         "poster": "Jul 26, 2014 imagery under the zoning layer"
       },
       {
-        "name": "f3",
-        "kind": "still",
-        "path": "/index.html?lat=33.78907&lon=-116.96290&z=17&panels=&base=streets",
+        "name": "measure",
+        "kind": "loop",
+        "seconds": 9,
+        "order": "played once: the poster is the first frame",
+        "path": "/index.html?lat=33.78257&lon=-116.95787&z=19&panels=",
+        "state": "Measure panel open by City Hall: a line along Sheriff Ave and 5th St (double-click to finish), then Polygon mode and the Civic Center block; no parcel selected",
+        "poster": "the open Measure panel over the Civic Center block"
+      },
+      {
+        "name": "createmap",
+        "kind": "loop",
+        "seconds": 10,
+        "order": "played once: the poster is the first frame",
+        "path": "/index.html?lat=33.78627&lon=-117.02108&z=18&panels=",
+        "apns": [
+          "432190011",
+          "432190012",
+          "432190013"
+        ],
+        "box": [
+          [
+            33.7869,
+            -117.0238
+          ],
+          [
+            33.7856,
+            -117.0229
+          ]
+        ],
+        "state": "Create Map in rectangle mode: a box drag picks the City-owned 432-190-011/012/013 (and nothing else), Create Map, Hatch fill, the Planning template, scrolled to its title block",
+        "poster": "Create Map open in rectangle mode over the three City parcels"
+      },
+      {
+        "name": "buffer",
+        "kind": "loop",
+        "seconds": 10,
+        "order": "played once: the poster is the first frame",
+        "path": "/index.html?lat=33.78907&lon=-116.96290&z=17&panels=",
         "apn": "434130011",
-        "state": "300 ft proximity buffer around the SJUSD parcel; the buffer panel with Export Parcels (CSV) and Mailing Labels (Avery 5160); the label sheet is captured too, as the alternate f3-labels",
-        "basemap": "streets"
+        "bufferFeet": 300,
+        "state": "Proximity Buffer with 300 ft entered: click the SJUSD school parcel, the ring and its parcels, Mailing Labels (Avery 5160; private owners blurred by redact.js, public agencies readable), then Print Map: the subject site map",
+        "poster": "the Proximity Buffer panel with 300 ft, before the click"
       }
     ]
   },
@@ -65,42 +102,55 @@
     ],
     "dpr": 2,
     "basemap": "nearmap",
+    "theme": "dark",
     "seed": {
-      "yardplan.theme": "light"
+      "yardplan.theme": "dark"
     },
     "shots": [
       {
         "name": "hero",
         "kind": "still",
         "apn": "437076013",
-        "state": "City Hall parcel at z19, turf + concrete drawn (shapes injected through the app's own plEncode into the permalink hash), Draw panel with rows and donut"
+        "state": "dark theme: City Hall parcel at z21, turf + concrete drawn (shapes injected through the app's own plEncode into the permalink hash), Draw panel with rows and donut"
       },
       {
         "name": "base",
         "kind": "still",
         "apn": "437076013",
-        "state": "the hero view with the drawings, glass sheet and chrome hidden: the map under the glass"
+        "state": "dark theme: the hero view with the drawings, glass sheet and chrome hidden: the map under the glass"
       },
       {
-        "name": "f1",
+        "name": "draw",
+        "kind": "loop",
+        "seconds": 10,
+        "order": "played once: the poster is the first frame",
+        "apn": "437076013",
+        "state": "dark theme: Add Turf and its four corners, then Add Concrete, the third corner snapping to the turf's corner and the fourth to its edge; rows and donut update",
+        "poster": "City Hall with nothing drawn yet"
+      },
+      {
+        "name": "composition",
         "kind": "loop",
         "seconds": 7,
+        "order": "played once: the poster is the first frame",
         "apn": "437076013",
-        "state": "drawing the concrete polygon: snap ring on the shared corner, outline closes, rows and donut update",
-        "poster": "the snap ring on the shared corner"
+        "clip": [
+          460,
+          110,
+          1120,
+          700
+        ],
+        "state": "dark theme close-up: Edit, then a concrete corner dragged out while the rows, total and donut follow live; Edit again to save",
+        "poster": "the restored plan beside the Yard Composition panel"
       },
       {
-        "name": "f2",
-        "kind": "still",
-        "clip": "draw-panel",
+        "name": "share",
+        "kind": "loop",
+        "seconds": 7,
+        "order": "played once: the poster is the first frame",
         "apn": "437076013",
-        "state": "Draw panel and the drawn shapes, a 16:10 clip at 4x"
-      },
-      {
-        "name": "f3",
-        "kind": "still",
-        "apn": "437076013",
-        "state": "Share panel: PDF, GeoJSON, Copy link, Print"
+        "state": "dark theme: Share in the rail, the Download & Share panel, Copy Link and its status toast (the clipboard write is stubbed; no PDF is generated or downloaded)",
+        "poster": "the restored plan with the Draw panel"
       }
     ]
   },
@@ -115,11 +165,11 @@
       1000
     ],
     "dpr": 2,
-    "basemap": "nearmap (hero, base, f3 end); maptiler streets (f1, f2)",
+    "basemap": "nearmap (hero, base, verify end); maptiler streets (buffer, lookup, chooser)",
     "seed": {},
     "shots": [
       {
-        "name": "f2",
+        "name": "buffer",
         "kind": "still",
         "search": "438 S STATE ST",
         "license": "microbusiness",
@@ -140,19 +190,41 @@
         "state": "the hero view with the overlay panes and the verdict card and rows hidden"
       },
       {
-        "name": "f3",
+        "name": "verify",
         "kind": "loop",
-        "seconds": 6,
+        "seconds": 7,
+        "order": "played once: the poster is the first frame",
         "search": "438 S STATE ST",
         "license": "microbusiness",
-        "state": "the verify flip: Verify distance, handle drag 95 to 101 ft, Complete, stamp, card turns Eligible",
-        "poster": "line dragged past 100 ft, before Complete"
+        "state": "the verify flip: from the automatic Not Eligible at 95 ft, Verify distance, handle drag to 101 ft, Complete, stamp, card turns Eligible",
+        "poster": "the automatic verdict: Not Eligible at 95 ft"
       },
       {
-        "name": "f1",
-        "kind": "still",
+        "name": "lookup",
+        "kind": "loop",
+        "seconds": 9,
+        "order": "played once: the poster is the first frame",
         "license": "manufacturing",
-        "state": "instant Eligible at a commercial or industrial-zoned (CG/IL/BP), non-residential parcel found by querying the City parcels layer; Needs More Data if none"
+        "type": "1280 s buena vsta",
+        "apn": "435211050",
+        "state": "pick Manufacturing, type a misspelled address for an IL-zoned industrial parcel with one building, take the corrected suggestion, instant Eligible",
+        "poster": "the app at rest, before the license pick"
+      },
+      {
+        "name": "chooser",
+        "kind": "loop",
+        "seconds": 8,
+        "order": "played once: the poster is the first frame",
+        "license": "offSaleMarket",
+        "prefer": [
+          "432130016"
+        ],
+        "buildings": [
+          2,
+          6
+        ],
+        "state": "a commercial-zoned, non-residential parcel with several buildings (picked from candidates): the chooser, hover-sync between the list and the map, the largest building chosen on the map, the verdict",
+        "poster": "the building chooser after the search"
       }
     ]
   }
