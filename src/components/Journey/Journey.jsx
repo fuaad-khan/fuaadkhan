@@ -26,7 +26,7 @@ export default function Journey({ site, stops }) {
         <p>{site.journey.body}</p>
       </div>
       <div className={styles.map}>
-        <MapInset ref={mapRef} stops={stops} journey={site.journey} />
+        <MapInset ref={mapRef} stops={stops} journey={site.journey} sep={site.ui.sep} />
       </div>
       <div ref={cardsRef} className={styles.cards}>
         <Timeline stops={stops} label={site.ui.careerTimeline} onPointStop={pointStop} />

@@ -1,62 +1,10 @@
-/* height: 100% fills a DeviceFrame layer; inline it resolves to auto and the width/height attributes keep the ratio */
+/* height: 100% fills a DeviceFrame layer; inline it resolves to auto and the width/height attributes keep the ratio; --media-focus picks the crop */
 .img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top left;
-}
-
-.loop {
-  position: relative;
-  height: 100%;
-}
-
-.video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top left;
-}
-
-/* WCAG 2.2.2: every looping clip gets a visible pause control */
-.toggle {
-  position: absolute;
-  right: var(--space-3);
-  bottom: var(--space-3);
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 1px solid var(--line-strong);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  color: var(--fg);
-  cursor: pointer;
-  transition: border-color 0.2s var(--ease-out);
-}
-
-.toggle:hover {
-  border-color: var(--frame-accent, var(--accent));
-}
-
-.pauseIcon {
-  width: 8px;
-  height: 10px;
-  border-left: 3px solid currentColor;
-  border-right: 3px solid currentColor;
-}
-
-.playIcon {
-  width: 0;
-  height: 0;
-  margin-left: 2px;
-  border-style: solid;
-  border-width: 5px 0 5px 9px;
-  border-color: transparent transparent transparent currentColor;
+  object-position: var(--media-focus, top left);
 }
 
 /* width: 100% stops a layer's definite height from deriving the width through aspect-ratio */

@@ -40,9 +40,11 @@ function buildDraw(root) {
     at += span + GAP
   })
 
+  // The pulse grows from the halo's own radius (MapInset), then the ring settles back around the last badge
+  const r = Number(halo.getAttribute('r'))
   return tl
-    .fromTo(halo, { attr: { r: 12 }, opacity: 0.55 }, { attr: { r: 30 }, opacity: 0, duration: 1, ease: 'power2.out' }, at - GAP)
-    .set(halo, { attr: { r: 12 } })
+    .fromTo(halo, { attr: { r }, opacity: 0.55 }, { attr: { r: r * 2.4 }, opacity: 0, duration: 1, ease: 'power2.out' }, at - GAP)
+    .set(halo, { attr: { r } })
     .to(halo, { opacity: 0.55, duration: 0.5, ease: 'power1.out' })
 }
 

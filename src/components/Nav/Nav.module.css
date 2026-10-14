@@ -22,18 +22,18 @@
   padding: 0 7px 0 20px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  box-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 32px -16px rgb(var(--shade) / 0.6);
   pointer-events: auto;
 }
 
-/* Translucent dark glass, also under the border */
+/* Translucent dark glass, also under the border; 82% keeps every label at 4.5:1 or better with white app UI scrolling underneath */
 .bar::before {
   content: '';
   position: absolute;
   inset: -1px;
   z-index: -1;
   border-radius: inherit;
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   backdrop-filter: blur(20px) saturate(160%);
 }
@@ -74,7 +74,7 @@
   letter-spacing: 0.01em;
   white-space: nowrap;
   text-decoration: none;
-  color: color-mix(in srgb, var(--fg) 76%, transparent);
+  color: color-mix(in srgb, var(--fg) 80%, transparent);
   transition: color 0.3s var(--ease-out);
 }
 
@@ -83,15 +83,15 @@
   color: var(--fg);
 }
 
-/* Collapsed (server render, no JS, outside My Applications): the three app items wait; expanded: they replace the hub item */
+/* Collapsed (server render, no JS, the hub and every non-app section): the three app items wait; expanded (an app section): they replace the hub item */
 .list:not([data-expanded]) [data-kind='app'],
 .list[data-expanded] [data-kind='hub'] {
   display: none;
 }
 
-/* Liquid-glass lens, placed in the bar (whose box never moves during a morph); z-index -1 puts it over the glass, under the labels */
+/* Liquid-glass lens, placed in the bar (whose box never moves during a morph); z-index -1 puts it over the glass, under the labels; no brightness boost, which cost the current label contrast over light UI */
 .lens {
-  --lens-rim: rgba(255, 255, 255, 0.1);
+  --lens-rim: rgb(var(--glint) / 0.1);
   --lens-glow: transparent;
 
   position: absolute;
@@ -102,15 +102,15 @@
   height: 36px;
   margin-top: -18px;
   border-radius: 999px;
-  background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.07));
-  -webkit-backdrop-filter: blur(6px) saturate(180%) brightness(1.12);
-  backdrop-filter: blur(6px) saturate(180%) brightness(1.12);
+  background: linear-gradient(rgb(var(--glint) / 0.15), rgb(var(--glint) / 0.07));
+  -webkit-backdrop-filter: blur(6px) saturate(180%);
+  backdrop-filter: blur(6px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgb(var(--glint) / 0.24),
+    inset 0 -1px 0 rgb(var(--glint) / 0.05),
     inset 0 0 0 1px var(--lens-rim),
     0 0 16px -4px var(--lens-glow),
-    0 4px 12px -6px rgba(0, 0, 0, 0.5);
+    0 4px 12px -6px rgb(var(--shade) / 0.5);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -121,6 +121,13 @@
 .lens[data-accent] {
   --lens-rim: color-mix(in srgb, var(--lens-accent) 70%, transparent);
   --lens-glow: color-mix(in srgb, var(--lens-accent) 55%, transparent);
+}
+
+/* Up to tablet width the name and five items share the bar, so the items tighten a little (640px: 31px clear of the name instead of 11px) */
+@media (max-width: 767px) {
+  .link {
+    padding-inline: 12px;
+  }
 }
 
 /* Phones: no name on the left; the items centre in the bar */
@@ -135,14 +142,17 @@
   }
 }
 
-/* Small phones: tighter items, and inside My Applications only the three apps */
+/* Below 560px the five expanded items (about 520px) no longer fit the bar, so inside an app section only the three apps show */
+@media (max-width: 559px) {
+  .list[data-expanded] [data-kind='section'] {
+    display: none;
+  }
+}
+
+/* Small phones: tighter items */
 @media (max-width: 480px) {
   .link {
     padding-inline: 11px;
     font-size: 0.75rem;
-  }
-
-  .list[data-expanded] [data-kind='section'] {
-    display: none;
   }
 }

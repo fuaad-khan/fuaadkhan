@@ -21,10 +21,7 @@ export const site = {
 
   ui: {
     builtFor: 'Built for',
-    featuresLabel: 'Features',
     scroll: 'Scroll',
-    pauseLoop: 'Pause animation',
-    playLoop: 'Play animation',
     careerTimeline: 'Career timeline',
     illustration: 'Illustration',
     stackLabel: 'Built with',
@@ -32,7 +29,7 @@ export const site = {
     // Separators and marks the components print between copy (decorative ones are aria-hidden)
     sep: '·',
     listSep: ',',
-    countSep: '/',
+    moreMark: '›',
     downloadMark: '↓',
     // Highlight galleries: {name}, {n}, {total} and {caption} are filled by the gallery
     gallery: {
@@ -60,6 +57,8 @@ export const site = {
     eyebrow: 'My Applications',
     headline: 'Things I’ve built.',
     body: 'Three web mapping applications, designed and built end to end for the City of San Jacinto and the people who live there.',
+    // The link cue under each hub tile (the tile itself is the link)
+    cue: 'See the highlights',
   },
 
   close: {
