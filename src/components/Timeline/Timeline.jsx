@@ -12,10 +12,8 @@ export default function Timeline({ stops, label, onPointStop }) {
         <li key={stop.id} className={styles.stop} data-stop-card={i} data-reveal>
           <p className={`eyebrow ${styles.eyebrow}`}>
             <span>{stop.kind}</span>
-            <span className={styles.sep} aria-hidden="true">
-              {site.ui.sep}
-            </span>
-            <span>{stop.dates}</span>
+            <span className="sr-only">{site.ui.listSep}</span>
+            <span className={styles.dates}>{stop.dates}</span>
           </p>
           <h3 className={styles.headline}>{stop.headline}</h3>
           <p className={styles.role}>

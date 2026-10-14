@@ -1,10 +1,11 @@
-/* One full viewport; the copy sits on the optical centre, a little below the floating nav */
+/* One full viewport; the copy sits on the optical centre, a little below the floating nav; clip keeps the scrim from widening phones */
 .hero {
   position: relative;
   min-height: 100svh;
   display: grid;
   place-items: center;
   padding: var(--nav-space) var(--gutter) var(--space-9);
+  overflow-x: clip;
   text-align: center;
 }
 

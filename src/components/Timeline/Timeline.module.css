@@ -33,29 +33,27 @@
   }
 }
 
+/* Kind over dates: two short lines read better in a narrow card than one that wraps at the separator */
 .eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  column-gap: 0.6em;
+  display: grid;
+  justify-items: center;
+  gap: 0.3em;
 }
 
-.eyebrow span {
-  white-space: nowrap;
-}
-
-.sep {
+.dates {
   color: var(--accent);
 }
 
 .headline {
   margin-top: var(--space-4);
+  font-size: clamp(1.2rem, 1.05rem + 0.4vw, 1.375rem);
 }
 
 .role {
   display: grid;
   gap: 0.15rem;
   margin-top: var(--space-4);
+  font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
 }
 
 .role strong {

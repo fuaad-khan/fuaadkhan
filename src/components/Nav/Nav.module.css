@@ -1,0 +1,148 @@
+/* A full-width fixed strip that only hosts the centred bar; it lets clicks through outside the bar */
+.nav {
+  position: fixed;
+  top: var(--nav-top);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--nav-top);
+  pointer-events: none;
+}
+
+/* The width of the centred column; its glass is a pseudo-element, so the bar is no backdrop root and the lens can filter the page too */
+.bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(100%, var(--wide));
+  height: var(--nav-h);
+  padding: 0 7px 0 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+/* Translucent dark glass, also under the border */
+.bar::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .bar::before {
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+  }
+}
+
+.home {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.home:focus-visible,
+.link:focus-visible {
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding-inline: 14px;
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  color: color-mix(in srgb, var(--fg) 76%, transparent);
+  transition: color 0.3s var(--ease-out);
+}
+
+.link:hover,
+.link[aria-current] {
+  color: var(--fg);
+}
+
+/* Collapsed (server render, no JS, outside My Applications): the three app items wait; expanded: they replace the hub item */
+.list:not([data-expanded]) [data-kind='app'],
+.list[data-expanded] [data-kind='hub'] {
+  display: none;
+}
+
+/* Liquid-glass lens, placed in the bar (whose box never moves during a morph); z-index -1 puts it over the glass, under the labels */
+.lens {
+  --lens-rim: rgba(255, 255, 255, 0.1);
+  --lens-glow: transparent;
+
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: -1;
+  width: 0;
+  height: 36px;
+  margin-top: -18px;
+  border-radius: 999px;
+  background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.07));
+  -webkit-backdrop-filter: blur(6px) saturate(180%) brightness(1.12);
+  backdrop-filter: blur(6px) saturate(180%) brightness(1.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px var(--lens-rim),
+    0 0 16px -4px var(--lens-glow),
+    0 4px 12px -6px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: box-shadow 0.45s var(--ease-out);
+}
+
+/* Inside an app section the rim and a faint glow take that app's accent (Nav sets --lens-accent) */
+.lens[data-accent] {
+  --lens-rim: color-mix(in srgb, var(--lens-accent) 70%, transparent);
+  --lens-glow: color-mix(in srgb, var(--lens-accent) 55%, transparent);
+}
+
+/* Phones: no name on the left; the items centre in the bar */
+@media (max-width: 639px) {
+  .bar {
+    justify-content: center;
+    padding: 0 7px;
+  }
+
+  .home {
+    display: none;
+  }
+}
+
+/* Small phones: tighter items, and inside My Applications only the three apps */
+@media (max-width: 480px) {
+  .link {
+    padding-inline: 11px;
+    font-size: 0.75rem;
+  }
+
+  .list[data-expanded] [data-kind='section'] {
+    display: none;
+  }
+}
