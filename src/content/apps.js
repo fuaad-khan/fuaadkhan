@@ -18,15 +18,15 @@ export const apps = [
       { value: '54', label: 'imagery dates, 2014–2026' },
     ],
     // One card per major feature, like the chapters of the Map My San Jacinto video; clip ids are media.js clips keys
-    // duration is the card's seconds: an intro plays, then holds its last frame for the final 1.2 s; clips run their own length, stills and glance 6 s
+    // duration is the card's seconds: an intro plays, then holds its last frame for the final 1.2 s; clips run their own length at 1.25x, stills and glance 5 s
     highlights: [
-      { id: 'intro', kind: 'intro', caption: 'Every parcel in San Jacinto. All 18,459, one search away.', duration: 10 },
+      { id: 'intro', kind: 'intro', caption: 'Every parcel in San Jacinto. All 18,459, one search away.', duration: 8 },
       { id: 'lookup', kind: 'clip', caption: 'Search any address or APN. Zoning, services, hazards and assessor records in one click.' },
       { id: 'layers', kind: 'clip', caption: 'Zoning, land use and hazard layers, plus twelve years of aerial imagery on one slider.' },
       { id: 'measure', kind: 'clip', caption: 'Measure distance and area right on the map.' },
       { id: 'createmap', kind: 'clip', caption: 'Pick parcels, style them, and print a planning exhibit.' },
       { id: 'buffer', kind: 'clip', caption: 'Draw a radius, find every neighbor, print hearing-notice labels.' },
-      { id: 'glance', kind: 'glance', caption: 'Map My City at a glance.', duration: 6 },
+      { id: 'glance', kind: 'glance', caption: 'Map My City at a glance.', duration: 5 },
     ],
     stack: ['JavaScript', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'esbuild'],
     intro: {
@@ -55,11 +55,11 @@ export const apps = [
       { value: '~1,200', label: 'characters to link a 10-shape plan' },
     ],
     highlights: [
-      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on the aerial.', duration: 8 },
+      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on the aerial.', duration: 7 },
       { id: 'draw', kind: 'clip', caption: 'Trace turf and concrete. Corners snap to each other.' },
       { id: 'composition', kind: 'clip', caption: 'Square footage and concrete share update as you draw.' },
       { id: 'share', kind: 'clip', caption: 'Download a PDF, or send a link that carries the whole plan.' },
-      { id: 'glance', kind: 'glance', caption: 'Yard Plan at a glance.', duration: 6 },
+      { id: 'glance', kind: 'glance', caption: 'Yard Plan at a glance.', duration: 5 },
     ],
     stack: ['JavaScript', 'Leaflet', 'Leaflet Draw', 'Esri Leaflet', 'Turf.js', 'jsPDF', 'Nearmap imagery'],
     intro: {
@@ -112,12 +112,12 @@ export const apps = [
       { value: '226', label: 'automated tests' },
     ],
     highlights: [
-      { id: 'intro', kind: 'intro', caption: 'Can a cannabis business go here? Ask the map.', duration: 9 },
+      { id: 'intro', kind: 'intro', caption: 'Can a cannabis business go here? Ask the map.', duration: 8 },
       { id: 'lookup', kind: 'clip', caption: 'Pick a license type, search an address, get a verdict in about two seconds.' },
       { id: 'buffer', kind: 'clip', caption: 'Every rule checked against schools, day cares, youth centers and homes, with the distance drawn on the map.' },
       { id: 'chooser', kind: 'clip', caption: 'Several buildings on one parcel? Choose the one that will house the business.' },
       { id: 'verify', kind: 'clip', caption: 'Disagree with a distance? Measure it yourself, and the verdict updates.' },
-      { id: 'glance', kind: 'glance', caption: 'Green Check at a glance.', duration: 6 },
+      { id: 'glance', kind: 'glance', caption: 'Green Check at a glance.', duration: 5 },
     ],
     stack: ['React', 'Vite', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'Overture building footprints'],
     footnote: 'Results do not constitute a zoning determination.',

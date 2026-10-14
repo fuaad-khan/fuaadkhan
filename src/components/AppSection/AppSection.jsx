@@ -16,7 +16,7 @@ function nextFor(app) {
   }
 }
 
-// One app, sized to a viewport under the nav: centred kind, status and name, the tagline, then its highlight gallery
+// One app: its centred name, then the tagline with the status chip on the same line, then its highlight gallery
 export default function AppSection({ app }) {
   const titleId = `${app.id}-title`
   return (
@@ -28,14 +28,13 @@ export default function AppSection({ app }) {
       style={{ '--app-accent': accentVar(app.accent) }}
     >
       <header className={styles.header}>
-        <div className={styles.kicker}>
-          <p className={`eyebrow ${styles.kind}`}>{app.kind}</p>
-          <p className={styles.status}>{app.status}</p>
-        </div>
         <h2 id={titleId} className={styles.title}>
           {app.name}
         </h2>
-        {app.tagline && <p className={styles.tagline}>{app.tagline}</p>}
+        <div className={styles.subline}>
+          {app.tagline && <p className={styles.tagline}>{app.tagline}</p>}
+          <p className={styles.status}>{app.status}</p>
+        </div>
       </header>
       <Gallery app={app} next={nextFor(app)} />
     </section>

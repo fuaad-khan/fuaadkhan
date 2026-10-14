@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { useMotionOK, useNearViewport } from '../../hooks/useChapter'
 import { createDriver, fill } from '../Intros'
 import { media } from '../../content/media'
@@ -10,7 +10,11 @@ import { useGalleryPlayer } from './useGalleryPlayer'
 import styles from './Gallery.module.css'
 
 // Seconds a still or the glance card stays up unless its highlight sets a duration
-const STILL_SECONDS = 6
+const STILL_SECONDS = 5
+// Intros and clips mount once the gallery is within a viewport of the screen, so the hub does not load the galleries below it
+const NEAR = '100%'
+
+const noSubscribe = () => () => {}
 
 // Each highlight with its media entry (a missing clip falls back to the hero) and the kind the player runs it as
 function resolveCards(app, assets) {
@@ -29,10 +33,13 @@ export default function Gallery({ app, next }) {
   const dotsRef = useRef(null)
   const videosRef = useRef([])
   const motionOK = useMotionOK()
-  const near = useNearViewport(regionRef)
+  // False in the prerendered markup and during hydration, so cards are hidden from assistive tech only once scripts run
+  const hydrated = useSyncExternalStore(noSubscribe, () => true, () => false)
+  const near = useNearViewport(regionRef, NEAR)
   const assets = media[app.id]
   const hero = assets?.hero
   const cards = useMemo(() => resolveCards(app, assets), [app, assets])
+  const captions = useMemo(() => cards.map((card) => card.caption), [cards])
   const [drivers] = useState(() => cards.map((card) => (card.kind === 'intro' ? createDriver() : null)))
   const videoRefs = useMemo(
     () =>
@@ -42,7 +49,7 @@ export default function Gallery({ app, next }) {
     [cards],
   )
   const target = useMemo(() => ({ view: hero?.view, mapRect: hero?.mapRect, viewport: hero?.viewport }), [hero])
-  const { active, mode, running, goTo, toggle, onKeyDown, clipFailed } = useGalleryPlayer({
+  const { active, mode, running, goTo, toggle, onKeyDown, onFocus, onBlur, clipFailed } = useGalleryPlayer({
     cards,
     motionOK,
     near,
@@ -56,6 +63,8 @@ export default function Gallery({ app, next }) {
   const labels = site.ui.gallery
   const last = cards.length - 1
   const showNext = motionOK ? mode === 'ended' : active === last
+  // Clips buffer only once the gallery has started, and then only the card in focus and the next one
+  const started = mode !== 'idle'
 
   return (
     <div
@@ -68,8 +77,11 @@ export default function Gallery({ app, next }) {
       data-running={running}
       data-active={active}
       onKeyDown={onKeyDown}
+      onFocus={onFocus}
+      onBlur={onBlur}
     >
-      <ul ref={trackRef} className={styles.track} tabIndex={0}>
+      {/* Manual moves are announced (the arriving card leaves aria-hidden); autoplay stays quiet */}
+      <ul ref={trackRef} className={styles.track} tabIndex={0} aria-label={fill(labels.track, { name: app.name })} aria-live={running ? 'off' : 'polite'}>
         {cards.map((card, i) => (
           <Card
             key={card.id}
@@ -77,11 +89,12 @@ export default function Gallery({ app, next }) {
             card={card}
             index={i}
             current={i === active}
+            hidden={hydrated && i !== active}
             assets={assets}
             driver={drivers[i]}
             target={target}
             live={near && motionOK}
-            preload={i === active || i === active + 1 ? 'auto' : 'none'}
+            preload={started && (i === active || i === active + 1) ? 'auto' : 'none'}
             videoRef={videoRefs[i]}
             onClipError={clipErrors[i]}
           />
@@ -89,7 +102,7 @@ export default function Gallery({ app, next }) {
       </ul>
       <div className={styles.bar}>
         <Controls
-          count={cards.length}
+          captions={captions}
           active={active}
           mode={mode}
           labels={labels}

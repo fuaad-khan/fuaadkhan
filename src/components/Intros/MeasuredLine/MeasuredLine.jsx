@@ -17,6 +17,8 @@ const MAP_PAD = { x: 60, top: 90, bottom: 60 }
 const CORNER = { x: 140, y: 160 }
 // Leaflet's control column in the capture, from the map's corner: its x span, then the zoom pair, home + locate, and layers as y bands
 const CONTROLS = { x: [12, 58], bands: [[13, 99], [107, 192], [200, 246]] }
+// The app's Legend panel in the capture (green-check base@2x, bottom-left of the map): its x span from the map's corner
+const LEGEND_X = [14, 238]
 
 // Position k along a path of named stops: the stops either side of it and how far between them
 const pick = (path, k) => {
@@ -109,13 +111,16 @@ export default function MeasuredLine({ app, media, driver, target, onError }) {
         bands: CONTROLS.bands.map(([a, b]) => [my + a, my + b]),
         slack: [MAP_PAD.top, MAP_PAD.bottom],
       }
+      // Over the capture, a view whose edge crossed the Legend would slice it at any zoom, so the map view stays right of it (and of the controls) when the action allows
+      const clearX = mx + LEGEND_X[1] + 8
+      const clear = scene.real && x0 - MAP_PAD.x / 2 >= clearX
       rois.map = {
         x: left,
         y: top,
         w: x1 + MAP_PAD.x - left,
         h: y1 + MAP_PAD.bottom - top,
-        within: [mx - 8, my - 8, mw + 16, mh + 16],
-        controls,
+        within: clear ? [clearX, my - 8, mx + mw + 8 - clearX, mh + 16] : [mx - 8, my - 8, mw + 16, mh + 16],
+        controls: clear ? null : controls,
         scale: MAP_SCALE,
       }
 

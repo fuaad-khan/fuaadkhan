@@ -34,13 +34,15 @@ export const site = {
     listSep: ',',
     countSep: '/',
     downloadMark: '↓',
-    // Highlight galleries: {name}, {n}, {total} are filled by the gallery
+    // Highlight galleries: {name}, {n}, {total} and {caption} are filled by the gallery
     gallery: {
       region: '{name} highlights',
+      track: '{name} highlight cards',
+      dots: 'Choose a highlight',
       play: 'Play highlights',
       pause: 'Pause highlights',
       replay: 'Replay highlights',
-      show: 'Show highlight {n} of {total}',
+      show: 'Show highlight {n} of {total}: {caption}',
       next: 'Next: {name}',
       glance: 'At a glance',
     },
