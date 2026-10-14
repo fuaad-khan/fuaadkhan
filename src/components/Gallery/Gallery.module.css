@@ -1,0 +1,475 @@
+/* The gallery is the size reference for its cards: full bleed, so the neighbours peek in from the screen edges */
+/* Card height: Apple's 62svh, capped by what the nav, header and controls leave (about 330px), so short laptops still fit one viewport */
+.gallery {
+  --gap: 20px;
+  --card-w: min(1260px, 100cqw - 2 * var(--gutter));
+  --card-h: clamp(380px, min(62svh, 100svh - 330px), 680px);
+  --surface: #0c0e12;
+  --frame-chrome: calc(1.75rem + 3px);
+  --pill: rgba(255, 255, 255, 0.1);
+  --pill-hover: rgba(255, 255, 255, 0.16);
+  --pill-h: 52px;
+
+  position: relative;
+  width: 100%;
+  container-type: inline-size;
+}
+
+/* Phones: nearly full-width cards and a tighter gap, so a sliver of each neighbour still shows */
+@media (max-width: 599px) {
+  .gallery {
+    --gap: 10px;
+    --card-w: calc(100cqw - 2.5rem);
+    --card-h: clamp(380px, min(54svh, 100svh - 360px), 680px);
+    --pill-h: 44px;
+  }
+}
+
+/* Native horizontal scrolling with mandatory centre snapping; the inline padding centres the first and last cards */
+.track {
+  position: relative;
+  display: flex;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0 calc((100cqw - var(--card-w)) / 2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:focus-visible {
+  outline: none;
+}
+
+.track:focus-visible .card[data-current] {
+  outline: 2px solid var(--app-accent, var(--accent));
+  outline-offset: -3px;
+}
+
+/* Without scripts there are no dots: a thin scrollbar keeps every card reachable with a mouse */
+:global(html:not(.js)) .track {
+  padding-bottom: var(--space-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* Dark surface, Apple's radius; no overflow clip, which would stop Yard Plan's glass from clipping its backdrop blur */
+.card {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: var(--card-w);
+  height: var(--card-h);
+  container-type: size;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  border-radius: var(--card-radius);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Apple's caption: bold, centred near the top, a few words per line */
+.caption {
+  flex: none;
+  max-width: 30em;
+  margin: 0 auto;
+  padding: max(1.25rem, min(8.5cqh, 4cqw)) clamp(1.25rem, 5cqw, 3rem) 0;
+  font-size: clamp(1.1rem, 0.7rem + 1.7cqw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.16;
+  letter-spacing: -0.016em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* The space under the caption; the frame takes the largest 16:10 box that fits it, so captures are never cropped */
+.media {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 4cqh, 2rem) clamp(0.75rem, 4cqw, 3rem) clamp(1rem, 6cqh, 2.75rem);
+  container-type: size;
+}
+
+.frameBox {
+  width: min(100cqw, (100cqh - var(--frame-chrome)) * var(--ratio, 1.6));
+}
+
+/* A tighter accent glow than the page frames get, so it stays a halo instead of tinting the whole card */
+.media .deviceFrame {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 24px 48px -24px rgba(0, 0, 0, 0.8),
+    0 0 48px -30px var(--frame-accent);
+}
+
+.layerFill,
+.video {
+  position: absolute;
+  inset: 0;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+/* Glance: a centred spec sheet in the card's own proportions */
+.glance {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 5cqh, 2.25rem);
+  padding: clamp(0.5rem, 3cqh, 1.5rem) clamp(1.25rem, 6cqw, 4.5rem) clamp(1.25rem, 6cqh, 2.75rem);
+  text-align: center;
+}
+
+.lede {
+  max-width: 44em;
+  font-size: clamp(0.95rem, 0.8rem + 0.45cqw, 1.15rem);
+  line-height: 1.45;
+  color: var(--fg-muted);
+  text-wrap: balance;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 3cqw, 3rem);
+  width: min(100%, 52rem);
+}
+
+.metric {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 0.4em;
+}
+
+.metricValue {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, min(0.6rem + 5cqw, 11cqh), 4.25rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricLabel {
+  font-size: clamp(0.78rem, 0.7rem + 0.3cqw, 0.95rem);
+  line-height: 1.3;
+  color: var(--fg-muted);
+  text-wrap: balance;
+}
+
+.facts {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: clamp(1rem, 4cqw, 3rem);
+  width: min(100%, 60rem);
+  margin: 0;
+  padding-top: clamp(0.75rem, 3.6cqh, 1.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.fact {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 0.45rem;
+}
+
+.fact dt {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--app-accent, var(--accent));
+}
+
+.fact dd {
+  margin: 0;
+  font-size: clamp(0.82rem, 0.75rem + 0.25cqw, 0.95rem);
+  line-height: 1.4;
+  color: var(--fg-muted);
+  text-wrap: balance;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.chips li {
+  padding: 0.18em 0.65em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.glanceFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.3em 0.8em;
+  border: 1px solid color-mix(in srgb, var(--app-accent, var(--accent)) 45%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--app-accent, var(--accent));
+}
+
+.footnote {
+  font-size: 0.78rem;
+  color: var(--fg-faint);
+}
+
+/* Narrow cards: the problem statement gives way, and the facts stack */
+@container (max-width: 599px) {
+  .lede {
+    display: none;
+  }
+
+  .facts {
+    grid-auto-flow: row;
+    gap: 0.75rem;
+  }
+
+  .chips li {
+    font-size: 0.72rem;
+  }
+}
+
+@container (max-height: 500px) {
+  .lede {
+    display: none;
+  }
+}
+
+/* Controls stay centred under the cards; the Next cue takes the right-hand column */
+.bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: clamp(0.75rem, 2.2svh, 1.5rem);
+  padding: 0 var(--gutter);
+}
+
+.controls {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  height: var(--pill-h);
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--pill);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+
+/* Each dot is a 24 px wide target; the current one stretches into a progress pill */
+.dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: width 0.45s var(--ease-out);
+}
+
+.dot[aria-current='true'] {
+  width: 64px;
+}
+
+.pip {
+  position: relative;
+  display: block;
+  width: 8px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.42);
+  transition:
+    width 0.45s var(--ease-out),
+    background-color 0.2s;
+}
+
+.dot:hover .pip {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dot[aria-current='true'] .pip {
+  width: 48px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.pipFill {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  transform: translateX(calc((var(--progress, 0) - 1) * 100%));
+}
+
+.dot[aria-current='true'] .pipFill {
+  opacity: 1;
+}
+
+.toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--pill-h);
+  height: var(--pill-h);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--pill);
+  color: var(--fg);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  transition: background-color 0.2s;
+}
+
+.toggle:hover {
+  background: var(--pill-hover);
+}
+
+.toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Nothing plays by itself under reduced motion: no play button, the current dot simply filled, sizes change without easing */
+@media (prefers-reduced-motion: reduce) {
+  .toggle {
+    display: none;
+  }
+
+  .dot[aria-current='true'] .pipFill {
+    transform: none;
+  }
+
+  .dot,
+  .pip {
+    transition: none;
+  }
+}
+
+/* Without scripts there is nothing to drive */
+:global(html:not(.js)) .controls {
+  display: none;
+}
+
+.next {
+  grid-column: 3;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--next-accent, var(--accent));
+  text-decoration: none;
+  transition: opacity 0.5s var(--ease-out);
+}
+
+.next:hover {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.2em;
+}
+
+.nextIcon {
+  width: 1.2em;
+  height: 1.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Hidden until the gallery finishes; visibility keeps it out of the tab order while its space stays reserved */
+:global(.js) .next:not([data-shown]) {
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.3s,
+    visibility 0s 0.3s;
+}
+
+:global(html:not(.js)) .next {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+@media (max-width: 599px) {
+  .bar {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: var(--space-3);
+  }
+
+  .controls,
+  .next {
+    grid-column: 1;
+  }
+
+  .next {
+    justify-self: center;
+  }
+}

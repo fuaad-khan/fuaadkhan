@@ -18,6 +18,7 @@ export const apps = [
       { value: '54', label: 'imagery dates, 2014–2026' },
     ],
     // One card per major feature, like the chapters of the Map My San Jacinto video; clip ids are media.js clips keys
+    // duration is the card's seconds: an intro plays, then holds its last frame for the final 1.2 s; clips run their own length, stills and glance 6 s
     highlights: [
       { id: 'intro', kind: 'intro', caption: 'Every parcel in San Jacinto. All 18,459, one search away.', duration: 10 },
       { id: 'lookup', kind: 'clip', caption: 'Search any address or APN. Zoning, services, hazards and assessor records in one click.' },
@@ -54,7 +55,7 @@ export const apps = [
       { value: '~1,200', label: 'characters to link a 10-shape plan' },
     ],
     highlights: [
-      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on the aerial.', duration: 7 },
+      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on the aerial.', duration: 8 },
       { id: 'draw', kind: 'clip', caption: 'Trace turf and concrete. Corners snap to each other.' },
       { id: 'composition', kind: 'clip', caption: 'Square footage and concrete share update as you draw.' },
       { id: 'share', kind: 'clip', caption: 'Download a PDF, or send a link that carries the whole plan.' },

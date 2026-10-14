@@ -1,6 +1,6 @@
 const clamp01 = (v) => Math.min(1, Math.max(0, Number(v) || 0))
 
-// Scroll-progress channel from a Showcase timeline to its intro; listeners hear t in [0, 1] only when it moves
+// Progress channel from a gallery's clock to its intro; listeners hear t in [0, 1] only when it moves
 export function createDriver(initial = 0) {
   let t = clamp01(initial)
   const listeners = new Set()

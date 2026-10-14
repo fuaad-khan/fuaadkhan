@@ -8,7 +8,7 @@ import { buildTimeline, clickTimes, textsAt } from './timeline'
 import styles from './GlassDraw.module.css'
 
 const LABEL_NATIVE = 11.84
-// Same hint as the Showcase frame it fills: two columns only from 1024 px, nearly full width below
+// Same hint as the gallery frame it fills: about half the viewport from 1024 px, nearly full width below
 const BASE_SIZES = '(min-width: 1024px) 50vw, 90vw'
 const ARROW = 'M0 0V17L4.2 13L7 19.4L9.6 18.3L6.9 12.1H12.5Z'
 
@@ -36,9 +36,11 @@ export default function GlassDraw({ app, media, driver, target, onError }) {
   const intro = app?.intro ?? {}
   const rows = intro.rows ?? []
   const labels = intro.labels ?? {}
+  // The app's dark theme: the chrome holds its night palette for the whole timeline
+  const dark = intro.theme === 'dark'
   const [vw, vh] = plan.viewport
   const base = plan.demo ? null : media?.base?.poster ? media.base : null
-  const clicks = useMemo(() => clickTimes(plan), [plan])
+  const clicks = useMemo(() => clickTimes(plan, dark), [plan, dark])
   const [turfAt, concreteAt] = useMemo(() => [centroid(plan.turf), centroid(plan.concrete)], [plan])
   const texts = {
     ...textsAt(0, values, rows, labels),
@@ -55,7 +57,7 @@ export default function GlassDraw({ app, media, driver, target, onError }) {
     setupGsap()
     let tl
     const ctx = gsap.context(() => {
-      tl = buildTimeline(root, { plan, values, rows, labels })
+      tl = buildTimeline(root, { plan, values, rows, labels, dark })
     }, root)
     const glass = root.querySelector('[data-gd="glass"]')
 
@@ -94,10 +96,16 @@ export default function GlassDraw({ app, media, driver, target, onError }) {
     }
     // rows and labels are module-level apps.js data, stable for the page's life
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, values, driver, onError, vw, vh])
+  }, [plan, values, driver, onError, vw, vh, dark])
 
   return (
-    <div ref={rootRef} className={styles.root} style={{ '--gd-vw': vw, '--gd-vh': vh }} aria-hidden="true">
+    <div
+      ref={rootRef}
+      className={styles.root}
+      style={{ '--gd-vw': vw, '--gd-vh': vh, ...(dark && { '--gd-night': 1 }) }}
+      data-theme={dark ? 'dark' : undefined}
+      aria-hidden="true"
+    >
       <div className={styles.stage}>
         <div className={styles.map}>
           {plan.demo && <Aerial />}
