@@ -35,7 +35,7 @@ export default defineConfig(({ isSsrBuild, isPreview }) => ({
             // Vendor code changes rarely: separate chunks stay cached across content deploys (they still load up front)
             manualChunks: {
               react: ['react', 'react-dom', 'react-dom/client'],
-              gsap: ['gsap', 'gsap/ScrollTrigger', 'gsap/DrawSVGPlugin'],
+              gsap: ['gsap', 'gsap/ScrollTrigger', 'gsap/DrawSVGPlugin', 'gsap/Flip'],
             },
           },
         },
