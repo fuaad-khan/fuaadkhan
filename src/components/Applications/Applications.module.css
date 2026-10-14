@@ -8,15 +8,15 @@
   padding: var(--space-6) var(--gutter) var(--space-9);
 }
 
-/* Phones: compact rows (thumbnail beside the name); a row of three tiles from 640px */
+/* Below 1024px: compact rows (thumbnail beside the name) in one centred column; a row of three tiles above */
 .tiles {
   display: grid;
   gap: var(--space-3);
   width: 100%;
-  max-width: 34rem;
+  max-width: 40rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
@@ -41,12 +41,22 @@
 
 @media (min-width: 640px) {
   .tile {
+    --tile-radius: 24px;
+
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+}
+
+/* Tiles stretch to one height in the row, so their content keeps to the top and the names line up */
+@media (min-width: 1024px) {
+  .tile {
     --tile-radius: var(--card-radius);
 
     grid-template-columns: minmax(0, 1fr);
+    align-content: start;
     align-items: start;
     justify-items: center;
-    gap: var(--space-5);
     padding: var(--space-5) var(--space-5) var(--space-6);
     text-align: center;
   }
@@ -73,7 +83,7 @@
   gap: var(--space-2);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .info {
     justify-items: center;
   }
