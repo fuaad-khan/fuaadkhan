@@ -81,12 +81,12 @@ export const BEATS = {
   push: [0.74, 1],
   subOut: [0.74, 0.784],
   undim: [0.74, 0.784],
-  // The lockup settles into the capture's header before the Showcase's dissolve starts (t ≈ .95)
+  // The lockup settles into the capture's header by t ≈ .95, the frame the gallery card then holds
   morph: [0.76, 0.95],
   header: [0.88, 0.95],
   // The parcel raster fades while the push magnifies it 3x to 12x over the city fit (about t .83-.87)
   parcelFade: [3, 12],
-  // Then the navy stage clears, so the capture comes in under the street vectors as the push closes on it, before the Showcase's dissolve
+  // Then the navy stage clears, so the capture comes in under the street vectors as the push closes on it
   underlay: [0.87, 0.95],
 }
 

@@ -32,10 +32,10 @@ export default defineConfig(({ isSsrBuild, isPreview }) => ({
     : {
         rollupOptions: {
           output: {
-            // Vendor code changes rarely: separate chunks stay cached across content deploys (they still load up front)
+            // Vendor code changes rarely: separate chunks stay cached across content deploys; ScrollTrigger and Flip stay out, as on-demand chunks
             manualChunks: {
               react: ['react', 'react-dom', 'react-dom/client'],
-              gsap: ['gsap', 'gsap/ScrollTrigger', 'gsap/DrawSVGPlugin'],
+              gsap: ['gsap', 'gsap/DrawSVGPlugin'],
             },
           },
         },

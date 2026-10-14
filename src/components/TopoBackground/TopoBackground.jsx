@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { afterPaint, gsap, MOTION_OK, setupGsap } from '../../hooks/useChapter'
+import { afterPaint, gsap, loadScrollTrigger, MOTION_OK, setupGsap } from '../../hooks/useChapter'
 import styles from './TopoBackground.module.css'
 
 // Where the CSS makes the layer 180lvh tall; everywhere else it is a static 100lvh layer
@@ -21,15 +21,25 @@ export default function TopoBackground() {
 
     const cancel = afterPaint(() => {
       setupGsap()
-      mm.add(DRIFT, () => {
-        // force3D keeps one composited layer for the whole drift; lowest refresh priority so pin spacers exist before 'max' is read
-        gsap.to(el, {
-          y: () => -el.offsetHeight * TRAVEL,
-          ease: 'none',
-          force3D: true,
-          modifiers: { y: snapToDevicePixel },
-          scrollTrigger: { start: 0, end: 'max', scrub: true, invalidateOnRefresh: true, refreshPriority: -1 },
+      mm.add(DRIFT, (context) => {
+        let live = true
+        // The only scrubbed tween on the page, so ScrollTrigger (and its rAF loop) loads here alone: never on phones or under reduced motion
+        loadScrollTrigger().then(() => {
+          if (!live) return
+          // force3D keeps one composited layer for the whole drift
+          context.add(() =>
+            gsap.to(el, {
+              y: () => -el.offsetHeight * TRAVEL,
+              ease: 'none',
+              force3D: true,
+              modifiers: { y: snapToDevicePixel },
+              scrollTrigger: { start: 0, end: 'max', scrub: true, invalidateOnRefresh: true },
+            }),
+          )
         })
+        return () => {
+          live = false
+        }
       })
     })
 

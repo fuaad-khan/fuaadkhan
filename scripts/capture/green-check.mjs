@@ -1,8 +1,9 @@
-// Green Check shots (PLAN §3, §7, Appendix B2): 438 S State St with Microbusiness (95 ft automatic fail, verified by hand to Eligible) and an instant Eligible elsewhere
+// Green Check shots (PLAN §3, §7, Appendix B2; PLAN-v2 Media): 438 S State St with Microbusiness (95 ft automatic fail, verified by hand to Eligible), a typo-tolerant lookup at an industrial parcel, and the building chooser at a commercial one
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { sleep } from '../lib/cdp.mjs'
 import { centroid, layers, pathD, project, rects } from '../lib/harvest.mjs'
+import { SCRUBS } from '../lib/privacy.mjs'
 import { createRecorder } from './recorder.mjs'
 import { go, openApp, still, until, waitIdle } from './session.mjs'
 
@@ -15,6 +16,10 @@ const OVERLAY_PANES = ['.leaflet-marker-pane', '.leaflet-selection-pane', '.leaf
 // The verdict card and its rows (and the tip that belongs to the verdict); hidden in place so Property Details keeps its position
 const VERDICT_PARTS = ['#resultPanel .verdict', '#resultPanel .why-title', '#resultPanel .check-list', '#resultPanel .passed-block', '#resultPanel .tip-card']
 const HAND_TARGET_FT = 101.2
+// Every v2 loop also runs the suggestion scrub (scripts/capture/page/privacy.js)
+const LOOP_SCRUBS = [...SCRUBS['green-check'], 'search suggestions other than the subject parcel blurred']
+// Allows only the subject's own row in the search suggestions
+const allowApns = (ctx, apns) => ctx.page.evaluate(`window.__wp6AllowApns = ${JSON.stringify(apns)}; true`)
 
 const openSession = ({ app, config }, { virtualTime = false } = {}) =>
   openApp({ app, root: config.root, port: config.port, cdpPort: config.cdpPort, width: config.viewport[0], height: config.viewport[1], dpr: config.dpr, seed: config.seed, reducedMotion: !virtualTime, virtualTime })
@@ -192,11 +197,12 @@ async function harvest(ctx, autoLine, values) {
   }
 }
 
-// f2 (automatic verdict), hero (verified, aerial) and base (hero view without overlays or verdict rows)
+
+// buffer (automatic verdict), hero (verified, aerial) and base (hero view without overlays or verdict rows)
 async function verifyStills(ctx, names) {
   const auto = await automatic(ctx)
   const common = { basemap: 'maptiler streets', search: SUBJECT, license: LICENSE }
-  if (names.has('f2')) await still(ctx, 'f2', { extra: { ...common, verdict: auto.verdict, feet: auto.feet, passed: auto.passed, state: 'automatic verdict: Not Eligible, the 95 ft line, exclusion zone and Why? rows' } })
+  if (names.has('buffer')) await still(ctx, 'buffer', { extra: { ...common, verdict: auto.verdict, feet: auto.feet, passed: auto.passed, state: 'automatic verdict: Not Eligible, the 95 ft line, exclusion zone and Why? rows' } })
   if (!names.has('hero') && !names.has('base')) return null
   const hand = await verified(ctx)
   const values = { auto: auto.feet, hand: hand.feet }
@@ -224,15 +230,15 @@ function cityServices() {
   return { parcels: pick('parcels'), zoning: pick('zoning') }
 }
 
-// Industrial-use parcels in IL/BP zoning, largest first: candidates for an instant Eligible (residential uses never qualify)
-async function candidates(limit = 30) {
+// Parcels matching a use-type clause inside the given 2022 zones, largest first
+async function candidates({ where, zones, limit = 30 }) {
   const svc = cityServices()
   const q = async (url, params) => {
     const res = await fetch(`${url}/query?${new URLSearchParams({ f: 'json', ...params })}`, { signal: AbortSignal.timeout(30000) })
     if (!res.ok) throw new Error(`green-check: City GIS query failed (${res.status})`)
     return res.json()
   }
-  const parcels = await q(svc.parcels, { where: "USETYPE LIKE '3%'", outFields: 'APN,USETYPE', returnGeometry: 'true', outSR: '4326', resultRecordCount: '400' })
+  const parcels = await q(svc.parcels, { where, outFields: 'APN,USETYPE', returnGeometry: 'true', outSR: '4326', resultRecordCount: '600' })
   const list = []
   for (const f of parcels.features ?? []) {
     const ring = f.geometry?.rings?.[0]
@@ -248,66 +254,128 @@ async function candidates(limit = 30) {
   for (const c of list) {
     const z = await q(svc.zoning, { geometry: `${c.at[0]},${c.at[1]}`, geometryType: 'esriGeometryPoint', inSR: '4326', spatialRel: 'esriSpatialRelIntersects', outFields: 'Zon2022', returnGeometry: 'false' })
     const zone = z.features?.[0]?.attributes?.Zon2022
-    if (zone === 'IL' || zone === 'BP') out.push({ ...c, zone })
+    if (zones.includes(zone)) out.push({ ...c, zone })
     if (out.length >= limit) break
   }
   return out
 }
 
-// f1: the first industrial candidate whose verdict is Eligible for Manufacturing, else the best Needs More Data (the copy then stays honest)
-async function instant(ctx, shot) {
-  const list = await candidates()
-  console.log(`  f1: ${list.length} IL/BP industrial candidates`)
-  let fallback = null
-  for (const c of list) {
+// The Property Details card as label -> text (the first line of each value)
+const details = (ctx) =>
+  ctx.page.evaluate(`(() => {
+    const out = {}
+    for (const row of document.querySelectorAll('#resultPanel .details-card .details-row')) {
+      const label = row.querySelector('.details-label')
+      const value = row.querySelector('.details-value')
+      if (label && value) out[label.textContent.trim()] = (value.firstChild ? value.firstChild.textContent : value.textContent).replace(/\\s+/g, ' ').trim()
+    }
+    return out
+  })()`)
+
+// Residential use types (100-199 and their labels) never qualify as a subject
+const RESIDENTIAL_USE = /\b1\d\d\b|Residential|Single-family|Condominium|Apartments|Mobile home|2-4 units/i
+
+// Building rows of the chooser: list index, key, the sq ft its label prints, and its rect
+const chooserRows = (ctx) =>
+  ctx.page.evaluate(`[...document.querySelectorAll('#resultPanel .building-choice')].map((b, i) => ({
+    i,
+    key: b.dataset.buildingId,
+    sqft: Number(((b.textContent.match(/([\\d,]+) sq ft/) || [])[1] || '0').replace(/,/g, '')),
+    hover: b.classList.contains('building-hover'),
+    rect: window.__wp6.rect(b),
+  }))`)
+
+// Each footprint outline on the map, projected: centre and px box (Overture areas rank them like the list's sq ft)
+async function footprints(ctx) {
+  const polys = (await layers(ctx.page)).filter((l) => l.pane === 'siteFootprints' && l.type === 'polygon')
+  const out = []
+  for (const p of polys) {
+    const pts = await project(ctx.page, p.rings[0])
+    const xs = pts.map((q) => q[0])
+    const ys = pts.map((q) => q[1])
+    out.push({ centre: centroid(pts), box: [Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)] })
+  }
+  return out.sort((a, b) => b.box[2] * b.box[3] - a.box[2] * a.box[3])
+}
+
+// Chooser subject (real time, before recording): the preferred APNs first, then commercial-use parcels in commercial zones, largest first; asserts the chooser, a non-residential use, legible footprints and a verdict
+async function pickChooser(ctx, shot) {
+  const [minB, maxB] = shot.buildings
+  const zones = ['CG', 'CN', 'CR', 'OP', 'MU', 'MU-E', 'DV']
+  const tried = []
+  const check = async (apn) => {
     await go(ctx, '/GreenCheck.html')
     await until(ctx, 'document.getElementById("searchInput") && window.__wp6.theMap()', { label: 'app ready', timeout: 60000 })
     await selectType(ctx, shot.license)
-    await search(ctx, c.apn)
-    await sleep(1500)
-    // A parcel with several buildings asks which one houses the business: take the first, as the app's tests do
-    if (await ctx.page.evaluate('document.querySelectorAll("#resultPanel .building-choice").length')) {
-      await ctx.page.evaluate('document.querySelector("#resultPanel .building-choice").click()')
-    }
+    await search(ctx, apn)
     try {
-      await until(ctx, `document.querySelector(${JSON.stringify(VERDICT)})`, { label: 'verdict', timeout: 60000 })
+      await until(ctx, `document.querySelectorAll('#resultPanel .building-choice').length || document.querySelector(${JSON.stringify(VERDICT)})`, { label: `chooser ${apn}`, timeout: 30000 })
     } catch {
-      continue
+      return 'no result'
     }
-    await waitIdle(ctx, { label: `f1 ${c.apn}` })
+    await waitIdle(ctx, { label: `chooser ${apn}` })
+    const rows = await chooserRows(ctx)
+    if (rows.length < minB || rows.length > maxB) return `${rows.length} buildings`
+    const d = await details(ctx)
+    if (!d['Use type'] || RESIDENTIAL_USE.test(d['Use type'])) return `use ${d['Use type'] || 'unknown'}`
+    if (!zones.includes(String(d.Zoning).split(' ')[0])) return `zone ${d.Zoning}`
+    const map = await ctx.page.evaluate('window.__wp6.rect("#map")')
+    const fps = await footprints(ctx)
+    const inside = fps.every(({ box: [x, y, w, h] }) => x >= map[0] && y >= map[1] && x + w <= map[0] + map[2] && y + h <= map[1] + map[3])
+    if (fps.length !== rows.length || !inside || Math.min(fps[0].box[2], fps[0].box[3]) < 40) return 'footprints not legible'
+    const largest = rows.reduce((a, b) => (b.sqft > a.sqft ? b : a))
+    await clickPx(ctx, [fps[0].centre[0], fps[0].centre[1] + fps[0].box[3] * 0.28])
+    try {
+      await until(ctx, `document.querySelector(${JSON.stringify(VERDICT)})`, { label: 'verdict', timeout: 30000 })
+    } catch {
+      return 'no verdict'
+    }
     const v = await verdict(ctx)
-    const use = await ctx.page.evaluate('(document.querySelector("#resultPanel .details-card")?.textContent || "")')
-    console.log(`  f1 candidate ${c.apn} (${c.zone}, use ${c.use}): ${v}`)
-    if (/Residential|Single-family|Condominium|Apartments|Mobile home/i.test(use)) continue
-    if (v === 'Eligible') {
-      return still(ctx, 'f1', { extra: { basemap: 'maptiler streets', apn: c.apn, zone: c.zone, useType: c.use, license: shot.license, verdict: v, tried: list.indexOf(c) + 1, state: 'instant verdict: Eligible for Manufacturing at an industrial-use parcel zoned IL/BP' } })
-    }
-    if (v === 'Needs More Data' && !fallback) fallback = c
+    if (v !== 'Eligible') return v
+    return { apn, address: d.Address, zone: d.Zoning, useType: d['Use type'], buildings: rows.length, chosen: largest.i + 1, chosenSqFt: largest.sqft, verdict: v }
   }
-  if (!fallback) throw new Error('green-check: no candidate reached Eligible or Needs More Data')
-  throw new Error(`green-check: no Eligible candidate; ${fallback.apn} gives Needs More Data (capture it deliberately and keep the copy honest)`)
+  for (const apn of shot.prefer ?? []) {
+    const r = await check(apn)
+    if (typeof r === 'object') return { ...r, tried: [...tried, apn] }
+    tried.push(`${apn}: ${r}`)
+  }
+  for (const c of await candidates({ where: "USETYPE LIKE '2%'", zones, limit: 30 })) {
+    const r = await check(c.apn)
+    if (typeof r === 'object') return { ...r, tried: [...tried, c.apn] }
+    tried.push(`${c.apn}: ${r}`)
+  }
+  throw new Error(`green-check/chooser: no candidate qualified (${tried.join('; ')})`)
 }
 
-// f3 loop: from the automatic verdict, Verify distance, drag the far endpoint 95 → 101 ft, Complete, Measured by hand, Eligible
-async function f3(ctx) {
-  const rec = createRecorder(ctx, { name: 'f3' })
-  const wait = (ms) => rec.settle({ min: Math.max(1, Math.round(ms / (1000 / 30))), max: Math.round(ms / (1000 / 30)) + 1 })
+// Waits on the virtual clock for about ms of video time (the network settles inside each step)
+const vwait = (rec) => (ms) => rec.settle({ min: Math.max(1, Math.round(ms / (1000 / 30))), max: Math.round(ms / (1000 / 30)) + 1 })
+
+// A virtual-clock session on the bare app, settled, with tiles swapping in opaque (a whole screen lands in one step; Leaflet's fade would flash the backdrop)
+async function loopApp(ctx, rec) {
   await go(ctx, '/GreenCheck.html')
   await rec.settle({ min: 60, max: 3000, quiet: 30 })
   await rec.waitFor('document.getElementById("searchInput") && window.__wp6.theMap()', { max: 60, label: 'app ready' })
-  await selectType(ctx, LICENSE, wait)
-  await search(ctx, SUBJECT, wait)
+  await ctx.page.evaluate('window.__wp6.theMap()._fadeAnimated = false')
+  await rec.settle({ min: 30 })
+}
+
+// Verify loop (played once from its first frame): from the automatic verdict, Verify distance, drag the far endpoint 95 -> 101 ft, Complete, Measured by hand, Eligible
+async function verify(ctx, shot) {
+  const rec = createRecorder(ctx, { name: 'verify' })
+  await loopApp(ctx, rec)
+  await selectType(ctx, LICENSE, vwait(rec))
+  await search(ctx, SUBJECT, vwait(rec))
   await rec.waitFor(`document.querySelector(${JSON.stringify(VERDICT)}) && document.querySelector("#map .gc-measure-zone")`, { max: 90, label: 'automatic verdict' })
   await rec.settle({ min: 60, max: 3000, quiet: 30 })
   await ctx.page.evaluate('document.activeElement && document.activeElement.blur()')
-  // On the virtual clock a whole screen of tiles lands in one step; Leaflet's 200 ms fade would flash the dark backdrop, so tiles swap in opaque
-  await ctx.page.evaluate('window.__wp6.theMap()._fadeAnimated = false')
-  // Recording starts on the automatic verdict
-  const verify = await centre(ctx, `${ROW('residential')} .check-actions button`, 'Verify distance')
-  const rest = [verify[0] - 40, verify[1] + 120]
+  await rec.settle({ min: 10 })
+  const auto = await rowState(ctx, 'residential')
+  const verifyBtn = await centre(ctx, `${ROW('residential')} .check-actions button`, 'Verify distance')
+  const rest = [verifyBtn[0] - 40, verifyBtn[1] + 120]
   await rec.place(...rest)
-  await rec.live(0.3)
-  await rec.clickAt(verify[0], verify[1], 0.55)
+  rec.mark('poster')
+  await rec.live(0.7)
+  await rec.clickAt(verifyBtn[0], verifyBtn[1], 0.55)
   await rec.until('document.querySelectorAll("#map .gc-handle").length === 2 && document.getElementById("map").dataset.parcelColor === "#ffffff"', { label: 'verify started' })
   await rec.live(0.6)
   const drag = await dragTarget(ctx)
@@ -318,40 +386,130 @@ async function f3(ctx) {
   await rec.release()
   await rec.live(0.15)
   const during = await rowState(ctx, 'residential')
-  if (!(during.feet >= 100)) throw new Error(`green-check/f3: the dragged line reads ${during.feet} ft`)
+  if (!(during.feet >= 100)) throw new Error(`green-check/verify: the dragged line reads ${during.feet} ft`)
   const complete = await centre(ctx, `${ROW('residential')} .check-actions button`, 'Complete')
   await rec.moveTo(complete[0] - 70, complete[1] + 26, 0.45)
-  rec.mark('poster')
   await rec.live(0.3)
   await rec.clickAt(complete[0], complete[1], 0.35)
   await rec.until(`document.querySelector(${JSON.stringify(ROW('residential'))} + ' .check-verified')`, { label: 'Measured by hand' })
   await rec.live(0.5)
   const v = await verdict(ctx)
-  if (v !== 'Eligible') throw new Error(`green-check/f3: verdict ${v} after Complete`)
+  if (v !== 'Eligible') throw new Error(`green-check/verify: verdict ${v} after Complete`)
   await rec.moveTo(...rest, 0.5)
-  await rec.live(0.8)
+  await rec.live(1.1)
   const hand = (await rowState(ctx, 'residential')).feet
-  return rec.finish({ basemap: 'maptiler streets, then nearmap after Verify distance', search: SUBJECT, license: LICENSE, values: { auto: Math.round(drag.feet), hand }, state: 'Verify distance, the far endpoint dragged to the property line, Complete: Measured by hand, Eligible' })
+  return rec.finish({ basemap: 'maptiler streets, then nearmap after Verify distance', search: SUBJECT, license: LICENSE, values: { auto: auto.feet, hand }, state: shot.state, scrubs: LOOP_SCRUBS })
+}
+
+// Lookup loop (played once): pick the license type, type a misspelled address, take the corrected suggestion, the instant verdict at a one-building industrial parcel
+async function lookupLoop(ctx, shot) {
+  const rec = createRecorder(ctx, { name: 'lookup' })
+  await loopApp(ctx, rec)
+  await ctx.page.evaluate('document.activeElement && document.activeElement.blur()')
+  await rec.settle({ min: 10 })
+  await allowApns(ctx, [shot.apn])
+  const box = await centre(ctx, '#licenseType')
+  const input = await centre(ctx, '#searchInput')
+  // At rest in the sidebar's empty lower half, never over a parcel (the map outlines whatever it hovers)
+  const rest = [125, 640]
+  await rec.place(...rest)
+  rec.mark('poster')
+  await rec.live(0.55)
+  await rec.clickAt(box[0] - 30, box[1], 0.6)
+  await rec.until('document.getElementById("licenseType").getAttribute("aria-expanded") === "true"', { label: 'license list' })
+  await rec.live(0.3)
+  const option = await centre(ctx, `#licenseTypeList [data-value="${shot.license}"]`)
+  await rec.clickAt(option[0] - 60, option[1], 0.5)
+  await rec.until(`document.querySelector('#licenseTypeList [data-value="${shot.license}"]') === null || document.getElementById("licenseType").getAttribute("aria-expanded") !== "true"`, { label: 'license picked' })
+  await rec.live(0.3)
+  await rec.clickAt(input[0] - 200, input[1], 0.6)
+  await rec.live(0.25)
+  await rec.type(shot.type, 10)
+  await rec.until('document.querySelectorAll("#searchSuggestions li").length > 0', { label: 'suggestions', max: 8 })
+  const suggestion = await ctx.page.evaluate('document.querySelector("#searchSuggestions li").textContent.trim()')
+  if (!suggestion.includes(`(${shot.apn})`)) throw new Error(`green-check/lookup: first suggestion is ${suggestion}, expected APN ${shot.apn}`)
+  await rec.live(0.5)
+  const li = await ctx.page.evaluate('window.__wp6.rect("#searchSuggestions li")')
+  await rec.clickAt(li[0] + 150, li[1] + li[3] / 2, 0.5)
+  await rec.until(`document.querySelector(${JSON.stringify(VERDICT)}) || document.querySelectorAll('#resultPanel .building-choice').length`, { label: 'verdict', max: 20 })
+  if (await ctx.page.evaluate('document.querySelectorAll("#resultPanel .building-choice").length')) throw new Error('green-check/lookup: the parcel has several buildings (the chooser opened)')
+  const v = await verdict(ctx)
+  if (v !== 'Eligible') throw new Error(`green-check/lookup: verdict ${v}`)
+  await rec.live(0.5)
+  await rec.moveTo(...rest, 0.7)
+  await rec.live(1.4)
+  const d = await details(ctx)
+  if (RESIDENTIAL_USE.test(d['Use type'] || '')) throw new Error(`green-check/lookup: use type ${d['Use type']}`)
+  const typed = await ctx.page.evaluate('document.getElementById("searchInput").value')
+  return rec.finish({ basemap: 'maptiler streets', license: shot.license, typed: shot.type, suggestion, shown: typed, apn: shot.apn, zone: d.Zoning, useType: d['Use type'], buildings: d.Buildings, verdict: v, state: shot.state, scrubs: LOOP_SCRUBS })
+}
+
+// Chooser loop (played once): the chooser after the search, hover two other rows (list -> map), hover the largest building on the map (map -> list), click it, the verdict
+async function chooserLoop(ctx, shot, pick) {
+  const rec = createRecorder(ctx, { name: 'chooser' })
+  await loopApp(ctx, rec)
+  await allowApns(ctx, [pick.apn])
+  await selectType(ctx, shot.license, vwait(rec))
+  await search(ctx, pick.apn, vwait(rec))
+  await rec.waitFor(`document.querySelectorAll('#resultPanel .building-choice').length === ${pick.buildings}`, { max: 60, label: 'chooser' })
+  await rec.settle({ min: 60, max: 3000, quiet: 30 })
+  await ctx.page.evaluate('document.activeElement && document.activeElement.blur()')
+  await rec.settle({ min: 10 })
+  const rows = await chooserRows(ctx)
+  const fps = await footprints(ctx)
+  const chosen = rows.find((r) => r.i === pick.chosen - 1)
+  const others = rows.filter((r) => r !== chosen).slice(0, 2)
+  // At rest in the chooser card's empty top-right corner, never over a parcel or over text
+  const card = await ctx.page.evaluate('window.__wp6.rect("#resultPanel .chooser-card")')
+  const rest = [card[0] + card[2] - 26, card[1] + 20]
+  await rec.place(...rest)
+  rec.mark('poster')
+  await rec.live(0.6)
+  for (const r of others) {
+    const [x, y, w, h] = r.rect
+    await rec.moveTo(x + w * 0.42, y + h / 2, 0.55)
+    await rec.live(0.65)
+    if (!(await chooserRows(ctx)).find((q) => q.i === r.i).hover) throw new Error(`green-check/chooser: row ${r.i + 1} did not take the hover`)
+  }
+  // Below the footprint's centre, clear of the parcel's pin
+  await rec.moveTo(fps[0].centre[0], fps[0].centre[1] + fps[0].box[3] * 0.28, 0.85)
+  await rec.live(0.75)
+  const synced = (await chooserRows(ctx)).find((q) => q.hover)
+  if (!synced || synced.i !== chosen.i) throw new Error(`green-check/chooser: hovering the largest footprint highlighted row ${synced ? synced.i + 1 : 'none'}, expected ${chosen.i + 1}`)
+  await rec.click()
+  await rec.until(`document.querySelector(${JSON.stringify(VERDICT)})`, { label: 'verdict', max: 15 })
+  const v = await verdict(ctx)
+  if (v !== pick.verdict) throw new Error(`green-check/chooser: verdict ${v}, expected ${pick.verdict}`)
+  await rec.live(0.5)
+  await rec.moveTo(...rest, 0.6)
+  await rec.live(1.3)
+  return rec.finish({ basemap: 'maptiler streets', license: shot.license, ...pick, state: shot.state, scrubs: LOOP_SCRUBS })
 }
 
 export async function capture({ app, config, shots }) {
   const names = new Set(shots.map((s) => s.name))
-  if (['f2', 'hero', 'base', 'f1'].some((n) => names.has(n))) {
+  const shot = (name) => shots.find((s) => s.name === name)
+  let pick = null
+  if (['buffer', 'hero', 'base', 'chooser'].some((n) => names.has(n))) {
     const ctx = await openSession({ app, config })
     try {
-      if (['f2', 'hero', 'base'].some((n) => names.has(n))) {
+      if (['buffer', 'hero', 'base'].some((n) => names.has(n))) {
         const values = await verifyStills(ctx, names)
         if (values) console.log(`  measured: automatic ${values.auto} ft, by hand ${values.hand} ft`)
       }
-      if (names.has('f1')) await instant(ctx, shots.find((s) => s.name === 'f1'))
+      if (names.has('chooser')) {
+        pick = await pickChooser(ctx, shot('chooser'))
+        console.log(`  chooser: ${pick.apn} (${pick.zone}, ${pick.useType}), ${pick.buildings} buildings, building ${pick.chosen} -> ${pick.verdict}`)
+      }
     } finally {
       await ctx.close()
     }
   }
-  if (names.has('f3')) {
+  const loops = { verify: (ctx) => verify(ctx, shot('verify')), lookup: (ctx) => lookupLoop(ctx, shot('lookup')), chooser: (ctx) => chooserLoop(ctx, shot('chooser'), pick) }
+  for (const s of shots.filter((s) => s.kind === 'loop')) {
     const ctx = await openSession({ app, config }, { virtualTime: true })
     try {
-      await f3(ctx)
+      await loops[s.name](ctx)
     } finally {
       await ctx.close()
     }

@@ -27,7 +27,7 @@ function commitOf(dir) {
 }
 
 // Serves the app, launches Chrome and registers seeds and shims; virtualTime freezes timers, rAF and animations until stepped
-export async function openApp({ app, root, port, cdpPort, width, height, dpr = 2, virtualTime = false, seed = {}, reducedMotion = false }) {
+export async function openApp({ app, root, port, cdpPort, width, height, dpr = 2, virtualTime = false, seed = {}, reducedMotion = false, colorScheme = 'light' }) {
   if (!existsSync(root)) throw new Error(`${app}: app folder not found: ${root}`)
   const server = await serve({ root, port })
   let page
@@ -46,7 +46,7 @@ export async function openApp({ app, root, port, cdpPort, width, height, dpr = 2
     await page.send('Emulation.setLocaleOverride', { locale: 'en-US' }).catch(() => {})
     await page.send('Emulation.setTimezoneOverride', { timezoneId: 'America/Los_Angeles' }).catch(() => {})
     await page.send('Browser.setDownloadBehavior', { behavior: 'deny' }).catch(() => {})
-    await page.setMedia({ reducedMotion: reducedMotion ? 'reduce' : 'no-preference', colorScheme: 'light' })
+    await page.setMedia({ reducedMotion: reducedMotion ? 'reduce' : 'no-preference', colorScheme })
     const seeds = Object.entries(seed).map(([k, v]) => `try { localStorage.setItem(${JSON.stringify(k)}, ${JSON.stringify(v)}) } catch (e) {}`)
     const early = [...seeds]
     if (virtualTime) early.push(studioShim('virtual-time.js'))

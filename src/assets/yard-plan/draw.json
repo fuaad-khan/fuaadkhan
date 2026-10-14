@@ -1,0 +1,46 @@
+{
+  "app": "yard-plan",
+  "name": "draw",
+  "kind": "loop",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 291,
+  "seconds": 9.7,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.782382,
+    "lng": -116.95846,
+    "zoom": 21
+  },
+  "mapRect": [
+    0,
+    0,
+    1600,
+    1000
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-14T16:03:21.622Z",
+  "apn": "437076013",
+  "basemap": "nearmap",
+  "theme": "dark",
+  "values": {
+    "turf": 1914,
+    "concrete": 3544,
+    "total": 5458,
+    "turfPct": 35,
+    "pct": 65
+  },
+  "state": "dark theme: Add Turf and its four corners, then Add Concrete, the third corner snapping to the turf's corner and the fourth to its edge; rows and donut update"
+}

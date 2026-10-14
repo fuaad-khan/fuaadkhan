@@ -119,8 +119,9 @@ export function viewFor(roi, W, H, vw, vh) {
   const anchored = roi.top != null && roi.top <= roi.y && roi.top + h >= roi.y + roi.h
   let x = roi.x + roi.w / 2 - w / 2
   let y = anchored ? roi.top : roi.y + roi.h / 2 - h / 2
-  if (box && w <= box[2]) x = clamp(x, box[0], box[0] + box[2] - w)
-  if (box && h <= box[3]) y = clamp(y, box[1], box[1] + box[3] - h)
+  // A view zoomed to exactly fit the box can come out a hair wider in floating point; it still clamps into the box
+  if (box && w <= box[2] + 0.5) x = clamp(x, box[0], box[0] + box[2] - w)
+  if (box && h <= box[3] + 0.5) y = clamp(y, box[1], box[1] + box[3] - h)
   // Leaflet's control column (roi.controls): an edge through a button would slice it, so the view steps out to the map's edge (keeping the legend whole) or to the nearest gap
   if (box && roi.controls) {
     const { x: [c0, c1], bands, slack: [top, bottom] } = roi.controls

@@ -132,6 +132,11 @@
   user-select: none;
 }
 
+/* Dark theme: the app's night surface shows until the base still has loaded */
+.root[data-theme='dark'] {
+  background: #1f2329;
+}
+
 /* The capture viewport (--gd-vw x --gd-vh px) at --gd-u per px; --gd-night mixes Yard Plan's day tokens (yardplan.css) toward its night ones */
 .stage {
   --gd-u: max(calc(100cqw / var(--gd-vw)), calc(100cqh / var(--gd-vh)));

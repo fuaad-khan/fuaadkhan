@@ -26,12 +26,12 @@
   ],
   "leaks": [],
   "appCommit": "47b3eb9",
-  "capturedAt": "2026-10-13T21:03:59.493Z",
+  "capturedAt": "2026-10-14T15:57:42.338Z",
   "basemap": "nearmap",
   "apn": "437076013",
-  "theme": "light",
+  "theme": "dark",
   "permalink": "/index.html#v=1&c=33.782382,-116.95846&z=21&apn=437076013&s=t1,,gt9tgCvhzi_GAsYzC0CA_a;c1,,mj9tgC73yi_GAsRmHAArR",
-  "state": "City Hall at z21: Turf 1 and Concrete 1 drawn, Draw panel with rows and donut",
+  "state": "City Hall at z21 (dark theme): Turf 1 and Concrete 1 drawn, Draw panel with rows and donut",
   "intro": {
     "turf": {
       "d": "M376 324L958 324L1020 400L376 400Z",

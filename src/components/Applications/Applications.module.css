@@ -1,0 +1,186 @@
+/* About one viewport: the heading and the tiles centred in what the floating nav leaves */
+.hub {
+  min-height: calc(100svh - var(--nav-space));
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  row-gap: var(--space-8);
+  padding: var(--space-6) var(--gutter) var(--space-9);
+}
+
+/* One centred column (stacked tiles on phones, rows from 640px), then a row of three tiles from 1024px */
+.tiles {
+  display: grid;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 40rem;
+}
+
+@media (min-width: 1024px) {
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    max-width: var(--wide);
+  }
+}
+
+/* Phones: the thumbnail on top and the copy centred under it */
+.tile {
+  --tile-radius: 22px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--tile-radius);
+  background: color-mix(in srgb, var(--bg-raised) 88%, transparent);
+  text-align: center;
+  transition: border-color 0.35s var(--ease-out);
+}
+
+.thumb {
+  width: 72%;
+}
+
+/* Tablets: a row per app, the thumbnail beside its copy, which stays centred in its column */
+@media (min-width: 640px) {
+  .tile {
+    --tile-radius: 24px;
+
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+
+  .thumb {
+    width: 100%;
+  }
+}
+
+/* Desktop: tiles stretch to one height in the row, the copy keeps to the top so the names line up, and the cue sits on the bottom edge */
+@media (min-width: 1024px) {
+  .tile {
+    --tile-radius: var(--card-radius);
+
+    display: flex;
+    padding: var(--space-5) var(--space-5) var(--space-6);
+  }
+}
+
+/* Smaller title bar for the mini frames; two classes outrank the frame's own defaults */
+.tile .frame {
+  --bar-height: 1.25rem;
+  --bar-gap: var(--space-2);
+  --dot: 6px;
+  --dot-gap: 4px;
+
+  transition: transform 0.45s var(--ease-out);
+}
+
+/* The capture zoomed around its focus point (Applications sets --thumb-zoom and --media-focus), so the thumbnail shows a legible detail */
+.thumb img {
+  transform: scale(var(--thumb-zoom, 1));
+  transform-origin: var(--media-focus, center);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* One line, whatever the width: the copy column is never narrower than these labels */
+.kind {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--fg-muted);
+}
+
+.name {
+  font-size: clamp(1.35rem, 1.2rem + 0.4vw, 1.6rem);
+}
+
+.link {
+  text-decoration: none;
+  transition: color 0.35s var(--ease-out);
+}
+
+/* The name's link covers the whole tile, so the accessible name stays the app name alone */
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--tile-radius);
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.link:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.tagline {
+  max-width: 22rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-wrap: balance;
+  color: var(--fg-muted);
+}
+
+.status {
+  margin-top: var(--space-1);
+}
+
+/* Apple's link cue in the app's accent; the whole tile is the link, so this only shows the way */
+.cue {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--app-accent);
+}
+
+.chevron {
+  display: inline-block;
+  margin-left: 0.3em;
+  transition: transform 0.35s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .tile:hover {
+    border-color: color-mix(in srgb, var(--app-accent) 55%, transparent);
+  }
+
+  .tile:hover .link {
+    color: var(--app-accent);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tile:hover .frame {
+    transform: translateY(-4px);
+  }
+
+  .tile:hover .thumb img {
+    transform: scale(calc(var(--thumb-zoom, 1) * 1.04));
+  }
+
+  .tile:hover .chevron {
+    transform: translateX(3px);
+  }
+}

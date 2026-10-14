@@ -1,0 +1,46 @@
+{
+  "app": "yard-plan",
+  "name": "share",
+  "kind": "loop",
+  "width": 1120,
+  "height": 700,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 209,
+  "seconds": 6.97,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.782382,
+    "lng": -116.95846,
+    "zoom": 21
+  },
+  "mapRect": [
+    0,
+    0,
+    1600,
+    1000
+  ],
+  "viewport": [
+    1120,
+    700
+  ],
+  "clip": [
+    480,
+    60,
+    1120,
+    700
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-14T16:11:01.940Z",
+  "apn": "437076013",
+  "basemap": "nearmap",
+  "theme": "dark",
+  "toast": "Shareable link copied.",
+  "state": "dark theme close-up: Share in the Draw panel's Quick Actions, the Download & Share panel, Copy Link and its status toast (the clipboard write is stubbed; no PDF is generated or downloaded)"
+}

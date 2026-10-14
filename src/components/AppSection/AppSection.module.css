@@ -1,0 +1,76 @@
+/* Content height on phones and tablets, where the cards hug their frames; from 1024 px one viewport under the floating nav */
+.section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-5) 0 var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .section {
+    min-height: calc(100svh - var(--nav-space));
+    padding: clamp(0.25rem, 0.8svh, 0.75rem) 0 clamp(0.75rem, 2.2svh, 1.75rem);
+  }
+}
+
+/* Where Apple puts "Get the highlights.", centred */
+.header {
+  width: min(100% - 2 * var(--gutter), 52rem);
+  margin: 0 auto clamp(0.85rem, 2.6svh, 1.75rem);
+  text-align: center;
+}
+
+.title {
+  font-size: clamp(2.25rem, 1.3rem + 2.6vw, 3.25rem);
+  line-height: 1.05;
+}
+
+/* The tagline and the status chip share one line, so the header stays two lines tall; on phones the chip drops under the tagline */
+.subline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.85rem;
+  margin-top: clamp(0.3rem, 0.8svh, 0.5rem);
+}
+
+@media (max-width: 599px) {
+  .subline {
+    flex-direction: column;
+  }
+}
+
+.tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 0.95rem + 0.45vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--fg-muted);
+  text-wrap: balance;
+}
+
+.status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.3em 0.8em;
+  border: 1px solid color-mix(in srgb, var(--app-accent) 45%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--app-accent);
+}

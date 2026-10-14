@@ -23,7 +23,7 @@ What remains after the redesign (WP0–WP9). Resolve, then delete the line.
 
 ## Not verified on this machine
 
-- [ ] Safari (desktop and iOS): `backdrop-filter` with `clip-path: path()` in the Yard Plan intro, `@property` colour tokens, the dashed march in the Green Check intro, and the address bar during the Transition pin.
+- [ ] Safari (desktop and iOS): `backdrop-filter` with `clip-path: path()` in the Yard Plan intro, `@property` colour tokens, the dashed march in the Green Check intro, the floating nav glass and lens, and gallery autoplay (Safari has no `scrollend`, so cards start on the IntersectionObserver fallback).
 - [ ] Real-GPU frame timings; every measurement so far is headless Chrome without a GPU.
 
 ## Optional polish

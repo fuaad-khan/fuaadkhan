@@ -1,0 +1,54 @@
+{
+  "app": "map-my-city",
+  "name": "createmap",
+  "kind": "loop",
+  "width": 1440,
+  "height": 900,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 294,
+  "seconds": 9.8,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.78627,
+    "lng": -117.02108,
+    "zoom": 18
+  },
+  "mapRect": [
+    0,
+    88,
+    1440,
+    812
+  ],
+  "viewport": [
+    1440,
+    900
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "redact.js: owner, mailing and sale rows blurred unless the owner is a public agency",
+    "redact.js: In Care of always blurred",
+    "redact.js: mailing labels blurred unless the owner is a public agency",
+    "Code Enforcement Officer value set to \"—\" (lookup row and property report)",
+    "internal hosts, keys and local origins blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "b11772a",
+  "capturedAt": "2026-10-14T16:17:01.297Z",
+  "basemap": "streets",
+  "apns": [
+    "432190011",
+    "432190012",
+    "432190013"
+  ],
+  "picked": [
+    "432190011",
+    "432190012",
+    "432190013"
+  ],
+  "template": "planning",
+  "fill": "hatch",
+  "title": "3 Parcels / Location Map",
+  "state": "Create Map in rectangle mode on the streets basemap: a box drag picks the City-owned 432-190-011/012/013 (and nothing else), Create Map, Hatch fill, the Planning template (its own aerial basemap), scrolled to its title block",
+  "path": "/index.html?lat=33.78627&lon=-117.02108&z=18&panels=&base=streets"
+}

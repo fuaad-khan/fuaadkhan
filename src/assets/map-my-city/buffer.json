@@ -1,0 +1,49 @@
+{
+  "app": "map-my-city",
+  "name": "buffer",
+  "kind": "loop",
+  "width": 1440,
+  "height": 900,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 260,
+  "seconds": 8.67,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.78907,
+    "lng": -116.9629,
+    "zoom": 17
+  },
+  "mapRect": [
+    0,
+    88,
+    1440,
+    812
+  ],
+  "viewport": [
+    1440,
+    900
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "redact.js: owner, mailing and sale rows blurred unless the owner is a public agency",
+    "redact.js: In Care of always blurred",
+    "redact.js: mailing labels blurred unless the owner is a public agency",
+    "Code Enforcement Officer value set to \"—\" (lookup row and property report)",
+    "internal hosts, keys and local origins blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "b11772a",
+  "capturedAt": "2026-10-14T16:21:56.720Z",
+  "basemap": "streets",
+  "apn": "434130011",
+  "bufferFeet": 300,
+  "status": "Buffered 300 ft around selected parcel.",
+  "labels": {
+    "total": 67,
+    "readable": 5,
+    "readableArePublic": true
+  },
+  "state": "Proximity Buffer on the streets basemap with 300 ft entered: click the SJUSD school parcel, the ring and its parcels, Mailing Labels (Avery 5160; private owners blurred by redact.js, public agencies readable), then Print Map: the subject site map",
+  "path": "/index.html?lat=33.78907&lon=-116.96290&z=17&panels=&base=streets"
+}
