@@ -138,7 +138,7 @@
   }
 
   .body .caption {
-    max-width: 12em;
+    max-width: 13em;
     margin: 0;
     padding: 0;
     font-size: clamp(1.3rem, 0.5rem + 1.5cqw, 1.75rem);
@@ -277,35 +277,6 @@
   white-space: nowrap;
 }
 
-.glanceFoot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 1rem;
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.3em 0.8em;
-  border: 1px solid color-mix(in srgb, var(--app-accent, var(--accent)) 45%, transparent);
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.status::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--app-accent, var(--accent));
-}
-
 .footnote {
   font-size: 0.78rem;
   color: var(--fg-faint);
@@ -364,14 +335,13 @@
   }
 }
 
-/* Phones: a compact glance no taller than the media cards; the status repeats the header chip just above it */
+/* Phones: a compact glance no taller than the media cards, so the deployment line gives way */
 @media (max-width: 599px) {
   .glance {
     padding-top: 10px;
     gap: 12px;
   }
 
-  .glance .status,
   .glance [data-fact='deployed'] {
     display: none;
   }

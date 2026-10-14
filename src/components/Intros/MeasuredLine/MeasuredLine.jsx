@@ -111,7 +111,7 @@ export default function MeasuredLine({ app, media, driver, target, onError }) {
         bands: CONTROLS.bands.map(([a, b]) => [my + a, my + b]),
         slack: [MAP_PAD.top, MAP_PAD.bottom],
       }
-      // Over the capture, a view whose edge crossed the Legend would slice it at any zoom, so the map view stays right of it (and of the controls) when the action allows
+      // Over the capture, a view whose edge crossed the Legend would slice it at any zoom, so when the action allows the map view stays inside the map, right of the Legend and the controls
       const clearX = mx + LEGEND_X[1] + 8
       const clear = scene.real && x0 - clearX >= MAP_PAD.x / 4
       rois.map = {
@@ -119,7 +119,7 @@ export default function MeasuredLine({ app, media, driver, target, onError }) {
         y: top,
         w: x1 + MAP_PAD.x - left,
         h: y1 + MAP_PAD.bottom - top,
-        within: clear ? [clearX, my - 8, mx + mw + 8 - clearX, mh + 16] : [mx - 8, my - 8, mw + 16, mh + 16],
+        within: clear ? [clearX, my + 4, mx + mw - 4 - clearX, mh - 8] : [mx - 8, my - 8, mw + 16, mh + 16],
         controls: clear ? null : controls,
         scale: MAP_SCALE,
       }

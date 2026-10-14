@@ -18,7 +18,7 @@ const SIZES = [
 // A loop's poster as a plain still: the prerendered card and the frame under the clip
 const asStill = (entry) => (entry?.kind === 'loop' ? { ...entry, kind: 'still' } : entry)
 
-// The old intro block as a spec sheet: problem, three metrics, audience, deployment, stack, status and footnote
+// The old intro block as a spec sheet: problem, three metrics, audience, deployment, stack and footnote (the status chip sits in the section header)
 function Glance({ app }) {
   const { ui } = site
   return (
@@ -54,10 +54,7 @@ function Glance({ app }) {
           </dd>
         </div>
       </dl>
-      <div className={styles.glanceFoot}>
-        <p className={styles.status}>{app.status}</p>
-        {app.footnote && <p className={styles.footnote}>{app.footnote}</p>}
-      </div>
+      {app.footnote && <p className={styles.footnote}>{app.footnote}</p>}
     </div>
   )
 }
