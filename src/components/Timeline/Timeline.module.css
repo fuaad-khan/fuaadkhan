@@ -1,17 +1,14 @@
-/* Stacked in one centred column; a row of three equal cards from 1024px */
+/* Stacked as wide as the map above; a row of three equal cards from 1024px */
 .stops {
   display: grid;
   gap: var(--space-4);
   width: 100%;
-  max-width: 40rem;
-  margin-inline: auto;
 }
 
 @media (min-width: 1024px) {
   .stops {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
-    max-width: var(--wide);
   }
 }
 
@@ -25,6 +22,11 @@
   background: color-mix(in srgb, var(--bg-raised) 88%, transparent);
   text-align: center;
   transition: border-color 0.35s var(--ease-out);
+}
+
+/* A reading measure for the copy when a stacked card runs as wide as the map */
+.stop > * {
+  max-width: 34rem;
 }
 
 @media (hover: hover) {

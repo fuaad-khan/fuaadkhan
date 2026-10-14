@@ -134,6 +134,20 @@
   background: var(--tile-accent);
 }
 
+/* Phone rows are too narrow for the pill: the dot and a status line that may wrap */
+@media (max-width: 639px) {
+  .status {
+    align-items: baseline;
+    padding: 0;
+    border: 0;
+    line-height: 1.5;
+  }
+
+  .status::before {
+    transform: translateY(-1px);
+  }
+}
+
 @media (hover: hover) {
   .tile:hover {
     border-color: color-mix(in srgb, var(--tile-accent) 55%, transparent);

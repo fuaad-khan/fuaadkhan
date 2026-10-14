@@ -50,6 +50,17 @@
   color: var(--accent);
 }
 
+/* Narrow screens: the last part (the place) takes its own line, without a separator left dangling before it */
+@media (max-width: 559px) {
+  .identity > :last-child {
+    flex-basis: 100%;
+  }
+
+  .identity > :nth-last-child(2) .dot {
+    display: none;
+  }
+}
+
 .lede {
   max-width: 36rem;
   margin-top: var(--space-5);
