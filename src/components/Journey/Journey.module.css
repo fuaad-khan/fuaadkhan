@@ -2,8 +2,8 @@
 .journey {
   display: grid;
   justify-items: center;
-  row-gap: var(--space-7);
-  padding: var(--space-6) var(--gutter) var(--space-9);
+  row-gap: 2.5rem;
+  padding: var(--space-6) var(--gutter) var(--space-8);
 }
 
 .map,

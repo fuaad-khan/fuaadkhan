@@ -16,7 +16,7 @@
   display: grid;
   align-content: start;
   justify-items: center;
-  padding: var(--space-6) var(--space-5);
+  padding: 1.75rem var(--space-5);
   border: 1px solid var(--line);
   border-radius: var(--card-radius);
   background: color-mix(in srgb, var(--bg-raised) 88%, transparent);

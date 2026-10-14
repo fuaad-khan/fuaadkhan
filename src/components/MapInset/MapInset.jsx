@@ -1,7 +1,7 @@
 import styles from './MapInset.module.css'
 
-// Equirectangular frame around the three stops at 2:1, width-corrected for latitude; Catalina and the coast stay in view
-const BOUNDS = { lonMin: -119.0, lonMax: -116.4, latMin: 33.26, latMax: 34.34 }
+// Equirectangular frame around the three stops at about 2.1:1, width-corrected for latitude; Catalina and the coast stay in view
+const BOUNDS = { lonMin: -119.0, lonMax: -116.4, latMin: 33.28, latMax: 34.31 }
 const W = 400
 const H = Math.round(
   (W * (BOUNDS.latMax - BOUNDS.latMin)) /

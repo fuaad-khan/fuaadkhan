@@ -19,7 +19,6 @@
   --k: 1.43;
   width: 100%;
   height: auto;
-  aspect-ratio: 2 / 1;
 }
 
 @container (min-width: 300px) {
