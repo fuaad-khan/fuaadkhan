@@ -1,62 +1,61 @@
-/* Each beat is a viewport-scale stop with its copy centred, so it reads centred beside the sticky map */
-.beat {
-  min-height: var(--beat-min, 80svh);
+/* Stacked as wide as the map above; a row of three equal cards from 1024px */
+.stops {
   display: grid;
-  align-content: center;
-  padding-block: var(--space-6);
+  gap: var(--space-4);
+  width: 100%;
 }
 
-.body {
-  max-width: var(--measure);
+@media (min-width: 1024px) {
+  .stops {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
 }
 
+.stop {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  padding: 1.75rem var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background: color-mix(in srgb, var(--bg-raised) 88%, transparent);
+  text-align: center;
+  transition: border-color 0.35s var(--ease-out);
+}
+
+/* A reading measure for the copy when a stacked card runs as wide as the map */
+.stop > * {
+  max-width: 34rem;
+}
+
+@media (hover: hover) {
+  .stop:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+}
+
+/* Kind over dates: two short lines read better in a narrow card than one that wraps at the separator */
 .eyebrow {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 0.6em;
-  margin-bottom: var(--space-4);
+  display: grid;
+  justify-items: center;
+  gap: 0.3em;
 }
 
-.eyebrow span {
-  white-space: nowrap;
-}
-
-.sep {
+.dates {
   color: var(--accent);
 }
 
-/* The stop's rail node, centred on the rail line beside the eyebrow's first line (copy starts at --content-x) */
-.node {
-  position: absolute;
-  top: 0.75em;
-  left: calc(var(--rail-x) - var(--content-x) + 0.5px);
-  width: var(--node-size);
-  height: var(--node-size);
-  margin: calc(var(--node-size) / -2) 0 0 calc(var(--node-size) / -2);
-  border-radius: 50%;
-  background: var(--bg);
-  box-shadow:
-    inset 0 0 0 1px var(--accent),
-    0 0 0 var(--node-ring) var(--bg);
-}
-
-.nodeFill {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
 .headline {
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-4);
+  font-size: clamp(1.2rem, 1.05rem + 0.4vw, 1.375rem);
 }
 
 .role {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 0.15rem;
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-4);
+  font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
 }
 
 .role strong {
@@ -69,41 +68,12 @@
 
 .bullets {
   display: grid;
-  gap: 0.45rem;
-  color: var(--fg-muted);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
   font-size: var(--step--1);
-}
-
-.bullets li {
-  position: relative;
-  padding-left: 1.1rem;
-  line-height: 1.4;
-}
-
-.bullets li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.62em;
-  width: 0.4rem;
-  height: 1px;
-  background: var(--accent);
-}
-
-@media (min-width: 768px) {
-  .role {
-    margin-bottom: var(--space-5);
-  }
-
-  .bullets {
-    gap: 0.6rem;
-    font-size: var(--step-0);
-  }
-}
-
-/* With scripts and motion the node starts empty and lights when the rail fill reaches it; otherwise it shows lit */
-@media (prefers-reduced-motion: no-preference) {
-  :global(.js) .nodeFill {
-    transform: scale(0);
-  }
+  line-height: 1.45;
+  text-wrap: pretty;
+  color: var(--fg-muted);
 }

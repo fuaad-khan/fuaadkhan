@@ -1,7 +1,7 @@
 import styles from './MapInset.module.css'
 
-// Equirectangular frame centred on the three stops (they span ~60 % of the width), width-corrected for latitude
-const BOUNDS = { lonMin: -118.977, lonMax: -116.427, latMin: 33.25, latMax: 34.55 }
+// Equirectangular frame around the three stops at about 2.1:1, width-corrected for latitude; Catalina and the coast stay in view
+const BOUNDS = { lonMin: -119.0, lonMax: -116.4, latMin: 33.28, latMax: 34.31 }
 const W = 400
 const H = Math.round(
   (W * (BOUNDS.latMax - BOUNDS.latMin)) /
@@ -14,6 +14,7 @@ const project = ([lon, lat]) => [
 ]
 
 const round = (n) => Math.round(n * 10) / 10
+const px = (n) => `${round(n)}px`
 
 // Coastline from Point Conception to the Mexican border, simplified by hand
 const COAST = [
@@ -30,14 +31,14 @@ const CATALINA = { c: [-118.42, 33.38], rx: 22, ry: 5, rot: 33 }
 
 const pathFrom = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${round(x)} ${round(y)}`).join(' ')
 
-// Only the stretch of coast near the frame, so the drawn line enters at the edge instead of off-screen
+// Only the stretch of coast near the frame, so the line enters at the edge instead of off-screen
 const coastPts = COAST.filter(([lon, lat]) => lon >= BOUNDS.lonMin - 0.3 && lat >= BOUNDS.latMin - 0.3).map(project)
 const coastPath = pathFrom(coastPts)
 const first = coastPts[0]
 const last = coastPts[coastPts.length - 1]
 const landPath = `${coastPath} L${W + 40} ${round(last[1])} L${W + 40} -40 L-40 -40 L-40 ${round(first[1])} Z`
 
-// Half-degree graticule, unlabelled: the camera's push would crop edge labels
+// Half-degree graticule, unlabelled
 const GRID = 0.5
 const steps = (min, max) => {
   const out = []
@@ -48,7 +49,7 @@ const MERIDIANS = steps(BOUNDS.lonMin, BOUNDS.lonMax)
 const PARALLELS = steps(BOUNDS.latMin, BOUNDS.latMax)
 
 // The ocean name, one word per line, in the San Pedro Channel between Palos Verdes and Catalina
-const OCEAN_AT = project([-118.62, 33.6])
+const OCEAN_AT = project([-118.66, 33.6])
 
 // Gentle arc between two stops so the route reads as travel, not a ruler line
 function routePath([x1, y1], [x2, y2]) {
@@ -58,104 +59,91 @@ function routePath([x1, y1], [x2, y2]) {
   return `M${round(x1)} ${round(y1)} Q${round(cx)} ${round(cy)} ${round(x2)} ${round(y2)}`
 }
 
-// Marker halo radius; labels clear it in viewBox units, then an em baseline shift scales with the label size
-const HALO = 10
+// Label offsets in screen px (pins are drawn at screen scale), clear of the marker halo
 const LABEL = {
-  right: { dx: HALO + 3, dy: 0, em: '0.35em', anchor: 'start' },
-  left: { dx: -HALO - 3, dy: 0, em: '0.35em', anchor: 'end' },
-  above: { dx: 0, dy: -HALO - 4, em: '-0.3em', anchor: 'middle' },
-  below: { dx: 0, dy: HALO + 2, em: '0.95em', anchor: 'middle' },
+  right: { dx: 16, dy: 0, em: '0.35em', anchor: 'start' },
+  left: { dx: -16, dy: 0, em: '0.35em', anchor: 'end' },
+  above: { dx: 0, dy: -17, em: '0', anchor: 'middle' },
+  below: { dx: 0, dy: 17, em: '0.75em', anchor: 'middle' },
 }
 
-// The career map drawn complete (no-JS, reduced motion); under scripts + motion its CSS rewinds it for the Journey timeline
-export default function MapInset({ stops, journey }) {
+// The career map drawn complete (no JS, reduced motion); under scripts + motion its CSS rewinds the route for the Journey's draw
+export default function MapInset({ ref, stops, journey }) {
   const pts = stops.map((s) => project(s.coords))
   const [startX, startY] = pts[0]
   const [endX, endY] = pts[pts.length - 1]
-  const markerVars = {
-    '--start-x': `${round(startX)}px`,
-    '--start-y': `${round(startY)}px`,
-    '--end-x': `${round(endX)}px`,
-    '--end-y': `${round(endY)}px`,
-  }
   const [cx, cy] = project(CATALINA.c)
   const [oceanX, oceanY] = OCEAN_AT
 
   return (
-    <div className={styles.map} aria-hidden="true">
-      <div className={styles.frame} style={{ aspectRatio: `${W} / ${H}` }}>
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className={styles.svg}>
-          <g className={styles.view} data-map-view>
-            <path d={landPath} className={styles.land} />
-            <ellipse
-              cx={round(cx)}
-              cy={round(cy)}
-              rx={CATALINA.rx}
-              ry={CATALINA.ry}
-              transform={`rotate(${CATALINA.rot} ${round(cx)} ${round(cy)})`}
-              className={styles.island}
-            />
-            <path d={coastPath} pathLength="1" className={styles.coast} />
+    <figure ref={ref} className={styles.map} aria-hidden="true">
+      <div className={styles.frame}>
+        <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg}>
+          <path d={landPath} className={styles.land} />
+          <ellipse
+            cx={round(cx)}
+            cy={round(cy)}
+            rx={CATALINA.rx}
+            ry={CATALINA.ry}
+            transform={`rotate(${CATALINA.rot} ${round(cx)} ${round(cy)})`}
+            className={styles.island}
+          />
+          <path d={coastPath} className={styles.coast} />
 
-            <g className={styles.graticule}>
-              {MERIDIANS.map((lon) => {
-                const [x] = project([lon, BOUNDS.latMin])
-                return <line key={lon} x1={round(x)} y1={0} x2={round(x)} y2={H} />
-              })}
-              {PARALLELS.map((lat) => {
-                const [, y] = project([BOUNDS.lonMin, lat])
-                return <line key={lat} x1={0} y1={round(y)} x2={W} y2={round(y)} />
-              })}
-            </g>
+          <g className={styles.graticule}>
+            {MERIDIANS.map((lon) => {
+              const [x] = project([lon, BOUNDS.latMin])
+              return <line key={lon} x1={round(x)} y1={0} x2={round(x)} y2={H} />
+            })}
+            {PARALLELS.map((lat) => {
+              const [, y] = project([BOUNDS.lonMin, lat])
+              return <line key={lat} x1={0} y1={round(y)} x2={W} y2={round(y)} />
+            })}
+          </g>
 
-            <text x={round(oceanX)} y={round(oceanY)} textAnchor="middle" className={styles.ocean} data-ocean>
+          <g className={styles.place} style={{ '--x': px(oceanX), '--y': px(oceanY) }}>
+            <text textAnchor="middle" className={styles.ocean}>
               {journey.ocean.split(' ').map((word, i) => (
-                <tspan key={word} x={round(oceanX)} dy={i ? '1.3em' : 0}>
+                <tspan key={word} x="0" dy={i ? '1.35em' : 0}>
                   {word}
                 </tspan>
               ))}
             </text>
+          </g>
 
-            {pts.slice(1).map((p, i) => (
-              <path key={stops[i + 1].id} d={routePath(pts[i], p)} className={styles.route} data-route={i + 1} />
-            ))}
+          {pts.slice(1).map((p, i) => (
+            <path key={stops[i + 1].id} d={routePath(pts[i], p)} className={styles.route} data-route={i + 1} />
+          ))}
 
-            {pts.map(([x, y], i) => (
-              <circle
+          {pts.map(([x, y], i) => {
+            const l = LABEL[stops[i].labelPlacement] ?? LABEL.right
+            return (
+              <g
                 key={stops[i].id}
-                cx={round(x)}
-                cy={round(y)}
-                r={3.5}
-                className={i ? `${styles.stop} ${styles.late}` : styles.stop}
-                data-stop={i}
-              />
-            ))}
-
-            {pts.map(([x, y], i) => {
-              const l = LABEL[stops[i].labelPlacement] ?? LABEL.right
-              return (
-                <text
-                  key={stops[i].id}
-                  x={round(x + l.dx)}
-                  y={round(y + l.dy)}
-                  dy={l.em}
-                  textAnchor={l.anchor}
-                  className={i ? `${styles.label} ${styles.late}` : styles.label}
-                  data-label={i}
-                >
+                className={i ? `${styles.place} ${styles.late}` : styles.place}
+                style={{ '--x': px(x), '--y': px(y) }}
+                data-pin={i}
+              >
+                <circle r={11} className={styles.ring} />
+                <circle r={4} className={styles.stop} />
+                <text x={l.dx} y={l.dy} dy={l.em} textAnchor={l.anchor} className={styles.label}>
                   {stops[i].location}
                 </text>
-              )
-            })}
+              </g>
+            )
+          })}
 
-            <g className={styles.marker} style={markerVars} data-marker>
-              <circle r={HALO} className={styles.halo} />
-              <circle r={4.5} className={styles.active} />
-            </g>
+          <g
+            className={styles.marker}
+            style={{ '--start-x': px(startX), '--start-y': px(startY), '--end-x': px(endX), '--end-y': px(endY) }}
+            data-marker
+          >
+            <circle r={12} className={styles.halo} data-halo />
+            <circle r={5.5} className={styles.active} />
           </g>
         </svg>
       </div>
-      <p className={styles.caption}>{journey.mapCaption}</p>
-    </div>
+      <figcaption className={styles.caption}>{journey.mapCaption}</figcaption>
+    </figure>
   )
 }

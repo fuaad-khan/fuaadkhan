@@ -1,54 +1,41 @@
-/* Contentinfo footer: the rail ends in a gold node beside the eyebrow, contact links beside the pitch */
+/* Fills what the floating nav leaves of the viewport, so the colophon rests on the bottom edge when the page ends */
 .close {
-  --close-top: clamp(5rem, 14svh, 8rem);
-
   position: relative;
-  min-height: 80svh;
+  min-height: calc(100svh - var(--nav-space));
   display: flex;
   flex-direction: column;
-  padding: var(--close-top) var(--gutter) var(--space-7) var(--content-x);
-}
-
-/* The rail stops at the eyebrow's centre line, where the lit node sits; two classes outrank Rail's own box */
-.close .rail {
-  bottom: auto;
-  height: calc(var(--close-top) + var(--step--1) * 0.75);
-}
-
-/* The last showcase ends fully filled, so this short stretch is drawn from the start rather than scrubbed */
-.close .rail [data-rail] {
-  transform: none;
+  padding: var(--space-8) var(--gutter) var(--space-6);
 }
 
 .inner {
+  flex: 1;
   display: grid;
-  align-content: start;
+  justify-items: center;
+  align-content: center;
   gap: var(--space-7);
-}
-
-.headline {
-  margin: var(--space-4) 0 var(--space-5);
-}
-
-.body {
-  max-width: var(--measure);
-  color: var(--fg-muted);
+  text-align: center;
 }
 
 .links {
-  border-top: 1px solid var(--line);
+  display: grid;
+  gap: var(--space-3);
 }
 
-.links li {
-  border-bottom: 1px solid var(--line);
+/* Wide screens: the three addresses in one centred row, each column as wide as its value */
+@media (min-width: 900px) {
+  .links {
+    grid-template-columns: repeat(3, auto);
+    justify-content: center;
+    column-gap: var(--space-7);
+  }
 }
 
 .link {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-4);
-  padding: var(--space-4) 0;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 14px;
   text-decoration: none;
 }
 
@@ -57,7 +44,6 @@
 }
 
 .linkLabel {
-  flex: none;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.12em;
@@ -66,19 +52,17 @@
 }
 
 .linkValue {
-  min-width: 0;
+  max-width: 100%;
   font-family: var(--font-display);
-  font-size: var(--step-1);
+  font-size: var(--step-0);
   font-weight: 600;
   letter-spacing: -0.01em;
-  text-align: right;
   overflow-wrap: anywhere;
   transition: color 0.2s var(--ease-out);
 }
 
 .resume {
   display: inline-block;
-  margin-top: var(--space-6);
   padding: var(--space-3) var(--space-5);
   border: 1px solid var(--line-strong);
   border-radius: 999px;
@@ -96,41 +80,15 @@
 
 .footer {
   display: grid;
+  justify-items: center;
   gap: var(--space-2);
-  margin-top: auto;
-  padding-top: var(--space-9);
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.1em;
+  text-align: center;
+  text-wrap: balance;
   color: var(--fg-faint);
-}
-
-/* Phones: label above value, sized so the longest address (the LinkedIn slug) stays on one line */
-@media (max-width: 479px) {
-  .link {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1);
-  }
-
-  .linkValue {
-    font-size: min(var(--step-1), 4vw);
-    text-align: left;
-  }
-}
-
-/* Wide screens: pitch on the left, links on the right with their top rule level with the headline */
-@media (min-width: 1024px) {
-  .inner {
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    column-gap: clamp(3rem, 6vw, 7rem);
-  }
-
-  .contact {
-    padding-top: calc(var(--step--1) * 1.5 + var(--space-4));
-  }
-
-  .linkValue {
-    font-size: var(--step-0);
-  }
 }

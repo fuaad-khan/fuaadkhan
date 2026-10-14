@@ -1,56 +1,81 @@
-/* The Journey's first viewport (minus the phone map band), copy vertically centred */
+/* One full viewport; the copy sits on the optical centre, a little below the floating nav; clip keeps the scrim from widening phones */
 .hero {
   position: relative;
-  min-height: var(--hero-min, 100svh);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-block: var(--space-6) var(--space-8);
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: var(--nav-space) var(--gutter) var(--space-9);
+  overflow-x: clip;
+  text-align: center;
 }
 
-@media (min-width: 768px) {
-  .hero {
-    padding-block: var(--space-8) var(--space-9);
-  }
+/* isolation keeps the scrim below the copy but above the fixed topo layer */
+.copy {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  max-width: 54rem;
 }
 
-.eyebrow {
-  margin-bottom: var(--space-5);
+/* A soft pool of the page colour behind the copy keeps contour lines from crossing the type */
+.copy::before {
+  content: '';
+  position: absolute;
+  inset: -18% -12%;
+  z-index: -1;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--bg) 80%, transparent) 55%, transparent);
+  pointer-events: none;
 }
 
 .name {
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-5);
 }
 
 .identity {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.35em;
+  margin-top: var(--space-5);
   font-family: var(--font-display);
   font-size: var(--step-1);
   font-weight: 600;
   letter-spacing: -0.01em;
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 0.35em;
 }
 
 /* Separators trail each part, so a wrapped line never starts with one */
 .dot {
-  color: var(--accent);
   margin-left: 0.35em;
+  color: var(--accent);
+}
+
+/* Narrow screens: the last part (the place) takes its own line, without a separator left dangling before it */
+@media (max-width: 559px) {
+  .identity > :last-child {
+    flex-basis: 100%;
+  }
+
+  .identity > :nth-last-child(2) .dot {
+    display: none;
+  }
 }
 
 .lede {
+  max-width: 36rem;
   margin-top: var(--space-5);
-  max-width: var(--measure);
   color: var(--fg-muted);
+  text-wrap: balance;
 }
 
-/* Scroll cue: a label at the foot of the hero and a short dash sliding down the rail above it */
+/* Scroll cue at the foot of the hero: a label over a short track that a gold dash slides down */
 .cue {
   position: absolute;
-  left: 0;
+  inset-inline: 0;
   bottom: var(--space-6);
-  display: flex;
-  align-items: center;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
 }
 
 .cueLabel {
@@ -61,20 +86,17 @@
   color: var(--fg-faint);
 }
 
-/* The hero's left edge is --content-x, so this lands the track on the rail line */
 .cueTrack {
-  position: absolute;
-  left: calc(var(--rail-x) - var(--content-x));
-  bottom: 50%;
   width: 1px;
-  height: 4.5rem;
+  height: 3rem;
   overflow: hidden;
+  background: var(--line);
 }
 
 .cueDash {
   display: block;
   width: 1px;
-  height: 24px;
+  height: 1.25rem;
   background: var(--accent);
 }
 
@@ -85,13 +107,7 @@
   }
 
   .cueDash {
-    animation: cue 2.2s var(--ease-out) 1.2s 2;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cue {
-    display: none;
+    animation: cue 2.4s var(--ease-out) 1.4s infinite;
   }
 }
 
@@ -102,7 +118,7 @@
   }
 }
 
-/* Slides to the foot of the track, fades, and reappears at the top: it ends at rest, so nothing pops afterwards */
+/* Slides to the foot of the track and fades, then waits at the top: every cycle ends where it began */
 @keyframes cue {
   0% {
     transform: translateY(0);
@@ -110,12 +126,12 @@
   }
 
   55% {
-    transform: translateY(calc(4.5rem - 24px));
+    transform: translateY(calc(3rem - 1.25rem));
     opacity: 1;
   }
 
   70% {
-    transform: translateY(calc(4.5rem - 24px));
+    transform: translateY(calc(3rem - 1.25rem));
     opacity: 0;
   }
 
