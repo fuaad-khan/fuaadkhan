@@ -6,8 +6,8 @@
 
   // Internal hosts, keys and local origins must never be readable in a frame, whatever the app
   const ALWAYS = /gis01|sanjacintoca\.gov\/server|api[_-]?key|[?&]key=|127\.0\.0\.1|localhost:\d+/i
-  // A residence as Green Check prints it: "445 X ST ... CA 92583 (residential, built 1941)" or "APN 123-456 (single-family)"
-  const RESIDENCE = /(?:\b\d+[A-Z]?(?:\s+[A-Z0-9][A-Z0-9.'#/-]*)+|\bAPN\s+[\w-]+)\s*\([a-z0-9][^)]*\)/g
+  // A residence as Green Check prints it: "445 X ST ... CA 92583 (residential, built 1941)" or "APN 123-456 (single-family)"; a bare APN in parentheses is a search suggestion, judged by scrubSuggestions
+  const RESIDENCE = /(?:\b\d+[A-Z]?(?:\s+[A-Z0-9][A-Z0-9.'#/-]*)+|\bAPN\s+[\w-]+)\s*\((?!\d+\))[a-z0-9][^)]*\)/g
   // The sensitive-use name inside "Nearest day care center is NAME (day care center), ..."
   const CARE_NAME = /(?<=\bis\s)(.+?)(?=\s\((?:day care center|youth center)\))/g
   const DEV_NOTE = /has not been compiled yet|sensitiveUses\.manual\.json/i
@@ -83,6 +83,15 @@
     }
   }
 
+  // Green Check: suggestion rows name other parcels; only the subject's (its APN in window.__wp6AllowApns, set by the runner) stays readable
+  const suggestionApn = (li) => (li.textContent.match(/\((\d{6,})\)\s*$/) || [])[1] || ''
+  const allowedSuggestion = (li) => (window.__wp6AllowApns || []).includes(suggestionApn(li))
+  function scrubSuggestions() {
+    for (const li of document.querySelectorAll('#searchSuggestions li')) {
+      if (!allowedSuggestion(li)) li.classList.add('__redacted')
+    }
+  }
+
   // Any app: an internal host, key or local origin printed in the page is blurred where it sits
   function scrubAlways() {
     for (const { el } of readable((t) => ALWAYS.test(t))) el.classList.add('__redacted')
@@ -92,7 +101,10 @@
   function run() {
     queued = false
     if (app === 'map-my-city') scrubOfficer()
-    if (app === 'green-check') scrubGreenCheck()
+    if (app === 'green-check') {
+      scrubGreenCheck()
+      scrubSuggestions()
+    }
     scrubAlways()
   }
 
@@ -116,6 +128,11 @@
       else if (app === 'green-check' && residence(text)) out.push('residence address')
       else if (DEV_NOTE.test(text)) out.push('compile note')
       else out.push('scrubbed string readable elsewhere')
+    }
+    if (app === 'green-check') {
+      for (const li of document.querySelectorAll('#searchSuggestions li')) {
+        if (!allowedSuggestion(li) && !li.closest('.__redacted') && li.getClientRects().length) out.push('search suggestion for another parcel')
+      }
     }
     return out
   }

@@ -136,11 +136,11 @@
         "apn": "437076013",
         "clip": [
           460,
-          110,
+          64,
           1120,
           700
         ],
-        "state": "dark theme close-up: Edit, then a concrete corner dragged out while the rows, total and donut follow live; Edit again to save",
+        "state": "dark theme close-up of the panel, the status toast and the drawings: Edit, then a concrete corner dragged out while the rows, total and donut follow live; Edit again to save",
         "poster": "the restored plan beside the Yard Composition panel"
       },
       {
@@ -149,8 +149,14 @@
         "seconds": 7,
         "order": "played once: the poster is the first frame",
         "apn": "437076013",
-        "state": "dark theme: Share in the rail, the Download & Share panel, Copy Link and its status toast (the clipboard write is stubbed; no PDF is generated or downloaded)",
-        "poster": "the restored plan with the Draw panel"
+        "state": "dark theme close-up: Share in the Draw panel's Quick Actions, the Download & Share panel, Copy Link and its status toast (the clipboard write is stubbed; no PDF is generated or downloaded)",
+        "poster": "the restored plan beside the Draw panel",
+        "clip": [
+          480,
+          60,
+          1120,
+          700
+        ]
       }
     ]
   },

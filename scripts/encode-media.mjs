@@ -1,30 +1,31 @@
-// Media encoder (PLAN §7): .cache/capture/<app>/ → src/assets/<app>/ — WebP stills at 1600 and 800 px, WebM + MP4 loops with WebP posters, sidecars, budgets and a size table
+// Media encoder (PLAN §7, PLAN-v2 Media): .cache/capture/<app>/ → src/assets/<app>/ — WebP stills at 1600 and 800 px, WebM + MP4 loops with WebP posters, sidecars, budgets, a size table and a contact sheet
 import { existsSync, linkSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 import { launch } from './lib/cdp.mjs'
-import { mp4, twoPass, webm, webp } from './lib/ffmpeg.mjs'
+import { mp4, run, twoPass, webm, webp } from './lib/ffmpeg.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const RAW = join(ROOT, '.cache', 'capture')
 const ASSETS = join(ROOT, 'src', 'assets')
 const SHOTS = JSON.parse(readFileSync(join(ROOT, 'scripts', 'capture', 'shots.json'), 'utf8'))
-// Decimal kB, the unit Vite prints and the stricter reading of the PLAN §7 budgets
+// Decimal kB, the unit Vite prints and the stricter reading of the budgets; v2 (CONTRACTS-v2 §4): WebM about 700 kB, and a full watch of every card is reported against 9 MB
 const KB = 1000
-const BUDGET = { x2: 150 * KB, x1: 50 * KB, webm: 600 * KB, mp4: 900 * KB, page: 4000 * KB }
+const BUDGET = { x2: 150 * KB, x1: 50 * KB, webm: 700 * KB, mp4: 900 * KB, page: 9000 * KB }
 const LOOP_WIDTH = 1280
 // Sidecar fields that never ship (local bookkeeping)
 const DROP = new Set(['captureViewport'])
 
-const USAGE = `Usage: node scripts/encode-media.mjs [app ...] [--only name,name] [--no-sheet] [--cdp-port 9366]
+const USAGE = `Usage: node scripts/encode-media.mjs [app ...] [--only name,name] [--no-sheet] [--sheet audit] [--cdp-port 9366]
 
 Encodes the raw captures in .cache/capture/<app>/ (from scripts/capture/index.mjs) into src/assets/<app>/:
   stills  <name>@2x.webp (1600 px) + <name>.webp (800 px), quality lowered from 82 until within ${BUDGET.x2 / KB} / ${BUDGET.x1 / KB} kB
   loops   <name>.webm (VP9) + <name>.mp4 (H.264) at ${LOOP_WIDTH} px / 30 fps, starting on the poster frame, CRF raised until within ${BUDGET.webm / KB} / ${BUDGET.mp4 / KB} kB,
           plus <name>-poster@2x.webp + <name>-poster.webp from the lossless poster frame
   sidecars <name>.json next to each asset (camera, scrubs, leaks: [], intro harvest on hero)
-Then prints a size table and writes audit/media-contact-sheet.html (+ .png rendered over CDP).`
+Captures from a draft run (--dpr 1) are refused. Then prints a size table and the page weight over every shipped capture,
+and writes <sheet>/contact-sheet.html (+ .png rendered over CDP): every still and poster, plus frames sampled from each shipped WebM.`
 
 const fmt = (n) => `${(n / KB).toFixed(1)} kB`.padStart(10)
 const size = (f) => statSync(f).size
@@ -85,6 +86,8 @@ async function encodeApp(app, only) {
     if (only && !only.has(shot.name)) continue
     const sidecar = join(raw, `${shot.name}.json`)
     if (!existsSync(sidecar)) throw new Error(`${app}/${shot.name}: no capture in ${relative(ROOT, raw)} (run node scripts/capture/index.mjs ${app} --shots ${shot.name})`)
+    const dpr = JSON.parse(readFileSync(sidecar, 'utf8')).dpr
+    if (!(dpr >= 2)) throw new Error(`${app}/${shot.name}: a draft capture (dpr ${dpr}); capture it again at dpr 2 before encoding`)
     if (shot.kind === 'still') {
       const src = join(raw, `${shot.name}.png`)
       const x2 = await stillAt(src, join(out, `${shot.name}@2x.webp`), 1600, BUDGET.x2)
@@ -117,42 +120,72 @@ async function encodeApp(app, only) {
   return rows
 }
 
-// Every still and poster at a glance (plus capture-only alternates), for the owner and for a by-eye privacy pass
-function contactSheet(apps) {
+// Shipped capture media per app: each manifest shot's still or poster at both densities, and its WebM and MP4
+function shipped(app) {
+  const dir = join(ASSETS, app)
+  const out = []
+  for (const shot of SHOTS[app].shots) {
+    const loop = shot.kind === 'loop'
+    const files = loop
+      ? [[`${shot.name}-poster@2x.webp`, 'x2'], [`${shot.name}-poster.webp`, 'x1'], [`${shot.name}.webm`, 'webm'], [`${shot.name}.mp4`, 'mp4']]
+      : [[`${shot.name}@2x.webp`, shot.name === 'base' ? 'intro' : 'x2'], [`${shot.name}.webp`, shot.name === 'base' ? 'intro1' : 'x1']]
+    for (const [name, role] of files) if (existsSync(join(dir, name))) out.push({ app, name, role, bytes: size(join(dir, name)), budget: BUDGET[role === 'intro' ? 'x2' : role === 'intro1' ? 'x1' : role] })
+  }
+  return out
+}
+
+// Frames sampled from a shipped WebM (start, thirds, last), so the sheet reviews the bytes a visitor gets
+async function sampleLoop(app, name, framesDir) {
+  const meta = JSON.parse(readFileSync(join(ASSETS, app, `${name}.json`), 'utf8'))
+  const last = Math.max(0, (meta.frames - 1) / meta.fps)
+  const out = []
+  for (const [i, t] of [0, last / 3, (2 * last) / 3, last].entries()) {
+    const file = join(framesDir, `${app}-${name}-${i}.jpg`)
+    await run(['-y', '-ss', t.toFixed(3), '-i', join(ASSETS, app, `${name}.webm`), '-frames:v', '1', '-vf', 'scale=800:-2:flags=lanczos', '-q:v', '3', file])
+    out.push({ file, t })
+  }
+  return out
+}
+
+// Every still and poster, plus sampled frames of every loop, for the owner and for a by-eye privacy pass
+async function contactSheet(apps, sheetDir) {
+  const framesDir = join(sheetDir, 'frames')
+  rmSync(framesDir, { recursive: true, force: true })
+  mkdirSync(framesDir, { recursive: true })
+  const rel = (file) => relative(sheetDir, file).replaceAll('\\', '/')
   const cards = []
   for (const app of apps) {
-    const dir = join(ASSETS, app)
-    if (!existsSync(dir)) continue
-    for (const file of readdirSync(dir).filter((f) => f.endsWith('@2x.webp')).sort()) {
-      const meta = JSON.parse(readFileSync(join(dir, `${file.replace(/(-poster)?@2x\.webp$/, '')}.json`), 'utf8'))
-      cards.push({ app, src: relative(join(ROOT, 'audit'), join(dir, file)).replaceAll('\\', '/'), title: `${app} / ${file}`, bytes: size(join(dir, file)), state: meta.state ?? '', kind: file.includes('-poster') ? 'loop poster' : meta.name === 'base' ? 'intro backdrop (not shown by the Showcase)' : 'still' })
-    }
-    const rawDir = join(RAW, app)
-    for (const file of existsSync(rawDir) ? readdirSync(rawDir).filter((f) => f.endsWith('.json')) : []) {
-      const meta = JSON.parse(readFileSync(join(rawDir, file), 'utf8'))
-      if (!meta.alternate) continue
-      cards.push({ app, src: relative(join(ROOT, 'audit'), join(rawDir, file.replace(/\.json$/, '.png'))).replaceAll('\\', '/'), title: `${app} / ${meta.name} (raw alternate, not shipped)`, bytes: size(join(rawDir, file.replace(/\.json$/, '.png'))), state: meta.state ?? '', kind: 'alternate' })
+    for (const shot of SHOTS[app].shots) {
+      const dir = join(ASSETS, app)
+      const loop = shot.kind === 'loop'
+      const poster = join(dir, loop ? `${shot.name}-poster@2x.webp` : `${shot.name}@2x.webp`)
+      if (!existsSync(poster)) continue
+      const meta = JSON.parse(readFileSync(join(dir, `${shot.name}.json`), 'utf8'))
+      const kind = loop ? `loop poster (first frame), ${meta.seconds} s, ${meta.width}x${meta.height}` : shot.name === 'base' ? 'intro backdrop (not a gallery card)' : `still, ${meta.width}x${meta.height}`
+      cards.push({ src: rel(poster), title: `${app} / ${shot.name}`, meta: `${kind} · ${(size(poster) / KB).toFixed(1)} kB`, state: meta.state ?? '' })
+      if (loop && existsSync(join(dir, `${shot.name}.webm`))) {
+        for (const { file, t } of await sampleLoop(app, shot.name, framesDir)) cards.push({ src: rel(file), title: `${app} / ${shot.name}.webm`, meta: `frame at ${t.toFixed(2)} s`, state: '' })
+      }
     }
   }
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Media contact sheet</title>
 <style>
   body { margin: 0; padding: 24px; background: #1e2128; color: #f4f1ea; font: 14px/1.4 system-ui, sans-serif; }
   h1 { font-size: 20px; margin: 0 0 16px; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   figure { margin: 0; background: #272b33; border-radius: 10px; overflow: hidden; }
-  img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: #111; }
+  img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: contain; background: #111; }
   figcaption { padding: 8px 10px 10px; }
   .t { font-weight: 600; } .m { color: #a39e93; font-size: 12px; }
 </style></head><body>
 <h1>Media contact sheet: ${cards.length} images (generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC)</h1>
 <div class="grid">
-${cards.map((c) => `<figure><img src="${esc(c.src)}" alt=""><figcaption><div class="t">${esc(c.title)}</div><div class="m">${esc(c.kind)} · ${(c.bytes / KB).toFixed(1)} kB</div><div class="m">${esc(c.state)}</div></figcaption></figure>`).join('\n')}
+${cards.map((c) => `<figure><img src="${esc(c.src)}" alt=""><figcaption><div class="t">${esc(c.title)}</div><div class="m">${esc(c.meta)}</div>${c.state ? `<div class="m">${esc(c.state)}</div>` : ''}</figcaption></figure>`).join('\n')}
 </div></body></html>
 `
-  const file = join(ROOT, 'audit', 'media-contact-sheet.html')
-  mkdirSync(dirname(file), { recursive: true })
+  const file = join(sheetDir, 'contact-sheet.html')
   writeFileSync(file, html)
   return file
 }
@@ -173,7 +206,7 @@ async function renderSheet(file, port) {
   }
 }
 
-const { values, positionals } = parseArgs({ allowPositionals: true, options: { only: { type: 'string' }, 'no-sheet': { type: 'boolean' }, 'cdp-port': { type: 'string', default: '9366' }, help: { type: 'boolean', short: 'h' } } })
+const { values, positionals } = parseArgs({ allowPositionals: true, options: { only: { type: 'string' }, 'no-sheet': { type: 'boolean' }, sheet: { type: 'string', default: 'audit' }, 'cdp-port': { type: 'string', default: '9366' }, help: { type: 'boolean', short: 'h' } } })
 if (values.help) {
   console.log(USAGE)
   process.exit(0)
@@ -188,22 +221,27 @@ for (const app of apps) {
   rows.push(...(await encodeApp(app, only)))
 }
 
-console.log(`\n${'asset'.padEnd(44)}${'size'.padStart(10)}${'budget'.padStart(10)}  settings`)
+console.log(`\n${'encoded this run'.padEnd(44)}${'size'.padStart(10)}${'budget'.padStart(10)}  settings`)
 for (const r of rows) console.log(`${`${r.app}/${r.name}`.padEnd(44)}${fmt(r.bytes)}${fmt(r.budget)}  ${r.note}${r.over ? '  OVER BUDGET' : ''}`)
-// What a visitor downloads when every below-fold asset loads: one density of each still and poster, one video format, plus the intro backdrops
-const sum = (pred) => rows.filter(pred).reduce((s, r) => s + r.bytes, 0)
+// What a visitor downloads when every card loads: one density of each still and poster, one video format, plus the intro backdrops
+const all = Object.keys(SHOTS).flatMap(shipped)
+const sum = (pred) => all.filter(pred).reduce((s, r) => s + r.bytes, 0)
 const at2x = sum((r) => r.role === 'x2' || r.role === 'intro' || r.role === 'webm')
 const at1x = sum((r) => r.role === 'x1' || r.role === 'intro1' || r.role === 'mp4')
-console.log(`\npage media, 2x screen + WebM: ${fmt(at2x)}  (budget ${fmt(BUDGET.page)})${at2x > BUDGET.page ? '  OVER BUDGET' : ''}`)
-console.log(`page media, 1x screen + MP4: ${fmt(at1x)}`)
+const shippedOver = all.filter((r) => r.bytes > r.budget)
+console.log(`\nshipped capture media: ${all.length} files${shippedOver.length ? `, over budget: ${shippedOver.map((r) => `${r.app}/${r.name}`).join(', ')}` : ', all within budget'}`)
+console.log(`every card watched, 2x screen + WebM: ${fmt(at2x)}  (reported against ${fmt(BUDGET.page)})${at2x > BUDGET.page ? '  OVER' : ''}`)
+console.log(`every card watched, 1x screen + MP4: ${fmt(at1x)}`)
 const over = rows.filter((r) => r.over)
 if (!values['no-sheet']) {
-  const sheet = contactSheet(Object.keys(SHOTS))
+  const sheetDir = resolve(ROOT, values.sheet)
+  mkdirSync(sheetDir, { recursive: true })
+  const sheet = await contactSheet(Object.keys(SHOTS), sheetDir)
   console.log(`\ncontact sheet: ${relative(ROOT, sheet)}`)
   const png = await renderSheet(sheet, Number(values['cdp-port']))
   console.log(`rendered: ${relative(ROOT, png)}`)
 }
-if (over.length || at2x > BUDGET.page) {
-  console.error(`\n${over.length} asset(s) over budget${at2x > BUDGET.page ? ', page media over budget' : ''}`)
+if (over.length || shippedOver.length) {
+  console.error(`\n${over.length + shippedOver.length} asset(s) over budget`)
   process.exit(1)
 }
