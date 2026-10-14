@@ -1,9 +1,8 @@
-/* The gallery is the size reference for its cards: full bleed, so the neighbours peek in from the screen edges */
-/* Card height: Apple's 62svh, capped by what the nav, header and controls leave (about 330px), so short laptops still fit one viewport */
+/* The gallery sizes its cards: full bleed so the neighbours peek in, and Apple's ~66svh card height capped by what the nav, header and controls leave */
 .gallery {
   --gap: 20px;
   --card-w: min(1260px, 100cqw - 2 * var(--gutter));
-  --card-h: clamp(380px, min(62svh, 100svh - 330px), 680px);
+  --card-h: clamp(380px, min(66svh, 100svh - 292px), 680px);
   --surface: #0c0e12;
   --frame-chrome: calc(1.75rem + 3px);
   --pill: rgba(255, 255, 255, 0.1);
@@ -15,12 +14,18 @@
   container-type: inline-size;
 }
 
+/* Wide desktops: Apple's 612 px card, which keeps a two-column card's frame and caption column in balance */
+@media (min-width: 1360px) {
+  .gallery {
+    --card-h: clamp(380px, min(66svh, 100svh - 292px), 612px);
+  }
+}
+
 /* Phones: nearly full-width cards and a tighter gap, so a sliver of each neighbour still shows */
 @media (max-width: 599px) {
   .gallery {
     --gap: 10px;
     --card-w: calc(100cqw - 2.5rem);
-    --card-h: clamp(380px, min(54svh, 100svh - 360px), 680px);
     --pill-h: 44px;
   }
 }
@@ -68,12 +73,20 @@
   flex-direction: column;
   width: var(--card-w);
   height: var(--card-h);
-  container-type: size;
+  container: card / size;
   scroll-snap-align: center;
   scroll-snap-stop: always;
   border-radius: var(--card-radius);
   background: var(--surface);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Caption and frame: stacked by default, side by side on wide cards */
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Apple's caption: bold, centred near the top, a few words per line */
@@ -88,6 +101,14 @@
   letter-spacing: -0.016em;
   text-align: center;
   text-wrap: balance;
+  transition: opacity 0.6s var(--ease-out) 0.1s;
+}
+
+/* As on Apple's gallery only the card in focus shows its caption, so a neighbour's peek never shows stray words */
+:global(.js) .card:not([data-current]) .caption {
+  opacity: 0;
+  transition-duration: 0.25s;
+  transition-delay: 0s;
 }
 
 /* The space under the caption; the frame takes the largest 16:10 box that fits it, so captures are never cropped */
@@ -102,6 +123,34 @@
 
 .frameBox {
   width: min(100cqw, (100cqh - var(--frame-chrome)) * var(--ratio, 1.6));
+}
+
+/* Wide landscape cards (the owner's apple.com reference): the caption in a left column, the frame as tall as the card on the right */
+@container card (min-width: 1000px) and (min-aspect-ratio: 9 / 5) {
+  .body {
+    --pad-y: clamp(1.25rem, 5.5cqh, 2.25rem);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: clamp(2rem, 4cqw, 3.5rem);
+    padding: var(--pad-y) var(--pad-y) var(--pad-y) clamp(2.5rem, 4cqw, 3.5rem);
+  }
+
+  .body .caption {
+    max-width: 13em;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(1.3rem, 0.5rem + 1.5cqw, 1.75rem);
+    text-align: left;
+  }
+
+  /* Height-bound like Apple's media, but never so wide that the caption column drops under about 16rem */
+  .body .media {
+    align-self: stretch;
+    width: min(100cqw - 25rem, (100cqh - 2 * var(--pad-y) - var(--frame-chrome)) * var(--ratio, 1.6) + 2px);
+    padding: 0;
+  }
 }
 
 /* A tighter accent glow than the page frames get, so it stays a halo instead of tinting the whole card */
@@ -228,35 +277,6 @@
   white-space: nowrap;
 }
 
-.glanceFoot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 1rem;
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.3em 0.8em;
-  border: 1px solid color-mix(in srgb, var(--app-accent, var(--accent)) 45%, transparent);
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.status::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--app-accent, var(--accent));
-}
-
 .footnote {
   font-size: 0.78rem;
   color: var(--fg-faint);
@@ -281,6 +301,61 @@
 @container (max-height: 500px) {
   .lede {
     display: none;
+  }
+}
+
+/* Phones and tablets: the cards hug caption and frame; the longest caption sets the row and shorter ones take the slack, so every frame lines up */
+@media (max-width: 1023px) {
+  .card {
+    height: auto;
+    container-type: inline-size;
+  }
+
+  .caption {
+    padding-top: 20px;
+  }
+
+  .body .caption {
+    flex: 1 0 auto;
+  }
+
+  .media {
+    flex: none;
+    padding: 14px;
+    container-type: inline-size;
+  }
+
+  .frameBox {
+    width: 100%;
+  }
+
+  .glance {
+    padding: 12px 16px 18px;
+    gap: 14px;
+  }
+}
+
+/* Phones: a compact glance no taller than the media cards, so the deployment line gives way */
+@media (max-width: 599px) {
+  .glance {
+    padding-top: 10px;
+    gap: 12px;
+  }
+
+  .glance [data-fact='deployed'] {
+    display: none;
+  }
+
+  .metricValue {
+    font-size: 1.75rem;
+  }
+
+  .metricLabel {
+    font-size: 0.75rem;
+  }
+
+  .facts {
+    padding-top: 12px;
   }
 }
 
@@ -354,7 +429,7 @@
 .pipFill {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: var(--fg);
   opacity: 0;
   transform: translateX(calc((var(--progress, 0) - 1) * 100%));
 }

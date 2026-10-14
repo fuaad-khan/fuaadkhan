@@ -18,19 +18,21 @@ const ICONS = {
   ),
 }
 
-// Apple's control pill: a dot per card (the active one stretches into a progress bar fed by --progress) and a round play/pause/replay button
-export default function Controls({ count, active, mode, labels, dotsRef, onDot, onToggle }) {
+// Apple's control pill: a dot per card (the active one stretches into a progress bar fed by --progress, and is the dots' one tab stop) and a round play/pause/replay button
+export default function Controls({ captions, active, mode, labels, dotsRef, onDot, onToggle }) {
   const action = mode === 'ended' ? 'replay' : mode === 'playing' ? 'pause' : 'play'
+  const total = captions.length
   return (
     <div className={styles.controls}>
-      <div ref={dotsRef} className={styles.dots}>
-        {Array.from({ length: count }, (_, i) => (
+      <div ref={dotsRef} className={styles.dots} role="group" aria-label={labels.dots}>
+        {captions.map((caption, i) => (
           <button
             key={i}
             type="button"
             className={styles.dot}
-            aria-label={fill(labels.show, { n: i + 1, total: count })}
+            aria-label={fill(labels.show, { n: i + 1, total, caption })}
             aria-current={i === active ? 'true' : undefined}
+            tabIndex={i === active ? 0 : -1}
             onClick={() => onDot(i)}
           >
             <span className={styles.pip}>
