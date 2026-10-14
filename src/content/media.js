@@ -112,7 +112,7 @@ export const media = {
     clips: {
       lookup: loop(APP, gcLookupPoster1, gcLookupPoster2, gcLookupWebm, gcLookupMp4, 'Green Check: Manufacturing is picked as the license type, a misspelled address is typed, the corrected suggestion for an industrial parcel is chosen, and the verdict reads Eligible with every requirement met.'),
       buffer: still(APP, gcBuffer1, gcBuffer2, 'Green Check’s automatic verdict at 438 S State St: Not Eligible for Microbusiness, the building 95 feet from a residence, with the measured line and the 100-foot exclusion zone on the map.'),
-      chooser: loop(APP, gcChooserPoster1, gcChooserPoster2, gcChooserWebm, gcChooserMp4, 'Green Check at a commercial parcel with three buildings: hovering the list highlights each building on the map and hovering the map highlights the list, then the largest building is chosen and the verdict reads Eligible.'),
+      chooser: loop(APP, gcChooserPoster1, gcChooserPoster2, gcChooserWebm, gcChooserMp4, 'Green Check at a commercial parcel with three buildings: hovering two rows of the list highlights their buildings on the map, hovering the largest building on the map highlights its row, then that building is chosen and the verdict reads Eligible.'),
       verify: loop(APP, gcVerifyPoster1, gcVerifyPoster2, gcVerifyWebm, gcVerifyMp4, 'Verifying a distance in Green Check: from Not Eligible at 95 feet, the line’s far endpoint is dragged to the property line, the distance reads 101 feet, and after Complete the verdict changes to Eligible.'),
     },
   },

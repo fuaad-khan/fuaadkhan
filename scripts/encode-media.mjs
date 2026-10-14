@@ -17,7 +17,7 @@ const LOOP_WIDTH = 1280
 // Sidecar fields that never ship (local bookkeeping)
 const DROP = new Set(['captureViewport'])
 
-const USAGE = `Usage: node scripts/encode-media.mjs [app ...] [--only name,name] [--no-sheet] [--sheet audit] [--cdp-port 9366]
+const USAGE = `Usage: node scripts/encode-media.mjs [app ...] [--only name,name] [--no-sheet | --sheet-only] [--sheet audit] [--cdp-port 9366]
 
 Encodes the raw captures in .cache/capture/<app>/ (from scripts/capture/index.mjs) into src/assets/<app>/:
   stills  <name>@2x.webp (1600 px) + <name>.webp (800 px), quality lowered from 82 until within ${BUDGET.x2 / KB} / ${BUDGET.x1 / KB} kB
@@ -25,7 +25,8 @@ Encodes the raw captures in .cache/capture/<app>/ (from scripts/capture/index.mj
           plus <name>-poster@2x.webp + <name>-poster.webp from the lossless poster frame
   sidecars <name>.json next to each asset (camera, scrubs, leaks: [], intro harvest on hero)
 Captures from a draft run (--dpr 1) are refused. Then prints a size table and the page weight over every shipped capture,
-and writes <sheet>/contact-sheet.html (+ .png rendered over CDP): every still and poster, plus frames sampled from each shipped WebM.`
+and writes <sheet>/contact-sheet.html (+ .png rendered over CDP): every still and poster, plus frames sampled from each shipped WebM.
+--sheet-only skips encoding and only reports the shipped media and writes the sheet.`
 
 const fmt = (n) => `${(n / KB).toFixed(1)} kB`.padStart(10)
 const size = (f) => statSync(f).size
@@ -206,7 +207,7 @@ async function renderSheet(file, port) {
   }
 }
 
-const { values, positionals } = parseArgs({ allowPositionals: true, options: { only: { type: 'string' }, 'no-sheet': { type: 'boolean' }, sheet: { type: 'string', default: 'audit' }, 'cdp-port': { type: 'string', default: '9366' }, help: { type: 'boolean', short: 'h' } } })
+const { values, positionals } = parseArgs({ allowPositionals: true, options: { only: { type: 'string' }, 'no-sheet': { type: 'boolean' }, 'sheet-only': { type: 'boolean' }, sheet: { type: 'string', default: 'audit' }, 'cdp-port': { type: 'string', default: '9366' }, help: { type: 'boolean', short: 'h' } } })
 if (values.help) {
   console.log(USAGE)
   process.exit(0)
@@ -216,7 +217,7 @@ for (const app of apps) if (!SHOTS[app]) throw new Error(`Unknown app ${app}`)
 const only = values.only ? new Set(values.only.split(',')) : null
 
 const rows = []
-for (const app of apps) {
+for (const app of values['sheet-only'] ? [] : apps) {
   console.log(`${app}:`)
   rows.push(...(await encodeApp(app, only)))
 }
