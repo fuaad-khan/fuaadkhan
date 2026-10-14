@@ -55,6 +55,8 @@ async function lookup(ctx, shot) {
   await rec.settle({ min: 30 })
   await until(ctx, READY, { label: 'map ready', timeout: 60000 })
   if (!(await publicRecords(ctx, rec, shot.allow))) throw new Error(`map-my-city/lookup: ${shot.allow.join(', ')} must all be public-agency records`)
+  // Chrome's spell-check squiggles under a typed street name are the browser's, not the app's
+  await ctx.page.evaluate('document.getElementById("parcelQueryInput").spellcheck = false; true')
   await blur(ctx)
   await rec.settle({ min: 20 })
   if (await ctx.page.evaluate('!!window.selectedApn || !!document.getElementById("parcelQueryInput").value')) throw new Error('map-my-city/lookup: the start is not empty')
@@ -64,7 +66,8 @@ async function lookup(ctx, shot) {
   rec.mark('poster')
   await rec.live(0.5)
   const input = await centre(ctx, '#parcelQueryInput')
-  await rec.clickAt(input[0] - 70, input[1], 0.6)
+  // On the box's right side, clear of the text that will be typed from its left edge
+  await rec.clickAt(input[0] + 80, input[1], 0.6)
   await rec.tick(rec.seconds(0.15))
   // Typed without a pause: the app asks for suggestions only after 250 ms of quiet, so no partial query ever lists other parcels
   await rec.type(shot.type, 10)
