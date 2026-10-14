@@ -15,8 +15,8 @@ function keyOf(ch) {
   return { key: ch, code: '', windowsVirtualKeyCode: ch.charCodeAt(0) }
 }
 
-// Records frames for one loop into dir; every frame is asserted leak-free before it is written
-export function createRecorder(ctx, { name, fps = 30, quality = 92 }) {
+// Records frames for one loop into dir; every frame is asserted leak-free before it is written; clip ({ x, y, width, height } in CSS px) records a close-up
+export function createRecorder(ctx, { name, fps = 30, quality = 92, clip = null }) {
   const { page } = ctx
   const dir = join(ctx.dir, `${name}.frames`)
   rmSync(dir, { recursive: true, force: true })
@@ -24,6 +24,7 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92 }) {
   const dt = 1000 / fps
   const marks = {}
   const mouse = { x: ctx.width * 0.6, y: ctx.height * 0.55, down: false }
+  const area = clip ? { x: clip.x, y: clip.y, width: clip.width, height: clip.height } : undefined
   let count = 0
   let posterPending = false
 
@@ -32,15 +33,19 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92 }) {
 
   async function shoot() {
     await assertNoLeaks(page, `${ctx.app}/${name} frame ${count}`)
-    const buf = await page.screenshot({ format: 'jpeg', quality })
+    const buf = await page.screenshot({ format: 'jpeg', quality, clip: area })
     writeFileSync(join(dir, `f${pad(count)}.jpg`), buf)
     // The poster frame is also kept lossless, so the poster and the still are encoded from a PNG
     if (posterPending) {
       posterPending = false
-      await page.screenshot({ path: join(dir, 'poster.png'), format: 'png' })
+      await page.screenshot({ path: join(dir, 'poster.png'), format: 'png', clip: area })
     }
     count++
   }
+
+  // One mouse button event at the cursor; clickCount 2 on the second press makes Chrome fire dblclick
+  const button = (type, clickCount = 1) =>
+    page.send('Input.dispatchMouseEvent', { type, x: mouse.x, y: mouse.y, button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount })
 
   // Advances the clock one frame and captures it, n times
   async function tick(n = 1) {
@@ -123,12 +128,12 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92 }) {
     },
     async press() {
       mouse.down = true
-      await page.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: mouse.x, y: mouse.y, button: 'left', buttons: 1, clickCount: 1 })
+      await button('mousePressed')
       await cursor()
     },
     async release() {
       mouse.down = false
-      await page.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mouse.x, y: mouse.y, button: 'left', buttons: 0, clickCount: 1 })
+      await button('mouseReleased')
       await cursor()
     },
     // Press, two frames, release: a visible click at the current position
@@ -138,10 +143,34 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92 }) {
       await rec.release()
       await tick()
     },
-    // Moves to (x, y) and clicks there
-    async clickAt(x, y, s = 0.6) {
+    // Two quick clicks at the current position, the second carrying clickCount 2 (click, click, dblclick)
+    async dblclick() {
+      await rec.click()
+      mouse.down = true
+      await button('mousePressed', 2)
+      await cursor()
+      await tick()
+      mouse.down = false
+      await button('mouseReleased', 2)
+      await cursor()
+      await tick()
+    },
+    // Eases an element's scrollTop to `to` (a number, or 'end') over `s` seconds, one frame per step (a wheel scroll would animate on the real clock)
+    async scroll(selector, to, s = 1.2) {
+      const sel = JSON.stringify(selector)
+      const [from, max] = await page.evaluate(`(() => { const el = document.querySelector(${sel}); return [el.scrollTop, el.scrollHeight - el.clientHeight] })()`)
+      const target = to === 'end' ? max : Math.min(max, Math.max(0, to))
+      const n = rec.seconds(s)
+      for (let i = 1; i <= n; i++) {
+        await page.evaluate(`document.querySelector(${sel}).scrollTop = ${(from + (target - from) * easeInOut(i / n)).toFixed(1)}`)
+        await tick()
+      }
+      return target
+    },
+    // Moves to (x, y), dwells, and clicks there
+    async clickAt(x, y, s = 0.6, dwell = 0.12) {
       await rec.moveTo(x, y, s)
-      await rec.tick(rec.seconds(0.12))
+      await rec.tick(rec.seconds(dwell))
       await rec.click()
     },
     // Types text into the focused field at about cps characters per second
@@ -163,15 +192,16 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92 }) {
         app: ctx.app,
         name,
         kind: 'loop',
-        width: ctx.width,
-        height: ctx.height,
+        width: area ? area.width : ctx.width,
+        height: area ? area.height : ctx.height,
         dpr: ctx.dpr,
         fps,
         frames: count,
         seconds: Math.round((count / fps) * 100) / 100,
         posterFrame: marks.poster,
         ...(camera ?? {}),
-        viewport: [ctx.width, ctx.height],
+        viewport: area ? [area.width, area.height] : [ctx.width, ctx.height],
+        ...(area ? { clip: [area.x, area.y, area.width, area.height], captureViewport: [ctx.width, ctx.height] } : {}),
         clock: 'virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step',
         scrubs: SCRUBS[ctx.app],
         leaks: [],

@@ -7,16 +7,17 @@ import { parseArgs } from 'node:util'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const MANIFEST = JSON.parse(readFileSync(join(HERE, 'shots.json'), 'utf8'))
 
-const USAGE = `Usage: node scripts/capture/index.mjs <app|all> [--shots <list>]
+const USAGE = `Usage: node scripts/capture/index.mjs <app|all> [--shots <list>] [--dpr 1]
 
   app        ${Object.keys(MANIFEST).join(' | ')} | all
   --shots    comma list of shot names (default: every shot in shots.json)
+  --dpr      device pixel ratio for a quick draft run (default: the manifest's, 2; ship only 2x captures)
 
 Raw stills (PNG + sidecar JSON) and loop frames land in .cache/capture/<app>/ (gitignored).
 Then run node scripts/encode-media.mjs to build src/assets/<app>/.
 App folders can be overridden with MMC_ROOT, YP_ROOT and GC_ROOT; the studio with MMC_VIDEO.`
 
-const { values, positionals } = parseArgs({ allowPositionals: true, options: { shots: { type: 'string' }, help: { type: 'boolean', short: 'h' } } })
+const { values, positionals } = parseArgs({ allowPositionals: true, options: { shots: { type: 'string' }, dpr: { type: 'string' }, help: { type: 'boolean', short: 'h' } } })
 if (values.help || positionals.length !== 1 || !(positionals[0] === 'all' || MANIFEST[positionals[0]])) {
   console.log(USAGE)
   process.exit(values.help ? 0 : 2)
@@ -29,6 +30,7 @@ let failed = false
 for (const app of apps) {
   const config = { ...MANIFEST[app] }
   config.root = process.env[config.rootEnv] || config.root
+  if (values.dpr) config.dpr = Number(values.dpr)
   const shots = config.shots.filter((s) => !wanted || wanted.has(s.name))
   if (!shots.length) continue
   console.log(`\n${config.label}: ${shots.map((s) => s.name).join(', ')}`)

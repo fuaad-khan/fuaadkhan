@@ -1,0 +1,46 @@
+{
+  "app": "green-check",
+  "name": "verify",
+  "kind": "loop",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 216,
+  "seconds": 7.2,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.78273724731565,
+    "lng": -116.97202871799999,
+    "zoom": 19
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed",
+    "search suggestions other than the subject parcel blurred"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-14T16:11:03.682Z",
+  "basemap": "maptiler streets, then nearmap after Verify distance",
+  "search": "438 S STATE ST",
+  "license": "microbusiness",
+  "values": {
+    "auto": 95,
+    "hand": 101
+  },
+  "state": "the verify flip: from the automatic Not Eligible at 95 ft, Verify distance, handle drag to 101 ft, Complete, stamp, card turns Eligible"
+}

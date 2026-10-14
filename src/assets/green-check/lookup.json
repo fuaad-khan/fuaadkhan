@@ -1,0 +1,49 @@
+{
+  "app": "green-check",
+  "name": "lookup",
+  "kind": "loop",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 286,
+  "seconds": 9.53,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.775062942089534,
+    "lng": -116.96815788745882,
+    "zoom": 19
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed",
+    "search suggestions other than the subject parcel blurred"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-14T16:11:54.741Z",
+  "basemap": "maptiler streets",
+  "license": "manufacturing",
+  "typed": "1280 s buena vsta",
+  "suggestion": "1280 S BUENA VISTA ST SAN JACINTO CA 92583 (435211050)",
+  "shown": "1280 S BUENA VISTA ST SAN JACINTO CA 92583",
+  "apn": "435211050",
+  "zone": "IL",
+  "useType": "Industrial (300)",
+  "buildings": "1 building (1 Overture)",
+  "verdict": "Eligible",
+  "state": "pick Manufacturing, type a misspelled address for an IL-zoned industrial parcel with one building, take the corrected suggestion, instant Eligible"
+}
