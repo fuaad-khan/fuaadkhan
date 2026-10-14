@@ -1,6 +1,6 @@
 // App media keyed by apps[].id (shape: .wp/CONTRACTS-v2.md §4): hero (+ base) for the intros, clips keyed by highlight id; captured by scripts/capture, encoded by scripts/encode-media.mjs
 // x1 / x2 are the 800 / 1600 px WebPs; width / height are the capture (or close-up) size in CSS px; view, mapRect, viewport and intro come from each hero's sidecar
-// Loops are played once from their poster, the first frame; Map My City's lookup and layers are v1 seamless loops whose first frame is mid-story
+// Loops are played once from their poster, the first frame, and tell their story start to end
 import mmcHero1 from '../assets/map-my-city/hero.webp'
 import mmcHero2 from '../assets/map-my-city/hero@2x.webp'
 import { view as mmcView, mapRect as mmcMapRect, viewport as mmcViewport } from '../assets/map-my-city/hero.json'
@@ -90,8 +90,8 @@ export const media = {
   'map-my-city': {
     hero: still(MMC, mmcHero1, mmcHero2, 'Map My San Jacinto with City Hall selected on aerial imagery: County assessor details on the left, and the parcel lookup listing zoning, districts and city services on the right.', mmcCamera),
     clips: {
-      lookup: loop(MMC, mmcLookupPoster1, mmcLookupPoster2, mmcLookupWebm, mmcLookupMp4, 'Searching an address in Map My San Jacinto: the suggestion is picked, the map zooms to City Hall, the lookup rows fill, and the one-page property report opens.'),
-      layers: loop(MMC, mmcLayersPoster1, mmcLayersPoster2, mmcLayersWebm, mmcLayersMp4, 'The zoning layer and its legend over a San Jacinto neighborhood while the imagery slider steps from 2014 to 2026: empty lots fill with homes and a school campus appears.'),
+      lookup: loop(MMC, mmcLookupPoster1, mmcLookupPoster2, mmcLookupWebm, mmcLookupMp4, 'Looking up City Hall in Map My San Jacinto: from the street map with nothing selected, a loosely typed address, 595 south san jacinto av, brings up the City Hall suggestion; picking it zooms the map to City Hall, fills the lookup rows and opens the County Assessor panel, then Report opens the one-page property report.'),
+      layers: loop(MMC, mmcLayersPoster1, mmcLayersPoster2, mmcLayersWebm, mmcLayersMp4, 'Map layers in Map My San Jacinto: a neighborhood on its 2014 aerial imagery with no layer on, then Zoning is turned on from the Layer List and the legend lists the three zones in view, then the imagery slider is dragged from 2014 to 2026 as the empty lots fill with homes.'),
       measure: loop(MMC, mmcMeasurePoster1, mmcMeasurePoster2, mmcMeasureWebm, mmcMeasureMp4, 'The Measure tool in Map My San Jacinto beside City Hall: a line along two streets reads 690 feet, then a polygon traced around the Civic Center block reads 87,810 square feet.'),
       createmap: loop(MMC, mmcCreatemapPoster1, mmcCreatemapPoster2, mmcCreatemapWebm, mmcCreatemapMp4, 'Create Map in Map My San Jacinto: a rectangle drag picks three City-owned parcels, Create Map builds the exhibit, a hatch fill and the Planning template are applied, and the sheet scrolls to its title block with the City seal.'),
       buffer: loop(MMC, mmcBufferPoster1, mmcBufferPoster2, mmcBufferWebm, mmcBufferMp4, 'A 300-foot proximity buffer around a school parcel in Map My San Jacinto, then the Avery mailing labels with private owners blurred and public agencies readable, then the printable site map with the 300-foot radius.'),

@@ -6,13 +6,13 @@
   "height": 900,
   "dpr": 2,
   "fps": 30,
-  "frames": 197,
-  "seconds": 6.57,
-  "posterFrame": 40,
+  "frames": 269,
+  "seconds": 8.97,
+  "posterFrame": 0,
   "view": {
-    "lat": 33.79525,
-    "lng": -116.98565,
-    "zoom": 17
+    "lat": 33.796,
+    "lng": -116.987,
+    "zoom": 18
   },
   "mapRect": [
     0,
@@ -34,11 +34,16 @@
   ],
   "leaks": [],
   "appCommit": "b11772a",
-  "capturedAt": "2026-10-13T21:03:53.284Z",
+  "capturedAt": "2026-10-14T17:10:50.751Z",
   "basemap": "nearmap",
   "layers": [
     "parcels",
     "zoning"
+  ],
+  "zones": [
+    "RL - Low Density Residential",
+    "OSR - Open Space - Recreation",
+    "PI - Public Institutional"
   ],
   "dates": [
     "2014-07-26",
@@ -46,9 +51,8 @@
     "2018-06-28",
     "2020-05-07",
     "2022-05-24",
-    "2024-05-07",
-    "latest"
+    "latest (2026-09-03)"
   ],
-  "state": "zoning on with its legend; the imagery slider steps 2014 to 2026 over post-2014 subdivisions, no parcel selected",
-  "path": "/index.html?lat=33.79525&lon=-116.98565&z=17&layers=parcels,zoning&panels=legend"
+  "state": "post-2014 subdivisions on the Jul 26, 2014 imagery with no thematic layer and the legend open: the Layer List, Zoning on and the legend's zones in view, then the imagery slider dragged from 2014 to now (2016, 2018, 2020, 2022, latest 2026) as empty lots fill with homes; no parcel selected",
+  "path": "/index.html?lat=33.79600&lon=-116.98700&z=18&date=2014-07-26&panels=legend"
 }

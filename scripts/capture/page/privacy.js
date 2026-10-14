@@ -83,11 +83,13 @@
     }
   }
 
-  // Green Check: suggestion rows name other parcels; only the subject's (its APN in window.__wp6AllowApns, set by the runner) stays readable
+  // Search suggestion rows ("ADDRESS (APN)") name other parcels; only those in window.__wp6AllowApns, set by the runner, stay readable
+  const SUGGESTIONS = { 'green-check': '#searchSuggestions li', 'map-my-city': '#parcelQuerySuggestions li' }[app]
   const suggestionApn = (li) => (li.textContent.match(/\((\d{6,})\)\s*$/) || [])[1] || ''
   const allowedSuggestion = (li) => (window.__wp6AllowApns || []).includes(suggestionApn(li))
+  const suggestions = () => (SUGGESTIONS ? document.querySelectorAll(SUGGESTIONS) : [])
   function scrubSuggestions() {
-    for (const li of document.querySelectorAll('#searchSuggestions li')) {
+    for (const li of suggestions()) {
       if (!allowedSuggestion(li)) li.classList.add('__redacted')
     }
   }
@@ -101,10 +103,8 @@
   function run() {
     queued = false
     if (app === 'map-my-city') scrubOfficer()
-    if (app === 'green-check') {
-      scrubGreenCheck()
-      scrubSuggestions()
-    }
+    if (app === 'green-check') scrubGreenCheck()
+    scrubSuggestions()
     scrubAlways()
   }
 
@@ -129,10 +129,8 @@
       else if (DEV_NOTE.test(text)) out.push('compile note')
       else out.push('scrubbed string readable elsewhere')
     }
-    if (app === 'green-check') {
-      for (const li of document.querySelectorAll('#searchSuggestions li')) {
-        if (!allowedSuggestion(li) && !li.closest('.__redacted') && li.getClientRects().length) out.push('search suggestion for another parcel')
-      }
+    for (const li of suggestions()) {
+      if (!allowedSuggestion(li) && !li.closest('.__redacted') && li.getClientRects().length) out.push('search suggestion for another parcel')
     }
     return out
   }

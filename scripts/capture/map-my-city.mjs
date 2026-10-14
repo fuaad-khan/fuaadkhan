@@ -1,4 +1,5 @@
 // Map My City shots (PLAN §7, Appendix B2; PLAN-v2 Media): City Hall hero for CityDraw's match-cut, and the lookup, layers, measure, createmap and buffer loops
+import { SCRUBS } from '../lib/privacy.mjs'
 import { createRecorder } from './recorder.mjs'
 import { go, openApp, still, until, waitIdle } from './session.mjs'
 
@@ -29,32 +30,63 @@ async function centre(ctx, selector) {
 const blur = (ctx) => ctx.page.evaluate('document.activeElement && document.activeElement.blur && document.activeElement.blur(); true')
 const project = (ctx, latlngs) => ctx.page.evaluate(`window.__wp6.project(${JSON.stringify(latlngs)})`)
 
-// Lookup loop: type the City Hall address, pick the suggestion, the map flies in and the rows fill, then the property report opens
+// Owners the assessor records as public agencies (the studio's redact.js list)
+const AGENCY = /\b(CITY OF|COUNTY OF|STATE OF|UNITED STATES|SCHOOL DIST|UNIFIED|COMMUNITY COLLEGE|WATER DIST|MUNICIPAL WATER|FLOOD CONTROL|HOUSING AUTHORITY|SUCCESSOR AGENCY|REDEVELOPMENT)\b/i
+// Every lookup row has answered and the assessor panel has its rows
+const ROWS_FILLED = `[...document.querySelectorAll('#parcelQueryResults > div')].every((d) => d.textContent.trim() && !/Loading/.test(d.textContent)) && !!document.querySelector('#parcelSidebarContent .row')`
+const REPORT_OPEN = `document.getElementById('propertyReportOverlay').classList.contains('open') && document.querySelectorAll('#propertyReportContent .row').length > 5`
+
+// Asks the app's own parcel service whether every APN is a public-agency record; only the verdict leaves the page
+async function publicRecords(ctx, rec, apns) {
+  const where = `APN IN (${apns.map((a) => `'${a}'`).join(', ')})`
+  await ctx.page.evaluate(`window.__wp6Public = null; L.esri.query({ url: CONFIG.services.parcels }).where(${JSON.stringify(where)}).returnGeometry(false).run((e, fc) => {
+    window.__wp6Public = !e && !!fc && new Set(fc.features.map((f) => String(f.properties.APN))).size === ${apns.length} && fc.features.every((f) => ${AGENCY}.test(String(f.properties.OWNER || '')))
+  }); true`)
+  await rec.waitFor('window.__wp6Public !== null', { max: 20, label: 'owner check' })
+  return ctx.page.evaluate('window.__wp6Public')
+}
+
+// Lookup loop (played once from its first frame): nothing selected, a loosely typed City Hall address, its suggestion, the zoom with the rows and assessor panel, then the property report
 async function lookup(ctx, shot) {
   const rec = createRecorder(ctx, { name: 'lookup' })
   await go(ctx, shot.path)
+  // Suggestions for any parcel but the two at City Hall's address are blurred and fail the capture if readable
+  await ctx.page.evaluate(`window.__wp6AllowApns = ${JSON.stringify(shot.allow)}; true`)
   await rec.settle({ min: 30 })
-  await until(ctx, READY, { label: 'map ready' })
+  await until(ctx, READY, { label: 'map ready', timeout: 60000 })
+  if (!(await publicRecords(ctx, rec, shot.allow))) throw new Error(`map-my-city/lookup: ${shot.allow.join(', ')} must all be public-agency records`)
+  // Chrome's spell-check squiggles under a typed street name are the browser's, not the app's
+  await ctx.page.evaluate('document.getElementById("parcelQueryInput").spellcheck = false; true')
   await blur(ctx)
   await rec.settle({ min: 20 })
-  await rec.place(760, 560)
-  await rec.live(0.4)
+  if (await ctx.page.evaluate('!!window.selectedApn || !!document.getElementById("parcelQueryInput").value')) throw new Error('map-my-city/lookup: the start is not empty')
+  const [px, py, pw, ph] = await ctx.page.evaluate('window.__wp6.rect("#parcelQueryContainer")')
+  // At rest on the open panel beside the Search button, clear of the map (a hovered parcel is outlined)
+  await rec.place(px + pw - 56, py + ph - 24)
+  rec.mark('poster')
+  await rec.live(0.5)
   const input = await centre(ctx, '#parcelQueryInput')
-  await rec.clickAt(input[0] - 60, input[1], 0.7)
-  await rec.type('595 S San Jacinto', 10)
+  // On the box's right side, clear of the text that will be typed from its left edge
+  await rec.clickAt(input[0] + 80, input[1], 0.6)
+  await rec.tick(rec.seconds(0.15))
+  // Typed without a pause: the app asks for suggestions only after 250 ms of quiet, so no partial query ever lists other parcels
+  await rec.type(shot.type, 10)
   await rec.until('document.querySelectorAll("#parcelQuerySuggestions li").length > 0', { label: 'suggestions' })
-  await rec.live(0.35)
+  const offered = await ctx.page.evaluate(`[...document.querySelectorAll('#parcelQuerySuggestions li')].map((li) => li.dataset.apn)`)
+  if (offered[0] !== shot.apn || offered.some((a) => !shot.allow.includes(a))) throw new Error(`map-my-city/lookup: unexpected suggestions ${JSON.stringify(offered)}`)
+  await rec.live(0.4)
   const first = await centre(ctx, '#parcelQuerySuggestions li')
   await rec.clickAt(first[0] - 40, first[1], 0.5)
-  await rec.until(`window.selectedApn === ${JSON.stringify(shot.apn)}`, { label: 'City Hall selected' })
-  await rec.live(1.2)
+  await rec.until(`window.selectedApn === ${JSON.stringify(shot.apn)} && window.isPanelShowing(document.getElementById('parcelSidebar'))`, { label: 'City Hall selected' })
+  await rec.until(ROWS_FILLED, { label: 'lookup rows' })
+  await rec.live(1.3)
   const report = await centre(ctx, '#ReportBtn')
   await rec.clickAt(report[0], report[1], 0.6)
-  await rec.until('document.getElementById("propertyReportOverlay").classList.contains("open")', { label: 'report open' })
-  await rec.live(0.45)
-  rec.mark('poster')
-  await rec.live(1.4)
-  return rec.finish({ apn: shot.apn, basemap: 'nearmap', state: shot.state, path: shot.path })
+  await rec.until(REPORT_OPEN, { label: 'report open' })
+  await rec.live(1.1)
+  const shown = await ctx.page.evaluate('document.getElementById("parcelQueryInput").value')
+  const scrubs = [...SCRUBS['map-my-city'], `search suggestions blurred unless at City Hall's address (${shot.allow.join(', ')}, both public-agency records)`]
+  return rec.finish({ apn: shot.apn, typed: shot.type, offered, shown, basemap: shot.basemap ?? 'nearmap', state: shot.state, path: shot.path, scrubs })
 }
 
 // City Hall selected through ?apn=: lookup rows, the assessor sidebar and the legend open
@@ -69,46 +101,90 @@ async function hero(ctx, shot) {
   return still(ctx, 'hero', { extra: { basemap: ctx.basemap, apn: shot.apn, state: shot.state, path: shot.path } })
 }
 
-// Imagery dates the scrub pauses on between 2014 and now (each pause outlasts the app's 250 ms apply delay)
-const SCRUB_STOPS = ['2016-04-03', '2018-06-28', '2020-05-07', '2022-05-24', '2024-05-07']
+// Zoning rows the legend lists, counted once they are fewer than the whole code list (its in-view query has landed); 0 before that
+const LEGEND_ZONES = `(() => {
+  const rows = [...document.querySelectorAll('#legendContent > div')]
+  const at = rows.findIndex((e) => e.classList.contains('legend-subheader') && e.textContent.trim() === 'Zoning')
+  if (at < 0) return 0
+  let n = 0
+  while (rows[at + 1 + n] && rows[at + 1 + n].classList.contains('legend-item')) n++
+  return n > 0 && n < window.legendEntriesFor('zoning').length ? n : 0
+})()`
+const ZONE_LABELS = `[...document.querySelectorAll('#legendContent > div')].map((e) => e.textContent.trim()).filter((t) => /^[A-Z]+ - /.test(t))`
+const SLIDER = 'Number(document.getElementById("nearmapHistorySlider").value)'
 
-// Imagery-history loop: zoning and its legend over post-2014 subdivisions; the date slider drags back to 2014, then forward to now
+// A click whose handler hands focus to a close button: focus is dropped before the next frame, so no frame shows a focus ring
+async function clickDroppingFocus(rec, ctx, [x, y], s) {
+  await rec.moveTo(x, y, s)
+  await rec.tick(rec.seconds(0.12))
+  await rec.press()
+  await rec.tick(2)
+  await rec.release()
+  await blur(ctx)
+  await rec.tick()
+}
+
+// Layers loop (played once from its first frame): the neighborhood on its 2014 imagery with no thematic layer and the legend open; the Layer List, Zoning on and the legend's zones in view, then the imagery slider dragged from 2014 to now
 async function layers(ctx, shot) {
   const rec = createRecorder(ctx, { name: 'layers' })
   await go(ctx, shot.path)
   await rec.settle({ min: 30 })
-  await rec.waitFor('window._nearmapHistory && window._nearmapHistory.dates() && !document.getElementById("nearmapHistory").hidden', { max: 30, label: 'imagery dates' })
+  await rec.waitFor(`${READY} && window.zoningLayer && window._nearmapHistory && window._nearmapHistory.dates() && !document.getElementById("nearmapHistory").hidden && window.isPanelShowing(document.getElementById("legendContainer"))`, { max: 30, label: 'imagery dates' })
+  if ((await ctx.page.evaluate('window.getNearmapDate()')) !== shot.from) throw new Error(`map-my-city/layers: the clip must open on the ${shot.from} imagery`)
+  // Pre-roll warm-up: Zoning on and off once with the legend open, so its zones in view are cached and the whole code list never flashes on camera
+  await ctx.page.evaluate('window.setThematicLayer("zoning"); true')
+  await rec.waitFor(LEGEND_ZONES, { max: 15, label: 'zoning legend warm-up' })
+  await rec.settle({ min: 10 })
+  await ctx.page.evaluate('window.setThematicLayer(null); true')
+  await rec.waitFor(`!window.map.hasLayer(window.zoningLayer) && !/Zoning/.test(document.getElementById('legendContent').textContent)`, { max: 5, label: 'zoning off again' })
   await blur(ctx)
   // On the virtual clock every tile lands in one step, the app drops its crossfade ghost on 'load', and Leaflet's 200 ms fade would show blank frames: swap tiles in opaque
   await ctx.page.evaluate('window.map._fadeAnimated = false')
   await rec.settle({ min: 20 })
   const dates = await ctx.page.evaluate('window._nearmapHistory.dates()')
-  const [sx, sy, sw, sh] = await ctx.page.evaluate('window.__wp6.rect("#nearmapHistorySlider")')
   const max = dates.length - 1
+  if ((await ctx.page.evaluate(SLIDER)) !== 0) throw new Error('map-my-city/layers: the slider must start at its oldest date')
+  const [lx, ly, lw, lh] = await ctx.page.evaluate('window.__wp6.rect("#legendContainer")')
+  // At rest on the legend panel, clear of the map (a hovered parcel is outlined)
+  await rec.place(lx + lw * 0.55, ly + lh * 0.62)
+  rec.mark('poster')
+  await rec.live(0.5)
+  await clickDroppingFocus(rec, ctx, await centre(ctx, '#layerListToggle'), 0.5)
+  await rec.until('window.isPanelShowing(document.getElementById("layerListContainer"))', { label: 'layer list open' })
+  await rec.live(0.35)
+  const box = await centre(ctx, '#toggleZoning')
+  // Inside the box's lower-right corner, so the arrow does not hide the tick it makes
+  await rec.clickAt(box[0] + 3, box[1] + 3, 0.6)
+  await rec.until('document.getElementById("toggleZoning").checked && window.map.hasLayer(window.zoningLayer)', { label: 'zoning on' })
+  await rec.until(LEGEND_ZONES, { label: 'legend zones in view' })
+  const zones = await ctx.page.evaluate(ZONE_LABELS)
+  await rec.live(1.0)
+  const [sx, sy, sw, sh] = await ctx.page.evaluate('window.__wp6.rect("#nearmapHistorySlider")')
   // Thumb centre for a slider index (16 px thumb)
   const xAt = (i) => sx + 8 + (Math.min(max, Math.max(0, i)) / max) * (sw - 16)
   const y = sy + sh / 2
-  const value = () => ctx.page.evaluate('Number(document.getElementById("nearmapHistorySlider").value)')
-  await rec.place(xAt(max), y)
-  await rec.live(0.4)
+  await rec.moveTo(xAt(0), y, 0.9)
+  await rec.tick(rec.seconds(0.12))
   await rec.press()
-  await rec.moveTo(xAt(0) - 10, y, 0.55)
-  if ((await value()) !== 0) throw new Error(`map-my-city/layers: slider at ${await value()}, expected 0`)
-  await rec.until(`window.getNearmapDate() === ${JSON.stringify(dates[0])}`, { label: 'oldest imagery applied' })
-  await rec.tick(rec.seconds(0.25))
-  rec.mark('poster')
-  await rec.live(0.75)
-  for (const stop of SCRUB_STOPS) {
+  await rec.tick(rec.seconds(0.1))
+  const applied = [shot.from]
+  // Each pause outlasts the app's 250 ms apply delay; the new date's tiles land before the drag moves on
+  for (const stop of shot.stops) {
     const i = dates.indexOf(stop)
     if (i < 0) throw new Error(`map-my-city/layers: no imagery date ${stop}`)
-    await rec.moveTo(xAt(i), y, 0.2)
-    await rec.live(0.5)
+    await rec.moveTo(xAt(i), y, 0.22)
+    if ((await ctx.page.evaluate(SLIDER)) !== i) throw new Error(`map-my-city/layers: slider at ${await ctx.page.evaluate(SLIDER)}, expected ${i} (${stop})`)
+    await rec.until(`window.getNearmapDate() === ${JSON.stringify(stop)}`, { label: `${stop} imagery applied` })
+    applied.push(stop)
+    await rec.live(0.3)
   }
   await rec.moveTo(xAt(max), y, 0.25)
   await rec.release()
   await rec.until('window.getNearmapDate() === null', { label: 'latest imagery applied' })
-  await rec.live(0.5)
-  return rec.finish({ basemap: 'nearmap', layers: ['parcels', 'zoning'], dates: [dates[0], ...SCRUB_STOPS, 'latest'], state: shot.state, path: shot.path })
+  applied.push(`latest (${dates[max]})`)
+  await rec.live(1.0)
+  if (await ctx.page.evaluate('!!window.selectedApn')) throw new Error('map-my-city/layers: a parcel was selected')
+  return rec.finish({ basemap: 'nearmap', layers: ['parcels', 'zoning'], zones, dates: applied, state: shot.state, path: shot.path })
 }
 
 // Finished measurements as the panel lists them ("Line 1: 691 ft")
