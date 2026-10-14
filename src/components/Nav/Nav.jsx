@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { Flip } from 'gsap/Flip'
-import { gsap, MOTION_OK, setupGsap } from '../../hooks/useChapter'
+import { gsap, MOTION_OK, ScrollTrigger, setupGsap } from '../../hooks/useChapter'
 import { accentVar } from '../../styles/accent'
 import { useActiveSection } from './useActiveSection'
 import styles from './Nav.module.css'
@@ -11,6 +11,8 @@ const GLIDE = { duration: 0.45, ease: 'back.out(1.2)' }
 const MORPH = { duration: 0.42, ease: 'power3.inOut' }
 const FADE_OUT = { opacity: 0, duration: 0.14, ease: 'power1.in' }
 const FADE_IN = { opacity: 1, duration: 0.26, delay: 0.26, stagger: 0.05, ease: 'power1.out' }
+// How long after mount a load at /#section keeps correcting its landing (load-time refreshes all happen well inside it)
+const LAND_WINDOW = 5000
 
 const motionOK = () => window.matchMedia(MOTION_OK).matches
 
@@ -81,6 +83,30 @@ export default function Nav({ site, apps }) {
     if (!shown.current) gsap.to(lens, { autoAlpha: 1, duration: motion ? 0.3 : 0, ease: 'power1.out' })
     shown.current = true
   }, [active, inApps])
+
+  // A load at /#section can lose the browser's jump to a ScrollTrigger refresh (it restores a position recorded before the jump), so re-land after each until the reader acts
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1))
+    const target = id ? document.getElementById(id) : null
+    if (!target?.hasAttribute('data-section')) return
+    setupGsap()
+    const land = () => {
+      const margin = parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0
+      if (Math.abs(target.getBoundingClientRect().top - margin) > 2) target.scrollIntoView({ behavior: 'instant', block: 'start' })
+    }
+    const acts = ['wheel', 'touchstart', 'keydown', 'pointerdown']
+    const stop = () => {
+      clearTimeout(timer)
+      ScrollTrigger.removeEventListener('refresh', land)
+      window.removeEventListener('load', land)
+      acts.forEach((type) => window.removeEventListener(type, stop))
+    }
+    const timer = setTimeout(stop, LAND_WINDOW)
+    ScrollTrigger.addEventListener('refresh', land)
+    window.addEventListener('load', land)
+    acts.forEach((type) => window.addEventListener(type, stop, { passive: true }))
+    return stop
+  }, [])
 
   // A resize (a breakpoint changes the item sizes) re-measures and moves the lens without animating
   useEffect(() => {

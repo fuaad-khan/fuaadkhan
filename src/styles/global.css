@@ -75,8 +75,10 @@ html {
   outline: none;
 }
 
+/* Smooth only once loaded (or without JS): a smooth initial jump to a #fragment would be cut short by ScrollTrigger's load refresh */
 @media (prefers-reduced-motion: no-preference) {
-  html {
+  html:not(.js),
+  html.loaded {
     scroll-behavior: smooth;
   }
 }
