@@ -11,7 +11,7 @@ export const apps = [
     frameTitle: 'Map My San Jacinto',
     tagline: 'Every parcel, one search.',
     problem: 'Residents and staff need fast, self-serve answers about any parcel: zoning, city services, hazards, and assessor records in one place.',
-    audience: 'Residents, planners, and permit staff at the City of San Jacinto.',
+    audience: 'Residents, planners, and every city staff member.',
     metrics: [
       { value: '18,459', label: 'parcels' },
       { value: '~22', label: 'parallel queries per click' },
