@@ -122,8 +122,8 @@ export const apps = [
     accent: 'yard',
     frameTitle: 'Yard Plan',
     tagline: 'Sketch a front yard without CAD.',
-    problem: 'Homeowners need to show the Planning Department how much of a front yard will be turf versus hardscape, without learning CAD.',
-    audience: 'San Jacinto residents planning a front yard, and the planning staff who review it.',
+    problem: 'Empowers homeowners to show the Planning Department how much of a front yard will be turf versus hardscape, so they can stay up to code without learning CAD.',
+    audience: 'Residents planning a front yard, and the planning staff who review it.',
     metrics: [
       { value: '13', label: 'JavaScript modules' },
       { value: '0', label: 'frameworks' },
