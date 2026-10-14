@@ -12,6 +12,7 @@ const SIZES = [
   '(max-width: 1221px) and (max-height: 858px) calc(90vw - 400px)',
   '(max-height: 858px) calc(142vh - 463px)',
   '(max-height: 926px) calc(94vh - 48px)',
+  '(max-width: 1359px) 760px',
   '824px',
 ].join(', ')
 
