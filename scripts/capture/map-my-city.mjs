@@ -241,7 +241,7 @@ async function buffer(ctx, shot) {
   const school = await project(ctx, SCHOOL)
   // The cursor rests on the panel, never over a private parcel (the map outlines whatever it hovers)
   const [px, py, pw, ph] = await ctx.page.evaluate('window.__wp6.rect("#proximityBufferContainer")')
-  await rec.place(px + pw * 0.62, py + ph + 40)
+  await rec.place(px + pw * 0.76, py + ph - 16)
   rec.mark('poster')
   await rec.live(0.5)
   await rec.clickAt(school[0], school[1], 0.85)

@@ -1,0 +1,52 @@
+{
+  "app": "green-check",
+  "name": "chooser",
+  "kind": "loop",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 216,
+  "seconds": 7.2,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.78782378248757,
+    "lng": -117.00763732194902,
+    "zoom": 19
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed",
+    "search suggestions other than the subject parcel blurred"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-14T16:19:19.093Z",
+  "basemap": "maptiler streets",
+  "license": "offSaleMarket",
+  "apn": "432130016",
+  "address": "250 N SANDERSON AVE SAN JACINTO CA 92582",
+  "zone": "CG",
+  "useType": "Use (203)",
+  "buildings": 3,
+  "chosen": 2,
+  "chosenSqFt": 6524,
+  "verdict": "Eligible",
+  "tried": [
+    "432130016"
+  ],
+  "state": "a commercial-zoned, non-residential parcel with several buildings (picked from candidates): the chooser, hover-sync between the list and the map, the largest building chosen on the map, the verdict"
+}

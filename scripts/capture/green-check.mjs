@@ -459,9 +459,9 @@ async function chooserLoop(ctx, shot, pick) {
   const fps = await footprints(ctx)
   const chosen = rows.find((r) => r.i === pick.chosen - 1)
   const others = rows.filter((r) => r !== chosen).slice(0, 2)
-  // At rest on the result panel below the chooser card, never over a parcel
+  // At rest in the chooser card's empty top-right corner, never over a parcel or over text
   const card = await ctx.page.evaluate('window.__wp6.rect("#resultPanel .chooser-card")')
-  const rest = [card[0] + card[2] - 60, card[1] + card[3] + 70]
+  const rest = [card[0] + card[2] - 26, card[1] + 20]
   await rec.place(...rest)
   rec.mark('poster')
   await rec.live(0.6)
