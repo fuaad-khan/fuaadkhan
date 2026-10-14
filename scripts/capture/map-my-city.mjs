@@ -213,8 +213,8 @@ async function createmap(ctx, shot) {
   await rec.moveTo(sheet[0] + 150, Math.min(sheet[1] + 120, ctx.height - 120), 0.5)
   await rec.scroll('#parcelPrintMapOverlay', 'end', 1.3)
   await rec.live(1.1)
-  const title = await ctx.page.evaluate(`(document.getElementById('parcelMapTitle') || {}).textContent || ''`)
-  return rec.finish({ basemap: 'nearmap', apns: shot.apns, picked, template: 'planning', fill: 'hatch', title: title.replace(/\s+/g, ' ').trim(), state: shot.state, path: shot.path })
+  const title = await ctx.page.evaluate(`[...document.querySelectorAll('#parcelMapTitle .pm-title-apn, #parcelMapTitle .pm-title-kind')].map((e) => e.textContent.trim()).join(' / ')`)
+  return rec.finish({ basemap: shot.basemap ?? 'nearmap', apns: shot.apns, picked, template: 'planning', fill: 'hatch', title: title.replace(/\s+/g, ' ').trim(), state: shot.state, path: shot.path })
 }
 
 // Inside the SJUSD downtown school parcel (APN 434130011), a public-agency owner
@@ -267,7 +267,7 @@ async function buffer(ctx, shot) {
   const site = await centre(ctx, '#subjectMapSheet')
   await rec.moveTo(site[0] + 420, site[1] + 160, 0.6)
   await rec.live(1.6)
-  return rec.finish({ basemap: 'nearmap', apn: shot.apn, bufferFeet: shot.bufferFeet, status, labels, state: shot.state, path: shot.path })
+  return rec.finish({ basemap: shot.basemap ?? 'nearmap', apn: shot.apn, bufferFeet: shot.bufferFeet, status, labels, state: shot.state, path: shot.path })
 }
 
 const LOOPS = { lookup, layers, measure, createmap, buffer }

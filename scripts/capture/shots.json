@@ -58,7 +58,7 @@
         "kind": "loop",
         "seconds": 10,
         "order": "played once: the poster is the first frame",
-        "path": "/index.html?lat=33.78627&lon=-117.02108&z=18&panels=",
+        "path": "/index.html?lat=33.78627&lon=-117.02108&z=18&panels=&base=streets",
         "apns": [
           "432190011",
           "432190012",
@@ -74,19 +74,21 @@
             -117.0229
           ]
         ],
-        "state": "Create Map in rectangle mode: a box drag picks the City-owned 432-190-011/012/013 (and nothing else), Create Map, Hatch fill, the Planning template, scrolled to its title block",
-        "poster": "Create Map open in rectangle mode over the three City parcels"
+        "state": "Create Map in rectangle mode on the streets basemap: a box drag picks the City-owned 432-190-011/012/013 (and nothing else), Create Map, Hatch fill, the Planning template (its own aerial basemap), scrolled to its title block",
+        "poster": "Create Map open in rectangle mode over the three City parcels",
+        "basemap": "streets"
       },
       {
         "name": "buffer",
         "kind": "loop",
         "seconds": 10,
         "order": "played once: the poster is the first frame",
-        "path": "/index.html?lat=33.78907&lon=-116.96290&z=17&panels=",
+        "path": "/index.html?lat=33.78907&lon=-116.96290&z=17&panels=&base=streets",
         "apn": "434130011",
         "bufferFeet": 300,
-        "state": "Proximity Buffer with 300 ft entered: click the SJUSD school parcel, the ring and its parcels, Mailing Labels (Avery 5160; private owners blurred by redact.js, public agencies readable), then Print Map: the subject site map",
-        "poster": "the Proximity Buffer panel with 300 ft, before the click"
+        "state": "Proximity Buffer on the streets basemap with 300 ft entered: click the SJUSD school parcel, the ring and its parcels, Mailing Labels (Avery 5160; private owners blurred by redact.js, public agencies readable), then Print Map: the subject site map",
+        "poster": "the Proximity Buffer panel with 300 ft, before the click",
+        "basemap": "streets"
       }
     ]
   },
