@@ -1,4 +1,4 @@
-// Showcases in page order: accent is a token, media lives in media.js by id, links stays empty (repos are private)
+// Apps in page order: accent is a token, media lives in media.js by id (clips by highlight id), links stays empty (repos are private)
 // intro feeds the coded intros: {key} placeholders are filled from intro.values, which the capture sidecar overrides (Intros/values.js)
 export const apps = [
   {
@@ -17,19 +17,15 @@ export const apps = [
       { value: '~22', label: 'parallel queries per click' },
       { value: '54', label: 'imagery dates, 2014–2026' },
     ],
-    features: [
-      {
-        title: 'Parcel query and property reports',
-        body: 'Search by address or APN, or click any parcel, and print a one-page property report.',
-      },
-      {
-        title: 'Layers, legend, and imagery history',
-        body: 'Zoning, land use, and hazard layers with a legend that tracks what’s visible. Measure on the fly, or scrub aerial imagery back to 2014.',
-      },
-      {
-        title: 'Proximity buffer and mailing labels',
-        body: 'Draw a radius around a parcel, export the neighbors, and print Avery 5160 labels for hearing notices.',
-      },
+    // One card per major feature, like the chapters of the Map My San Jacinto video; clip ids are media.js clips keys
+    highlights: [
+      { id: 'intro', kind: 'intro', caption: 'Every parcel in San Jacinto. All 18,459, one search away.', duration: 10 },
+      { id: 'lookup', kind: 'clip', caption: 'Search any address or APN. Zoning, services, hazards and assessor records in one click.' },
+      { id: 'layers', kind: 'clip', caption: 'Zoning, land use and hazard layers, plus twelve years of aerial imagery on one slider.' },
+      { id: 'measure', kind: 'clip', caption: 'Measure distance and area right on the map.' },
+      { id: 'createmap', kind: 'clip', caption: 'Pick parcels, style them, and print a planning exhibit.' },
+      { id: 'buffer', kind: 'clip', caption: 'Draw a radius, find every neighbor, print hearing-notice labels.' },
+      { id: 'glance', kind: 'glance', caption: 'Map My City at a glance.', duration: 6 },
     ],
     stack: ['JavaScript', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'esbuild'],
     intro: {
@@ -57,22 +53,17 @@ export const apps = [
       { value: '0', label: 'frameworks' },
       { value: '~1,200', label: 'characters to link a 10-shape plan' },
     ],
-    features: [
-      {
-        title: 'Draw to scale on your own parcel',
-        body: 'Find the property by address or APN, then trace turf and hardscape on aerial imagery with snapping and vertex editing.',
-      },
-      {
-        title: 'Live composition',
-        body: 'Square footage per type, total area, and the concrete percentage update as you draw.',
-      },
-      {
-        title: 'Export and share the plan',
-        body: 'Download a PDF or GeoJSON, print, or send a permalink that carries the whole drawing. Staff upload it back for review.',
-      },
+    highlights: [
+      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on the aerial.', duration: 7 },
+      { id: 'draw', kind: 'clip', caption: 'Trace turf and concrete. Corners snap to each other.' },
+      { id: 'composition', kind: 'clip', caption: 'Square footage and concrete share update as you draw.' },
+      { id: 'share', kind: 'clip', caption: 'Download a PDF, or send a link that carries the whole plan.' },
+      { id: 'glance', kind: 'glance', caption: 'Yard Plan at a glance.', duration: 6 },
     ],
     stack: ['JavaScript', 'Leaflet', 'Leaflet Draw', 'Esri Leaflet', 'Turf.js', 'jsPDF', 'Nearmap imagery'],
     intro: {
+      // The showcase uses the app's dark theme (GlassDraw holds its night palette)
+      theme: 'dark',
       captions: [],
       // Areas (sq ft) and shares (%) measured in the City Hall capture; its sidecar (hero.intro.values) carries the same numbers and wins
       values: { turf: 1914, concrete: 3544, total: 5458, turfPct: 35, pct: 65 },
@@ -119,19 +110,13 @@ export const apps = [
       { value: '20,211', label: 'building footprints' },
       { value: '226', label: 'automated tests' },
     ],
-    features: [
-      {
-        title: 'Address lookup, instant verdict',
-        body: 'Pick one of 10 license types, search an address or APN, and get Eligible, Not Eligible, or Needs More Data under the city’s Development Code.',
-      },
-      {
-        title: 'Buffer checks against sensitive uses',
-        body: 'Distances run from building footprint to property line for schools, day cares, youth centers, and homes. Every rule is explained in plain language; failed distances are drawn on the map.',
-      },
-      {
-        title: 'Disagree? Measure it yourself.',
-        body: 'Auto-measured at 95 ft from a home, the site fails the 100 ft rule. Measured by hand to the property line, the distance is 101 ft: the verdict turns Eligible, stamped “Measured by hand.”',
-      },
+    highlights: [
+      { id: 'intro', kind: 'intro', caption: 'Can a cannabis business go here? Ask the map.', duration: 9 },
+      { id: 'lookup', kind: 'clip', caption: 'Pick a license type, search an address, get a verdict in about two seconds.' },
+      { id: 'buffer', kind: 'clip', caption: 'Every rule checked against schools, day cares, youth centers and homes, with the distance drawn on the map.' },
+      { id: 'chooser', kind: 'clip', caption: 'Several buildings on one parcel? Choose the one that will house the business.' },
+      { id: 'verify', kind: 'clip', caption: 'Disagree with a distance? Measure it yourself, and the verdict updates.' },
+      { id: 'glance', kind: 'glance', caption: 'Green Check at a glance.', duration: 6 },
     ],
     stack: ['React', 'Vite', 'Leaflet', 'Esri Leaflet', 'Turf.js', 'MapTiler', 'Overture building footprints'],
     footnote: 'Results do not constitute a zoning determination.',

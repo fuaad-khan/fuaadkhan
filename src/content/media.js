@@ -1,4 +1,4 @@
-// App media keyed by apps[].id (shape: .wp/CONTRACTS.md §9), captured from the local app builds by scripts/capture and encoded by scripts/encode-media.mjs
+// App media keyed by apps[].id (shape: .wp/CONTRACTS-v2.md §4): hero (+ base) for the intros, clips keyed by highlight id; captured by scripts/capture, encoded by scripts/encode-media.mjs
 // x1 / x2 are the 800 / 1600 px WebPs; width / height are the capture viewport in CSS px; view, mapRect, viewport and intro come from each hero's sidecar
 import mmcHero1 from '../assets/map-my-city/hero.webp'
 import mmcHero2 from '../assets/map-my-city/hero@2x.webp'
@@ -66,28 +66,28 @@ const gcCamera = { view: gcView, mapRect: gcMapRect, viewport: gcViewport }
 export const media = {
   'map-my-city': {
     hero: still(MMC, mmcHero1, mmcHero2, 'Map My San Jacinto with City Hall selected on aerial imagery: County assessor details on the left, and the parcel lookup listing zoning, districts and city services on the right.', mmcCamera),
-    features: [
-      loop(MMC, mmcF1Poster1, mmcF1Poster2, mmcF1Webm, mmcF1Mp4, 'Searching an address in Map My San Jacinto: the suggestion is picked, the map zooms to City Hall, the lookup rows fill, and the one-page property report opens.'),
-      loop(MMC, mmcF2Poster1, mmcF2Poster2, mmcF2Webm, mmcF2Mp4, 'The zoning layer and its legend over a San Jacinto neighborhood while the imagery slider steps from 2014 to 2026: empty lots fill with homes and a school campus appears.'),
-      still(MMC, mmcF31, mmcF32, 'A 300-foot proximity buffer around a school parcel, with the buffer panel offering a parcel export and Avery 5160 mailing labels.'),
-    ],
+    clips: {
+      lookup: loop(MMC, mmcF1Poster1, mmcF1Poster2, mmcF1Webm, mmcF1Mp4, 'Searching an address in Map My San Jacinto: the suggestion is picked, the map zooms to City Hall, the lookup rows fill, and the one-page property report opens.'),
+      layers: loop(MMC, mmcF2Poster1, mmcF2Poster2, mmcF2Webm, mmcF2Mp4, 'The zoning layer and its legend over a San Jacinto neighborhood while the imagery slider steps from 2014 to 2026: empty lots fill with homes and a school campus appears.'),
+      buffer: still(MMC, mmcF31, mmcF32, 'A 300-foot proximity buffer around a school parcel, with the buffer panel offering a parcel export and Avery 5160 mailing labels.'),
+    },
   },
   'yard-plan': {
     hero: still(APP, ypHero1, ypHero2, 'Yard Plan at City Hall: a turf strip and a concrete area traced on aerial imagery, with the Yard Composition panel showing their square footage and the concrete share.', { ...ypCamera, intro: ypIntro }),
     base: still(APP, ypBase1, ypBase2, 'Aerial imagery of the City Hall parcel, the backdrop of the Yard Plan intro.', ypCamera),
-    features: [
-      loop(APP, ypF1Poster1, ypF1Poster2, ypF1Webm, ypF1Mp4, 'Drawing a concrete area in Yard Plan: its corners snap to the turf outline, the shape closes, and the area rows and donut update.'),
-      still([960, 600], ypF21, ypF22, 'Close-up of the Yard Composition panel beside the drawn areas: square footage and share for turf and concrete, and the total drawn.'),
-      still(APP, ypF31, ypF32, 'Yard Plan’s Share panel: download a PDF report or GeoJSON, copy a link that carries the drawing, or print.'),
-    ],
+    clips: {
+      draw: loop(APP, ypF1Poster1, ypF1Poster2, ypF1Webm, ypF1Mp4, 'Drawing a concrete area in Yard Plan: its corners snap to the turf outline, the shape closes, and the area rows and donut update.'),
+      composition: still([960, 600], ypF21, ypF22, 'Close-up of the Yard Composition panel beside the drawn areas: square footage and share for turf and concrete, and the total drawn.'),
+      share: still(APP, ypF31, ypF32, 'Yard Plan’s Share panel: download a PDF report or GeoJSON, copy a link that carries the drawing, or print.'),
+    },
   },
   'green-check': {
     hero: still(APP, gcHero1, gcHero2, 'Green Check after a hand measurement on aerial imagery: the line from the building to the neighboring lot reads 101 feet, and the Microbusiness verdict reads Eligible, the residence row marked Measured by hand.', { ...gcCamera, intro: gcIntro }),
     base: still(APP, gcBase1, gcBase2, 'Aerial imagery around 438 S State St, the backdrop of the Green Check intro.', gcCamera),
-    features: [
-      still(APP, gcF11, gcF12, 'Green Check’s instant verdict for an industrial parcel: Eligible for Manufacturing, with every requirement met.'),
-      still(APP, gcF21, gcF22, 'Green Check’s automatic verdict at 438 S State St: Not Eligible for Microbusiness, the building 95 feet from a residence, with the measured line and the 100-foot exclusion zone on the map.'),
-      loop(APP, gcF3Poster1, gcF3Poster2, gcF3Webm, gcF3Mp4, 'Verifying a distance in Green Check: the line’s far endpoint is dragged to the property line, the distance reads 101 feet, and the verdict changes to Eligible.'),
-    ],
+    clips: {
+      lookup: still(APP, gcF11, gcF12, 'Green Check’s instant verdict for an industrial parcel: Eligible for Manufacturing, with every requirement met.'),
+      buffer: still(APP, gcF21, gcF22, 'Green Check’s automatic verdict at 438 S State St: Not Eligible for Microbusiness, the building 95 feet from a residence, with the measured line and the 100-foot exclusion zone on the map.'),
+      verify: loop(APP, gcF3Poster1, gcF3Poster2, gcF3Webm, gcF3Mp4, 'Verifying a distance in Green Check: the line’s far endpoint is dragged to the property line, the distance reads 101 feet, and the verdict changes to Eligible.'),
+    },
   },
 }

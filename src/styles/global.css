@@ -44,6 +44,12 @@
   --chapter-pad-y: clamp(3.5rem, 8svh, 4.5rem);
   --frame-radius: 12px;
 
+  /* v2: floating nav (bar height + top offset + breathing room) and the highlight cards */
+  --nav-h: 52px;
+  --nav-top: 12px;
+  --nav-space: calc(var(--nav-h) + var(--nav-top) + var(--space-5));
+  --card-radius: 28px;
+
   /* Showcase scroll tracks; AppShowcase/layout.js mirrors these numbers */
   --track-intro: 200svh;
   --track-feature: 80svh;
