@@ -123,6 +123,13 @@
   --lens-glow: color-mix(in srgb, var(--lens-accent) 55%, transparent);
 }
 
+/* Up to tablet width the name and five items share the bar, so the items tighten a little (640px: 31px clear of the name instead of 11px) */
+@media (max-width: 767px) {
+  .link {
+    padding-inline: 12px;
+  }
+}
+
 /* Phones: no name on the left; the items centre in the bar */
 @media (max-width: 639px) {
   .bar {

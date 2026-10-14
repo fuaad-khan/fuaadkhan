@@ -10,8 +10,9 @@ const GLIDE = { duration: 0.45, ease: 'back.out(1.2)' }
 const MORPH = { duration: 0.42, ease: 'power3.inOut' }
 const FADE_OUT = { opacity: 0, duration: 0.14, ease: 'power1.in' }
 const FADE_IN = { opacity: 1, duration: 0.26, delay: 0.34, stagger: 0.05, ease: 'power1.out' }
-// While the items slide the lens dims in place; it glides onto the new item only once they have landed
+// The lens dims in place while the outgoing labels clear, then glides at 60% of the slide: the items have nearly landed and no incoming label has appeared under it yet
 const DIM = { opacity: 0.4, duration: 0.14, ease: 'power1.out' }
+const LENS_AFTER = MORPH.duration * 0.6
 const SHOW = 0.3
 // How long after mount a load at /#section keeps correcting its landing (load-time refreshes all happen well inside it)
 const LAND_WINDOW = 5000
@@ -37,21 +38,22 @@ function lensTarget(list) {
   return { x: item.offsetLeft, width: item.offsetWidth, accent: item.style.getPropertyValue('--item-accent') }
 }
 
-// Puts the lens on the active item of the current layout: a glide when it is already showing, otherwise in place
-function placeLens(list, lens, shown, { glide, motion }) {
+// Puts the lens on the active item of the current layout (a glide when it is already showing, otherwise in place) and records which section it went to
+function placeLens(list, lens, state, { glide, motion }) {
   const target = lensTarget(list)
+  state.placed = list.dataset.active ?? null
   if (!target) {
-    shown.current = false
+    state.shown = false
     gsap.to(lens, { autoAlpha: 0, duration: motion ? 0.25 : 0, ease: 'power1.out', overwrite: 'auto' })
     return
   }
   // An app's accent rims the lens; the hub and the other sections keep it neutral
   lens.toggleAttribute('data-accent', Boolean(target.accent))
   if (target.accent) lens.style.setProperty('--lens-accent', target.accent)
-  if (glide && shown.current) gsap.to(lens, { x: target.x, width: target.width, ...GLIDE, overwrite: 'auto' })
+  if (glide && state.shown) gsap.to(lens, { x: target.x, width: target.width, ...GLIDE, overwrite: 'auto' })
   else gsap.set(lens, { x: target.x, width: target.width, overwrite: 'auto' })
   gsap.to(lens, { autoAlpha: 1, duration: motion ? SHOW : 0, ease: 'power1.out', overwrite: 'auto' })
-  shown.current = true
+  state.shown = true
 }
 
 // Floating glass nav: plain anchor links, a lens on the active section, and the hub item morphing into the apps inside an app section
@@ -59,7 +61,7 @@ export default function Nav({ site, apps }) {
   const { nav } = site
   const listRef = useRef(null)
   const lensRef = useRef(null)
-  const shown = useRef(false)
+  const lensState = useRef({ shown: false, placed: null })
   const morph = useRef({ id: 0, tl: null })
   const [active, hold] = useActiveSection()
   // The hub keeps My Applications in the bar (current, under the lens); only an app section expands it into the three apps
@@ -72,7 +74,7 @@ export default function Nav({ site, apps }) {
     { id: 'contact', label: nav.contact, kind: 'section' },
   ]
 
-  // Morph first (so the layout is final), then the lens: at once, or after the morph's slide has landed
+  // Morph first (so the layout is final), then the lens: at once, or partway through the morph's slide
   useLayoutEffect(() => {
     const list = listRef.current
     const lens = lensRef.current
@@ -89,22 +91,27 @@ export default function Nav({ site, apps }) {
       const state = animate && Flip ? Flip.getState(list.children) : null
       list.toggleAttribute('data-expanded', inApps)
       if (state) {
-        if (shown.current) gsap.to(lens, { ...DIM, overwrite: 'auto' })
+        const lensOn = lensState.current
+        if (lensOn.shown) gsap.to(lens, { ...DIM, overwrite: 'auto' })
+        gsap.delayedCall(LENS_AFTER, () => {
+          if (id === morph.current.id) placeLens(list, lens, lensOn, { glide: true, motion })
+        })
         morph.current.tl = Flip.from(state, {
           ...MORPH,
           absoluteOnLeave: true,
           onLeave: (els) => gsap.to(els, { ...FADE_OUT }),
           onEnter: (els) => gsap.fromTo(els, { opacity: 0 }, { ...FADE_IN }),
+          // A section reached while the items were still sliding gets the lens now
           onComplete: () => {
-            if (id === morph.current.id) placeLens(list, lens, shown, { glide: true, motion })
+            if (id === morph.current.id && lensOn.placed !== list.dataset.active) placeLens(list, lens, lensOn, { glide: true, motion })
           },
         })
         return
       }
     }
-    // Mid-morph the items are still sliding: the morph's completion places the lens on whichever section is active by then
+    // Mid-morph the items are still sliding: the morph places the lens on whichever section is active by then
     if (morph.current.tl?.isActive()) return
-    placeLens(list, lens, shown, { glide: animate, motion })
+    placeLens(list, lens, lensState.current, { glide: animate, motion })
   }, [active, inApps])
 
   // A load at /#section lands at once and stays: a warm-cache browser jumps only after the load event (smooth by then, html.loaded), the font swap can nudge it, and a ScrollTrigger refresh (desktop drift) can undo it, so land now, on load, once fonts settle and after each refresh, until the reader acts
@@ -146,7 +153,7 @@ export default function Nav({ site, apps }) {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
         const list = listRef.current
-        const target = list && shown.current && lensTarget(list)
+        const target = list && lensState.current.shown && lensTarget(list)
         if (target) gsap.set(lensRef.current, { x: target.x, width: target.width })
       })
     }
