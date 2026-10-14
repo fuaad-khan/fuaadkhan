@@ -153,12 +153,14 @@
   }
 }
 
-/* A tighter accent glow than the page frames get, so it stays a halo instead of tinting the whole card */
+/* The app's colour glows around its frame (Map My City blue, Green Check green, Yard Plan orange): a tinted rim, a close halo and a wide soft one */
 .media .deviceFrame {
+  border-color: color-mix(in srgb, var(--frame-accent) 50%, var(--line));
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.4),
     0 24px 48px -24px rgba(0, 0, 0, 0.8),
-    0 0 48px -30px var(--frame-accent);
+    0 0 22px -2px color-mix(in srgb, var(--frame-accent) 55%, transparent),
+    0 0 70px 6px color-mix(in srgb, var(--frame-accent) 24%, transparent);
 }
 
 .layerFill,
