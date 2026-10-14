@@ -60,14 +60,14 @@ Each showcase follows the same beat so the rhythm is predictable:
 - Feature callouts: parcel query and property reports · layers, legend, and measurement tools · proximity buffer and mailing labels.
 - Stack: JavaScript, Leaflet, bundled production build.
 
-**3b. Yard Plan** — web-based drafter for residential yards
-- Problem: homeowners want to sketch a yard layout without CAD.
-- Feature callouts: draw-to-scale on the parcel footprint · placeable elements (beds, hardscape, trees) · export/share the plan.
-- Stack: fill in once finalized.
-
-**3c. Green Check** — cannabis site eligibility
+**3b. Green Check** — cannabis site eligibility
 - Problem: can a cannabis business legally be established at a given property? Answering that today means cross-referencing zoning and buffer rules by hand.
 - Feature callouts: address lookup → eligibility verdict · buffer checks against sensitive uses (schools, parks, etc.) · plain-language explanation of *why* a site passes or fails.
+- Stack: fill in once finalized.
+
+**3c. Yard Plan** — web-based drafter for residential yards
+- Problem: homeowners want to sketch a yard layout without CAD.
+- Feature callouts: draw-to-scale on the parcel footprint · placeable elements (beds, hardscape, trees) · export/share the plan.
 - Stack: fill in once finalized.
 
 Content for each app lives in `src/content/apps.js`: `{ id, name, tagline, problem, audience, features[{title, body, media}], stack[], links{} }`.

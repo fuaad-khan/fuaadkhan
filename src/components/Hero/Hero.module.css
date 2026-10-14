@@ -4,22 +4,29 @@
   min-height: 100svh;
   display: grid;
   place-items: center;
-  padding: var(--nav-space) var(--gutter) var(--space-9);
+  /* The bottom padding clears the scroll cue (2rem offset + 3rem track + label) with a gap, so the lede never crowds it */
+  padding: var(--nav-space) var(--gutter) calc(var(--space-6) + 6.5rem);
   overflow-x: clip;
   text-align: center;
 }
 
-/* isolation keeps the scrim below the copy but above the fixed topo layer */
 .copy {
   position: relative;
-  isolation: isolate;
   display: grid;
   justify-items: center;
   max-width: 54rem;
 }
 
-/* A soft pool of the page colour behind the copy keeps contour lines from crossing the type */
-.copy::before {
+/* The type under the portrait; isolation keeps its scrim below the type but above the fixed topo layer */
+.text {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+}
+
+/* A soft pool of the page colour behind the type keeps contour lines from crossing it */
+.text::before {
   content: '';
   position: absolute;
   inset: -18% -12%;
@@ -66,6 +73,20 @@
   margin-top: var(--space-5);
   color: var(--fg-muted);
   text-wrap: balance;
+}
+
+/* LinkedIn-style circle above the name: a page-coloured gap, a gold ring and a soft shadow; short screens scale it down so the name stays in the first view */
+.portrait {
+  width: min(clamp(19.5rem, 15rem + 12vw, 25.5rem), 46svh, 100vw - 2 * var(--gutter));
+  height: auto;
+  aspect-ratio: 1;
+  margin-bottom: var(--space-7);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 5px var(--bg),
+    0 0 0 7px color-mix(in srgb, var(--accent) 75%, transparent),
+    0 32px 64px -28px rgb(var(--shade) / 0.75);
 }
 
 /* Scroll cue at the foot of the hero: a label over a short track that a gold dash slides down */
