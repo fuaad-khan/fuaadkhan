@@ -19,8 +19,8 @@ const STILL_SECONDS = 5
 const CLIP_RATE = 1.25
 // Two-column cards at 1440x900: the frame takes at least this share of the card's width
 const TWO_COLUMN_FILL = 0.55
-// A clip that waits for its card to arrive has played at most this much video once the card is centred
-const ARRIVAL_SECONDS = 0.4
+// A clip that waits for its card to arrive has played under half a second of video once the card is centred (one that starts with the slide is well past that)
+const ARRIVAL_SECONDS = 0.5
 const HYDRATION = /hydrat|did not match|Minified React error #(418|419|421|422|423|425)\b/i
 const FRAME_FILE = /^(desktop|phone|reduced)-[a-z-]+-[a-z0-9-]+\.jpg$/
 const CLIP_URL = /\.(webm|mp4)(\?|$)/i

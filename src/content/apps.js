@@ -6,7 +6,7 @@ export const apps = [
     name: 'Map My City',
     kind: 'Parcel lookup',
     status: 'In production · internal',
-    deployedAs: 'Map My San Jacinto · City of San Jacinto',
+    deployedAs: 'Map My San Jacinto\u00a0· City of San Jacinto',
     accent: 'map',
     frameTitle: 'Map My San Jacinto',
     tagline: 'Every parcel, one search.',
