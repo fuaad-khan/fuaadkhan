@@ -1,3 +1,4 @@
+// Shared motion helpers (GSAP set-up, on-demand ScrollTrigger, the after-paint queue, the nav line, the motion and near-viewport hooks); the v1 file name stays because the Gallery and Intros import it
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import gsap from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
