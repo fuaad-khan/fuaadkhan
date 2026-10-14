@@ -10,7 +10,7 @@
   border: 1px solid var(--line);
   border-radius: clamp(16px, 2.6vw, var(--card-radius));
   background: var(--bg);
-  box-shadow: 0 40px 80px -48px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 40px 80px -48px rgb(var(--shade) / 0.8);
   container-type: inline-size;
 }
 
@@ -73,13 +73,6 @@
   fill: var(--bg-raised);
 }
 
-.island {
-  fill: var(--bg-raised);
-  stroke: color-mix(in srgb, var(--fg) 40%, transparent);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
-}
-
 .coast {
   fill: none;
   stroke: color-mix(in srgb, var(--fg) 42%, transparent);
@@ -117,22 +110,20 @@
   stroke-linecap: butt;
 }
 
-.stop {
-  fill: var(--fg-muted);
-  transform-box: fill-box;
-  transform-origin: center;
-  transition:
-    transform 0.35s var(--ease-out),
-    fill 0.35s var(--ease-out);
+/* The stop's number in a gold ring, the same badge its card under the map carries */
+.badge {
+  fill: var(--bg-raised);
+  stroke: var(--accent);
+  stroke-width: 1.5px;
+  transition: fill 0.35s var(--ease-out);
 }
 
-/* Hover ring for the stop whose card is under the pointer (Journey sets data-on) */
-.ring {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1.25px;
-  opacity: 0;
-  transition: opacity 0.35s var(--ease-out);
+.number {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--accent);
+  transition: fill 0.35s var(--ease-out);
 }
 
 .label {
@@ -147,6 +138,17 @@
   transition: fill 0.35s var(--ease-out);
 }
 
+.year {
+  fill: var(--accent);
+}
+
+/* Phone-width maps keep the place names and numbers; the years are in the cards just below */
+@container (max-width: 439px) {
+  .year {
+    display: none;
+  }
+}
+
 @container (min-width: 520px) {
   .label {
     font-size: 13.5px;
@@ -157,20 +159,20 @@
   }
 }
 
-[data-on] > .stop {
+/* The stop whose card is under the pointer (Journey sets data-on): a filled badge and a gold name */
+[data-on] > .badge {
   fill: var(--accent);
-  transform: scale(1.35);
 }
 
-[data-on] > .ring {
-  opacity: 0.8;
+[data-on] > .number {
+  fill: var(--bg);
 }
 
 [data-on] > .label {
   fill: var(--accent);
 }
 
-/* Rests on the last stop; under scripts + motion it starts on the first and the Journey's draw moves --mx / --my */
+/* Rests on the last stop, under its badge; under scripts + motion it starts on the first and the Journey's draw moves --mx / --my */
 .marker {
   --mx: var(--end-x);
   --my: var(--end-y);

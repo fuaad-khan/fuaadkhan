@@ -5,12 +5,15 @@ import Journey from './components/Journey/Journey'
 import Applications from './components/Applications/Applications'
 import AppSection from './components/AppSection/AppSection'
 import Close from './components/Close/Close'
+import { useScrollSettle } from './hooks/useScrollSettle'
 import { site } from './content/site'
 import { timeline } from './content/timeline'
 import { apps } from './content/apps'
 
 // Page order and section ids: .wp/CONTRACTS-v2.md §1; the nav floats above everything, Contact Me is the footer outside <main>
 export default function App() {
+  useScrollSettle()
+
   return (
     <>
       <TopoBackground />

@@ -16,7 +16,7 @@
   display: grid;
   align-content: start;
   justify-items: center;
-  padding: 1.75rem var(--space-5);
+  padding: var(--space-5) var(--space-5) 1.75rem;
   border: 1px solid var(--line);
   border-radius: var(--card-radius);
   background: color-mix(in srgb, var(--bg-raised) 88%, transparent);
@@ -26,7 +26,7 @@
 
 /* A reading measure for the copy when a stacked card runs as wide as the map */
 .stop > * {
-  max-width: 34rem;
+  max-width: 32rem;
 }
 
 @media (hover: hover) {
@@ -35,11 +35,43 @@
   }
 }
 
-/* Kind over dates: two short lines read better in a narrow card than one that wraps at the separator */
+/* The map pin's number, then the kind; the dates below: two short lines read better in a narrow card than one that wraps */
 .eyebrow {
   display: grid;
   justify-items: center;
-  gap: 0.3em;
+  gap: 0.45em;
+}
+
+.kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+/* The same gold-ringed number as the stop's pin on the map, so card and pin pair up without hovering */
+.badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--accent);
+  transition:
+    background-color 0.35s var(--ease-out),
+    color 0.35s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .stop:hover .badge {
+    background: var(--accent);
+    color: var(--bg);
+  }
 }
 
 .dates {
@@ -53,9 +85,10 @@
 
 .role {
   display: grid;
-  gap: 0.15rem;
-  margin-top: var(--space-4);
+  gap: 0.1rem;
+  margin-top: var(--space-3);
   font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+  line-height: 1.4;
 }
 
 .role strong {
@@ -66,14 +99,15 @@
   color: var(--fg-muted);
 }
 
+/* Lighter than the card's head: smaller, balanced lines, a short rule above */
 .bullets {
   display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
-  padding-top: var(--space-5);
+  gap: 0.6rem;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--line);
   font-size: var(--step--1);
-  line-height: 1.45;
-  text-wrap: pretty;
+  line-height: 1.5;
+  text-wrap: balance;
   color: var(--fg-muted);
 }

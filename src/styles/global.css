@@ -13,6 +13,11 @@
   --accent-yard: #e08a5a;
   --accent-green: #6fcf97;
 
+  /* The near-black behind app captures (highlight cards), and the channels for shadows (shade) and glass highlights (glint): rgb(var(--shade) / 0.6) */
+  --surface: #0c0e12;
+  --shade: 0 0 0;
+  --glint: 255 255 255;
+
   /* Inter only for display; body stays on the platform UI font (no Inter here, its 600 face would win) */
   --font-display: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-body: "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
@@ -21,7 +26,6 @@
   --step--1: clamp(0.8rem, 0.75rem + 0.25vw, 0.9rem);
   --step-0: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
   --step-1: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
-  --step-2: clamp(1.6rem, 1.3rem + 1.4vw, 2.4rem);
   --step-3: clamp(2.2rem, 1.6rem + 3vw, 4rem);
   --step-4: clamp(2.8rem, 1.8rem + 5vw, 6rem);
 
@@ -36,7 +40,6 @@
   --space-9: 6rem;
 
   --gutter: clamp(1.25rem, 5vw, 5rem);
-  --chapter-pad-y: clamp(3.5rem, 8svh, 4.5rem);
   --frame-radius: 12px;
 
   /* v2: floating nav (bar height + top offset + breathing room) and the highlight cards */
@@ -47,7 +50,6 @@
 
   /* The centred column: nav bar, Journey map and cards, app tiles share these edges */
   --wide: 980px;
-  --measure: 34rem;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: dark;
@@ -59,15 +61,10 @@
   box-sizing: border-box;
 }
 
-/* Proximity snapping lands each section under the nav without trapping the tall ones */
+/* Anchor jumps, scrollIntoView and focus scrolling all stop under the floating nav, so a heading or a focused control is never behind the bar */
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-snap-type: y proximity;
-}
-
-[data-section] {
-  scroll-snap-align: start;
-  scroll-margin-top: var(--nav-space);
+  scroll-padding-top: var(--nav-space);
 }
 
 /* Nav clicks focus the section they scroll to (tabindex -1), which needs no ring of its own */
@@ -75,7 +72,7 @@ html {
   outline: none;
 }
 
-/* Smooth only once loaded (or without JS): a smooth initial jump to a #fragment would be cut short by ScrollTrigger's load refresh */
+/* Smooth only once loaded (or without JS): a smooth initial jump to a #fragment could be cut short by the load-time layout settling */
 @media (prefers-reduced-motion: no-preference) {
   html:not(.js),
   html.loaded {
@@ -133,10 +130,10 @@ a:hover {
   text-decoration-color: var(--accent);
 }
 
-:focus-visible {
+/* Zero specificity: a component's own focus rule and corner radius always win over this base ring */
+:where(:focus-visible) {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
-  border-radius: 2px;
 }
 
 img,
@@ -179,6 +176,34 @@ ol {
   margin-top: var(--space-5);
   color: var(--fg-muted);
   text-wrap: balance;
+}
+
+/* The one status pill (hub tiles; free for the app headers and glance cards): an accent dot and a rim in the nearest --app-accent */
+.status-chip {
+  --chip-accent: var(--app-accent, var(--accent));
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  max-width: 100%;
+  padding: 0.3em 0.8em;
+  border: 1px solid color-mix(in srgb, var(--chip-accent) 45%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.status-chip::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chip-accent);
 }
 
 .sr-only {

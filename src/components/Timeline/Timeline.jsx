@@ -1,7 +1,7 @@
 import { site } from '../../content/site'
 import styles from './Timeline.module.css'
 
-// The three career stops as cards under the Journey map: a row on wide screens, stacked below that
+// The three career stops as cards under the Journey map: a row on wide screens, stacked below that; each carries its map pin's number
 export default function Timeline({ stops, label, onPointStop }) {
   // The card under the pointer names its stop (null between and outside cards), so the map can light the matching pin
   const point = (event) => onPointStop?.(event.target.closest?.('[data-stop-card]')?.dataset.stopCard ?? null)
@@ -11,7 +11,12 @@ export default function Timeline({ stops, label, onPointStop }) {
       {stops.map((stop, i) => (
         <li key={stop.id} className={styles.stop} data-stop-card={i} data-reveal>
           <p className={`eyebrow ${styles.eyebrow}`}>
-            <span>{stop.kind}</span>
+            <span className={styles.kind}>
+              <span className={styles.badge} aria-hidden="true">
+                {i + 1}
+              </span>
+              {stop.kind}
+            </span>
             <span className="sr-only">{site.ui.listSep}</span>
             <span className={styles.dates}>{stop.dates}</span>
           </p>

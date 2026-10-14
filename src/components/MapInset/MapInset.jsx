@@ -1,7 +1,7 @@
 import styles from './MapInset.module.css'
 
-// Equirectangular frame around the three stops at about 2.1:1, width-corrected for latitude; Catalina and the coast stay in view
-const BOUNDS = { lonMin: -119.0, lonMax: -116.4, latMin: 33.28, latMax: 34.31 }
+// Equirectangular frame around the route plus a margin (about 2.65:1, width-corrected for latitude): the coast and the ocean stay, the empty south and east go
+const BOUNDS = { lonMin: -118.95, lonMax: -116.5, latMin: 33.5, latMax: 34.27 }
 const W = 400
 const H = Math.round(
   (W * (BOUNDS.latMax - BOUNDS.latMin)) /
@@ -26,9 +26,6 @@ const COAST = [
   [-117.26, 32.9], [-117.26, 32.82], [-117.2, 32.72], [-117.15, 32.68], [-117.12, 32.6], [-117.12, 32.53],
 ]
 
-// Santa Catalina, the only island inside the frame; it runs north-west to south-east
-const CATALINA = { c: [-118.42, 33.38], rx: 22, ry: 5, rot: 33 }
-
 const pathFrom = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${round(x)} ${round(y)}`).join(' ')
 
 // Only the stretch of coast near the frame, so the line enters at the edge instead of off-screen
@@ -48,8 +45,8 @@ const steps = (min, max) => {
 const MERIDIANS = steps(BOUNDS.lonMin, BOUNDS.lonMax)
 const PARALLELS = steps(BOUNDS.latMin, BOUNDS.latMax)
 
-// The ocean name, one word per line, in the San Pedro Channel between Palos Verdes and Catalina
-const OCEAN_AT = project([-118.66, 33.6])
+// The ocean name, one word per line, out in the Pacific off Santa Monica Bay
+const OCEAN_AT = project([-118.7, 33.75])
 
 // Gentle arc between two stops so the route reads as travel, not a ruler line
 function routePath([x1, y1], [x2, y2]) {
@@ -59,20 +56,19 @@ function routePath([x1, y1], [x2, y2]) {
   return `M${round(x1)} ${round(y1)} Q${round(cx)} ${round(cy)} ${round(x2)} ${round(y2)}`
 }
 
-// Label offsets in screen px (pins are drawn at screen scale), clear of the marker halo
+// Label offsets in screen px (pins are drawn at screen scale), clear of the numbered badge and the marker halo
 const LABEL = {
-  right: { dx: 16, dy: 0, em: '0.35em', anchor: 'start' },
-  left: { dx: -16, dy: 0, em: '0.35em', anchor: 'end' },
-  above: { dx: 0, dy: -17, em: '0', anchor: 'middle' },
-  below: { dx: 0, dy: 17, em: '0.75em', anchor: 'middle' },
+  right: { dx: 17, dy: 0, em: '0.35em', anchor: 'start' },
+  left: { dx: -17, dy: 0, em: '0.35em', anchor: 'end' },
+  above: { dx: 0, dy: -18, em: '0', anchor: 'middle' },
+  below: { dx: 0, dy: 18, em: '0.75em', anchor: 'middle' },
 }
 
 // The career map drawn complete (no JS, reduced motion); under scripts + motion its CSS rewinds the route for the Journey's draw
-export default function MapInset({ ref, stops, journey }) {
+export default function MapInset({ ref, stops, journey, sep }) {
   const pts = stops.map((s) => project(s.coords))
   const [startX, startY] = pts[0]
   const [endX, endY] = pts[pts.length - 1]
-  const [cx, cy] = project(CATALINA.c)
   const [oceanX, oceanY] = OCEAN_AT
 
   return (
@@ -80,14 +76,6 @@ export default function MapInset({ ref, stops, journey }) {
       <div className={styles.frame}>
         <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg}>
           <path d={landPath} className={styles.land} />
-          <ellipse
-            cx={round(cx)}
-            cy={round(cy)}
-            rx={CATALINA.rx}
-            ry={CATALINA.ry}
-            transform={`rotate(${CATALINA.rot} ${round(cx)} ${round(cy)})`}
-            className={styles.island}
-          />
           <path d={coastPath} className={styles.coast} />
 
           <g className={styles.graticule}>
@@ -115,32 +103,32 @@ export default function MapInset({ ref, stops, journey }) {
             <path key={stops[i + 1].id} d={routePath(pts[i], p)} className={styles.route} data-route={i + 1} />
           ))}
 
-          {pts.map(([x, y], i) => {
-            const l = LABEL[stops[i].labelPlacement] ?? LABEL.right
-            return (
-              <g
-                key={stops[i].id}
-                className={i ? `${styles.place} ${styles.late}` : styles.place}
-                style={{ '--x': px(x), '--y': px(y) }}
-                data-pin={i}
-              >
-                <circle r={11} className={styles.ring} />
-                <circle r={4} className={styles.stop} />
-                <text x={l.dx} y={l.dy} dy={l.em} textAnchor={l.anchor} className={styles.label}>
-                  {stops[i].location}
-                </text>
-              </g>
-            )
-          })}
-
+          {/* Under the pins: at rest the marker hides beneath the last badge and only its halo rings it */}
           <g
             className={styles.marker}
             style={{ '--start-x': px(startX), '--start-y': px(startY), '--end-x': px(endX), '--end-y': px(endY) }}
             data-marker
           >
-            <circle r={12} className={styles.halo} data-halo />
+            <circle r={13} className={styles.halo} data-halo />
             <circle r={5.5} className={styles.active} />
           </g>
+
+          {pts.map(([x, y], i) => {
+            const stop = stops[i]
+            const l = LABEL[stop.mapPlacement] ?? LABEL.right
+            return (
+              <g key={stop.id} className={i ? `${styles.place} ${styles.late}` : styles.place} style={{ '--x': px(x), '--y': px(y) }} data-pin={i}>
+                <circle r={9} className={styles.badge} />
+                <text dy="0.35em" textAnchor="middle" className={styles.number}>
+                  {i + 1}
+                </text>
+                <text x={l.dx} y={l.dy} dy={l.em} textAnchor={l.anchor} className={styles.label}>
+                  {stop.place}
+                  <tspan className={styles.year}>{` ${sep} ${stop.year}`}</tspan>
+                </text>
+              </g>
+            )
+          })}
         </svg>
       </div>
       <figcaption className={styles.caption}>{journey.mapCaption}</figcaption>

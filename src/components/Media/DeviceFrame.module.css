@@ -1,5 +1,4 @@
-/* Explicit width matters: inline-size containment would otherwise collapse the frame inside flex/grid items */
-/* No rounded overflow clip here: in Chrome it stops a clip-path hole from clipping a child's backdrop-filter (Yard Plan's glass window) */
+/* Explicit width, or inline-size containment collapses the frame in flex/grid items; no rounded overflow clip, which in Chrome stops a clip-path hole from clipping a child's backdrop-filter (Yard Plan's glass) */
 .frame {
   --bar-height: 1.75rem;
   --bar-gap: var(--space-3);
@@ -14,8 +13,8 @@
   border-radius: var(--frame-radius);
   background: var(--bg-raised);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.4),
-    0 30px 60px -30px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgb(var(--shade) / 0.4),
+    0 30px 60px -30px rgb(var(--shade) / 0.7),
     0 0 80px -40px var(--frame-accent);
 }
 

@@ -1,5 +1,4 @@
-// Career timeline stops, in reading order. coords are [lon, lat];
-// labelPlacement (right | left | above | below) keeps map labels clear of the route.
+// Career timeline stops, in reading order: coords are [lon, lat]; place and year label the numbered pin on the Journey map, mapPlacement (right | left | above | below) keeps that label clear of the route; labelPlacement does the same on the social card
 export const timeline = [
   {
     id: 'ucla',
@@ -8,7 +7,10 @@ export const timeline = [
     role: 'B.A. Geography, minor in GIS & Technologies',
     dates: '2018 – 2020',
     location: 'Los Angeles, CA',
+    place: 'Los Angeles',
+    year: '2018',
     coords: [-118.4452, 34.0689],
+    mapPlacement: 'above',
     labelPlacement: 'above',
     headline: 'Where spatial thinking started.',
     bullets: [
@@ -24,7 +26,10 @@ export const timeline = [
     role: 'Project Coordinator / GIS Data Analyst',
     dates: 'Oct 2020 – Jul 2021',
     location: 'Anaheim, CA',
+    place: 'Anaheim',
+    year: '2020',
     coords: [-117.9145, 33.8353],
+    mapPlacement: 'below',
     labelPlacement: 'below',
     headline: 'Maps that ran on data pipelines.',
     bullets: [
@@ -41,7 +46,10 @@ export const timeline = [
     role: 'GIS Coordinator to GIS Supervisor',
     dates: 'Jul 2021 – present',
     location: 'San Jacinto, CA',
+    place: 'San Jacinto',
+    year: '2021',
     coords: [-116.9581, 33.7838],
+    mapPlacement: 'below',
     labelPlacement: 'above',
     headline: 'Built the city’s enterprise GIS from zero.',
     bullets: [

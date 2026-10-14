@@ -11,8 +11,8 @@ const PROFILES = {
 }
 // Share of the expected item's box the lens must cover
 const MIN_OVERLAP = 0.6
-// Phones at or below this width show only the three apps inside My Applications
-const APPS_ONLY = 480
+// At or below this width an app section shows only the three app items (Nav.module.css: five items need about 520px)
+const APPS_ONLY = 559
 const HYDRATION = /hydrat|did not match|Minified React error #(418|419|421|422|423|425)\b/i
 
 const USAGE = `Usage: node scripts/check-nav.mjs [options]
@@ -77,15 +77,8 @@ function readNav() {
   const shows = (el) => el.getClientRects().length > 0 && style(el).visibility === 'visible' && Number(style(el.parentElement).opacity) * Number(style(el).opacity) > 0.9
   const link = (id) => links.find((a) => a.getAttribute('href') === `#${id}`)
   const apps = [...nav.querySelectorAll('li[data-kind="app"] a')]
-  const union = (els) => {
-    const rs = els.map((el) => el.getBoundingClientRect())
-    const left = Math.min(...rs.map((r) => r.left))
-    const right = Math.max(...rs.map((r) => r.right))
-    const top = Math.min(...rs.map((r) => r.top))
-    const bottom = Math.max(...rs.map((r) => r.bottom))
-    return { x: left, y: top, w: right - left, h: bottom - top }
-  }
-  const item = !expected || expected === 'top' ? null : expected === 'applications' ? union(apps) : link(expected) ? box(link(expected).getBoundingClientRect()) : null
+  // The hub keeps its own item (the bar stays collapsed there), so every section's lens target is its own link
+  const item = !expected || expected === 'top' ? null : link(expected) ? box(link(expected).getBoundingClientRect()) : null
   const lensStyle = style(lens)
   return {
     scrollY: Math.round(win.scrollY),
@@ -100,18 +93,17 @@ function readNav() {
   }
 }
 
-// In the page: scrolls (snapping off) so the band falls inside the section, at its natural landing spot when the section covers the band there
+// In the page: scrolls instantly so the band falls inside the section, at its natural landing spot (the root's scroll-padding-top, the nav line) when the section covers the band there
 function placeSection(id) {
   const win = globalThis
   const el = win.document.getElementById(id)
   if (!el) return null
   const root = win.document.documentElement
-  root.style.scrollSnapType = 'none'
   root.style.scrollBehavior = 'auto'
   const vh = win.innerHeight
   const r = el.getBoundingClientRect()
   const top = r.top + win.scrollY
-  const margin = parseFloat(win.getComputedStyle(el).scrollMarginTop) || 0
+  const margin = parseFloat(win.getComputedStyle(root).scrollPaddingTop) || 0
   let y = top - margin
   if (!(margin <= 0.45 * vh && r.height + margin >= 0.5 * vh)) y = top + r.height / 2 - 0.475 * vh
   if (id === 'top') y = 0
@@ -119,10 +111,8 @@ function placeSection(id) {
   return Math.round(win.scrollY)
 }
 
-function restoreSnap() {
-  const root = globalThis.document.documentElement
-  root.style.scrollSnapType = ''
-  root.style.scrollBehavior = ''
+function restoreScrollBehavior() {
+  globalThis.document.documentElement.style.scrollBehavior = ''
 }
 
 // In the page: where a section rests after a nav click, relative to the nav line, whether the scroll could go further, and whether it reaches the band
@@ -130,7 +120,7 @@ function landing(id) {
   const win = globalThis
   const el = win.document.getElementById(id)
   const r = el.getBoundingClientRect()
-  const margin = parseFloat(win.getComputedStyle(el).scrollMarginTop) || 0
+  const margin = parseFloat(win.getComputedStyle(win.document.documentElement).scrollPaddingTop) || 0
   const max = win.document.documentElement.scrollHeight - win.innerHeight
   return {
     offset: Math.round(r.top - margin),
@@ -168,7 +158,8 @@ function judge(state, profile) {
     const wantAccent = state.apps.includes(expected)
     if (state.lens.accent !== wantAccent) fails.push(`lens accent ${state.lens.accent ? 'on' : 'off'}, expected ${wantAccent ? 'on' : 'off'}`)
   }
-  const expanded = expected === 'applications' || state.apps.includes(expected)
+  // Only an app section expands the hub item into the apps; the hub itself stays collapsed with My Applications current
+  const expanded = state.apps.includes(expected)
   for (const app of state.apps) if (state.shown[app] !== expanded) fails.push(`${app} item ${state.shown[app] ? 'shown' : 'hidden'} ${expanded ? 'inside' : 'outside'} My Applications`)
   if (state.shown.applications === expanded) fails.push(`My Applications item ${expanded ? 'still shown after' : 'hidden without'} the morph`)
   for (const id of ['journey', 'contact']) {
@@ -250,18 +241,18 @@ async function checkProfile(name, opts) {
       log(fails.length ? 'FAIL' : 'PASS', `section ${id}`, fails.length ? fails.join('; ') : detail)
       await shoot(`${String(i).padStart(2, '0')}-${id}`)
     }
-    await session.evaluate(restoreSnap)
+    await session.evaluate(restoreScrollBehavior)
 
-    // 2. Clicks with snapping on: the page lands on the section under the nav, the lens rests on the clicked item, the hash and focus follow
+    // 2. Clicks: the page lands on the section under the nav, the lens rests on the clicked item, the hash and focus follow
     await session.evaluate('window.scrollTo({ top: 0, behavior: "instant" })')
     await sleep(settle)
     const plan = ['journey', 'applications', ...[...apps].reverse(), 'contact', 'top']
     for (const id of plan) {
       let clicked = await click(session, profile, id)
-      // An item the current state hides is reached from a state that shows it: app items from the hub, the others from the top
+      // An item the current state hides is reached from a state that shows it: app items from an app section, the others from the top
       if (!clicked && id !== 'top') {
-        await session.evaluate(apps.includes(id) ? placeSection : 'window.scrollTo({ top: 0, behavior: "instant" })', 'applications')
-        await session.evaluate(restoreSnap)
+        await session.evaluate(apps.includes(id) ? placeSection : 'window.scrollTo({ top: 0, behavior: "instant" })', apps[0])
+        await session.evaluate(restoreScrollBehavior)
         await sleep(settle)
         clicked = await click(session, profile, id)
       }

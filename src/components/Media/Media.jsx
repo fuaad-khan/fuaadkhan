@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
-import { useMotionOK, useNearViewport } from '../../hooks/useChapter'
 import { site } from '../../content/site'
 import { parcelGrid } from './parcelGrid'
 import styles from './Media.module.css'
@@ -10,11 +8,10 @@ const GRID = parcelGrid()
 const join = (...names) => names.filter(Boolean).join(' ')
 
 // Responsive still from an entry's 1x/2x posters, sized up front so nothing shifts while it loads
-function Still({ ref, entry, alt, className, sizes = SIZES }) {
+function Still({ entry, alt, className, sizes = SIZES }) {
   const { x1, x2 } = entry.poster
   return (
     <img
-      ref={ref}
       className={join(styles.img, className)}
       src={x1}
       srcSet={`${x1} 800w, ${x2} 1600w`}
@@ -25,82 +22,6 @@ function Still({ ref, entry, alt, className, sizes = SIZES }) {
       loading="lazy"
       decoding="async"
     />
-  )
-}
-
-// Poster always; the clip mounts on the client near the viewport when motion is allowed, and plays only while in view
-function Loop({ entry, alt, className, playing, sizes }) {
-  const ref = useRef(null)
-  const still = useRef(null)
-  const video = useRef(null)
-  const allow = useRef(false)
-  const motionOK = useMotionOK()
-  const near = useNearViewport(ref, '50%')
-  const [inView, setInView] = useState(false)
-  const [paused, setPaused] = useState(false)
-  const [poster, setPoster] = useState()
-  const live = motionOK && near && entry.sources?.length > 0
-  const shouldPlay = live && inView && !paused && playing !== false
-
-  // The clip's poster reuses whichever srcset candidate the still underneath picked, so a phone never fetches the 2x poster
-  useEffect(() => {
-    if (live) setPoster(still.current?.currentSrc || entry.poster.x1)
-  }, [live, entry])
-
-  useEffect(() => {
-    const v = video.current
-    if (!live || !v) return
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting && e.intersectionRatio >= 0.4), {
-      threshold: [0, 0.4],
-    })
-    io.observe(v)
-    return () => io.disconnect()
-  }, [live])
-
-  useEffect(() => {
-    allow.current = shouldPlay
-    const v = video.current
-    if (!v) return
-    if (shouldPlay) v.play().catch(() => {})
-    else v.pause()
-  }, [shouldPlay])
-
-  return (
-    <div ref={ref} className={join(styles.loop, className)}>
-      <Still ref={still} entry={entry} alt={live ? '' : alt} sizes={sizes} />
-      {live && (
-        <>
-          <video
-            ref={video}
-            className={styles.video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="none"
-            poster={poster}
-            aria-label={alt}
-            onPlay={(e) => {
-              if (!allow.current) e.currentTarget.pause()
-            }}
-          >
-            {entry.sources.map((s) => (
-              <source key={s.src} src={s.src} type={s.type} />
-            ))}
-          </video>
-          <button
-            type="button"
-            className={styles.toggle}
-            aria-label={site.ui.pauseLoop}
-            aria-pressed={paused}
-            title={paused ? site.ui.playLoop : site.ui.pauseLoop}
-            onClick={() => setPaused((p) => !p)}
-          >
-            <span className={paused ? styles.playIcon : styles.pauseIcon} aria-hidden="true" />
-          </button>
-        </>
-      )}
-    </div>
   )
 }
 
@@ -123,9 +44,8 @@ function Placeholder({ alt, className }) {
   )
 }
 
-// Renders one media.js entry: a still, a loop over its poster, or the placeholder when the entry is null; sizes overrides the srcset hint
-export default function Media({ media, alt, className, playing, sizes }) {
+// Renders one media.js entry as its still (a clip shows its poster; the galleries play clips themselves), or the placeholder when the entry is null
+export default function Media({ media, alt, className, sizes }) {
   if (!media) return <Placeholder alt={alt} className={className} />
-  if (media.kind === 'loop') return <Loop entry={media} alt={alt ?? media.alt} className={className} playing={playing} sizes={sizes} />
   return <Still entry={media} alt={alt ?? media.alt} className={className} sizes={sizes} />
 }
