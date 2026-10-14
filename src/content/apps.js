@@ -130,7 +130,7 @@ export const apps = [
       { value: '~1,200', label: 'characters to link a 10-shape plan' },
     ],
     highlights: [
-      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on the aerial.', duration: 7 },
+      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on high resolution aerial imagery.', duration: 7 },
       { id: 'draw', kind: 'clip', caption: 'Trace turf and concrete. Corners snap to each other.' },
       { id: 'composition', kind: 'clip', caption: 'Square footage and concrete share update as you draw.' },
       { id: 'share', kind: 'clip', caption: 'Download a PDF, or send a link that carries the whole plan.' },
