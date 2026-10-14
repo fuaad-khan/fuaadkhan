@@ -28,7 +28,7 @@ export default function Applications({ content, apps }) {
               </DeviceFrame>
             </div>
             <div className={styles.info}>
-              <h3 className={styles.name}>
+              <h3>
                 <a href={`#${app.id}`} className={styles.link}>
                   {app.name}
                 </a>

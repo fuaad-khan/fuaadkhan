@@ -153,11 +153,13 @@
     border-color: color-mix(in srgb, var(--tile-accent) 55%, transparent);
   }
 
-  .tile:hover .frame {
-    transform: translateY(-4px);
-  }
-
   .tile:hover .link {
     color: var(--tile-accent);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tile:hover .frame {
+    transform: translateY(-4px);
   }
 }

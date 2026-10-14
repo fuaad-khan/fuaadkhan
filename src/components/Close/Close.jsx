@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { useReveal } from '../../hooks/useChapter'
+import { useRise } from '../Journey/useRise'
 import styles from './Close.module.css'
 
 // Contact Me, the contentinfo footer: a centred pitch, the three contact links, the résumé and the colophon
@@ -7,7 +7,7 @@ export default function Close({ site }) {
   const ref = useRef(null)
   const { close } = site
   // Only the link row and the résumé pill rise in; eyebrow, headline and body stay put
-  useReveal(ref, '[data-reveal]')
+  useRise(ref)
 
   return (
     <footer ref={ref} id="contact" data-section="contact" className={styles.close} aria-labelledby="close-title">
