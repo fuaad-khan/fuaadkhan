@@ -9,6 +9,7 @@ export const site = {
   eyebrow: 'Portfolio',
   identity: ['GIS Supervisor', 'GIS Developer', 'Inland Empire, CA'],
   lede: 'I build enterprise GIS infrastructure, data pipelines, and the web mapping applications that run on them. Six-plus years in public-sector GIS, from sole GIS staff to supervisor.',
+  portrait: { alt: 'Portrait of Fuaad Khan' },
 
   // Floating glass nav; the three app names come from apps.js
   nav: {

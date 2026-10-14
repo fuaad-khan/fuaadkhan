@@ -16,3 +16,6 @@ audit/
 
 # Owner-supplied private strings for scripts/privacy-sweep.mjs (never committed)
 privacy.local.json
+
+# Original personal photos; only the cropped, metadata-free portrait in src/assets/portrait ships
+photos/

@@ -20,7 +20,8 @@ const fail = (message) => {
 
 const kb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`
 
-const attributes = (tag) => Object.fromEntries([...tag.matchAll(/([\w:-]+)="([^"]*)"/g)].map(([, name, value]) => [name, value]))
+// HTML attribute names are case-insensitive, and React writes srcset preloads as imageSrcSet
+const attributes = (tag) => Object.fromEntries([...tag.matchAll(/([\w:-]+)="([^"]*)"/g)].map(([, name, value]) => [name.toLowerCase(), value]))
 
 // React prepends a preload for each of the first ten non-lazy images; the image already sits in the markup, so the hint only competes with the fonts
 function dropImageHints(markup) {
