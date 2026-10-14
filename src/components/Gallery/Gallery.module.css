@@ -429,7 +429,7 @@
 .pipFill {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: var(--fg);
   opacity: 0;
   transform: translateX(calc((var(--progress, 0) - 1) * 100%));
 }
