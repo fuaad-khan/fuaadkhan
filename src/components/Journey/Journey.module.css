@@ -1,62 +1,13 @@
-/* Phones: a sticky map band on top; hero and beats each fill what it leaves visible, so the last beat ends centred */
+/* Content-driven height (about 1.5 viewports on desktop): heading, the wide map card, then the stop cards */
 .journey {
-  --map-h: 22svh;
-  --band-pad: var(--space-3);
-  --band-fade: var(--space-7);
-  --band: calc(var(--map-h) + var(--band-pad) + var(--band-fade));
-  --hero-min: calc(100svh - var(--band));
-  --beat-min: calc(100svh - var(--band));
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  justify-items: center;
+  row-gap: var(--space-7);
+  padding: var(--space-6) var(--gutter) var(--space-9);
 }
 
-.copy {
-  padding: 0 var(--gutter) 0 var(--content-x);
-}
-
-.visual {
-  order: -1;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  padding: var(--band-pad) var(--gutter) var(--band-fade);
-  background: linear-gradient(var(--bg) calc(100% - var(--band-fade)), transparent);
-  background: linear-gradient(
-    var(--bg) calc(100% - var(--band-fade)),
-    color-mix(in srgb, var(--bg) 70%, transparent) calc(100% - var(--band-fade) * 0.6),
-    transparent
-  );
-}
-
-/* Wide: copy and map side by side for the whole section; the map stays centred in the viewport */
-@media (min-width: 768px) {
-  .journey {
-    --map-h: auto;
-    --hero-min: 100svh;
-    --beat-min: 80svh;
-    display: grid;
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    column-gap: clamp(2rem, 5vw, 5rem);
-    padding: 0 var(--gutter) 0 var(--content-x);
-  }
-
-  /* The trailing 10svh lets the last beat sit centred when the section's scroll range ends */
-  .copy {
-    padding: 0 0 10svh;
-  }
-
-  .visual {
-    order: 0;
-    position: static;
-    z-index: auto;
-    padding: 0;
-    background: none;
-  }
-
-  .sticky {
-    position: sticky;
-    top: 50svh;
-    transform: translateY(-50%);
-  }
+.map,
+.cards {
+  width: 100%;
+  max-width: var(--wide);
 }

@@ -1,39 +1,39 @@
 import styles from './Hero.module.css'
 
-// The Journey's opening viewport; its rise-in is CSS only, so it plays before (and without) the script bundle
-export default function Hero({ site, titleId }) {
+// The page's first viewport, centred over the topo; its rise-in is CSS only, so it plays before (and without) the script bundle
+export default function Hero({ site }) {
   return (
-    <header className={styles.hero}>
-      <p className={`eyebrow ${styles.eyebrow} ${styles.rise}`} style={{ '--i': 0 }}>
-        {site.eyebrow}
-      </p>
-      <h1 id={titleId} className={`${styles.name} ${styles.rise}`} style={{ '--i': 1 }}>
-        {site.name}
-      </h1>
-      <p className={`${styles.identity} ${styles.rise}`} style={{ '--i': 2 }}>
-        {site.identity.map((part, i) => (
-          <span key={part}>
-            {part}
-            {i < site.identity.length - 1 && (
-              <>
-                <span className="sr-only">{site.ui.listSep}</span>
-                <span className={styles.dot} aria-hidden="true">
-                  {site.ui.sep}
-                </span>
-              </>
-            )}
-          </span>
-        ))}
-      </p>
-      <p className={`${styles.lede} ${styles.rise}`} style={{ '--i': 3 }}>
-        {site.lede}
-      </p>
-      <div className={styles.cue} data-cue aria-hidden="true">
+    <header id="top" data-section="top" className={styles.hero}>
+      <div className={styles.copy}>
+        <p className={`eyebrow ${styles.rise}`} style={{ '--i': 0 }}>
+          {site.eyebrow}
+        </p>
+        <h1 className={`${styles.name} ${styles.rise}`} style={{ '--i': 1 }}>
+          {site.name}
+        </h1>
+        <p className={`${styles.identity} ${styles.rise}`} style={{ '--i': 2 }}>
+          {site.identity.map((part, i) => (
+            <span key={part}>
+              {part}
+              {i < site.identity.length - 1 && (
+                <>
+                  <span className="sr-only">{site.ui.listSep}</span>
+                  <span className={styles.dot} aria-hidden="true">
+                    {site.ui.sep}
+                  </span>
+                </>
+              )}
+            </span>
+          ))}
+        </p>
+        <p className={`${styles.lede} ${styles.rise}`} style={{ '--i': 3 }}>
+          {site.lede}
+        </p>
+      </div>
+      <div className={`${styles.cue} ${styles.rise}`} style={{ '--i': 4 }} aria-hidden="true">
+        <span className={styles.cueLabel}>{site.ui.scroll}</span>
         <span className={styles.cueTrack}>
           <span className={styles.cueDash} />
-        </span>
-        <span className={`${styles.cueLabel} ${styles.rise}`} style={{ '--i': 4 }}>
-          {site.ui.scroll}
         </span>
       </div>
     </header>
