@@ -9,7 +9,7 @@ import styles from './Applications.module.css'
 
 // Each thumbnail zooms into a legible detail of its hero capture: focus is the point that stays put (and the crop's anchor), zoom the scale around it
 const THUMB = {
-  'map-my-city': { focus: '80% 30%', zoom: 1.8 },
+  'map-my-city': { focus: '84% 30%', zoom: 1.8 },
   'yard-plan': { focus: '96% 26%', zoom: 1.6 },
   'green-check': { focus: '97% 24%', zoom: 1.6 },
 }
