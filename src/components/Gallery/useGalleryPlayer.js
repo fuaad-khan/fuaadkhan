@@ -43,6 +43,8 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
   const fresh = useRef(true)
   const pending = useRef(null)
   const settleTimer = useRef(0)
+  const gesture = useRef(false)
+  const retries = useRef(0)
   const failed = useRef(new Set())
 
   // Keyboard focus inside the gallery holds autoplay without leaving the playing state
@@ -82,10 +84,21 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
 
   // The card nearest the track's centre once scrolling stops: it becomes the active card and counts as arrived
   const settle = useCallback(() => {
-    pending.current = null
     clearTimeout(settleTimer.current)
     const track = trackRef.current
     if (!track) return
+    // A jump cut short by anything but the visitor's own scrolling (in Chrome, focus landing on the track) carries on to its card
+    const target = pending.current
+    const goal = target === null ? null : track.children[target]
+    if (goal && !gesture.current && retries.current < 2) {
+      const left = goal.offsetLeft + goal.offsetWidth / 2 - track.clientWidth / 2
+      if (Math.abs(track.scrollLeft - left) >= 2) {
+        retries.current += 1
+        track.scrollTo({ left, behavior: motionRef.current ? 'smooth' : 'auto' })
+        return
+      }
+    }
+    pending.current = null
     const mid = track.scrollLeft + track.clientWidth / 2
     let best = activeRef.current
     let gap = Infinity
@@ -117,6 +130,8 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
       }
       setLanded(-1)
       pending.current = i
+      gesture.current = false
+      retries.current = 0
       clearTimeout(settleTimer.current)
       settleTimer.current = setTimeout(settle, motionRef.current ? SETTLE_MS : 300)
       track.scrollTo({ left, behavior: motionRef.current ? 'smooth' : 'auto' })
@@ -226,9 +241,16 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
     Array.from(track.children).forEach((card) => io.observe(card))
     // Where scrollend exists it marks the exact stop, including swipes that a snap finished
     track.addEventListener('scrollend', settle)
+    // The visitor's own scrolling of the track wins over a jump in flight
+    const grab = () => {
+      gesture.current = true
+    }
+    const grabs = ['pointerdown', 'wheel', 'touchstart']
+    grabs.forEach((type) => track.addEventListener(type, grab, { passive: true }))
     return () => {
       io.disconnect()
       track.removeEventListener('scrollend', settle)
+      grabs.forEach((type) => track.removeEventListener(type, grab))
     }
   }, [activate, setMode, settle, trackRef])
 
