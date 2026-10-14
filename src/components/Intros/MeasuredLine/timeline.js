@@ -41,7 +41,7 @@ export const BEATS = {
   complete: 4.2,
   // The row passes and Measured by hand springs in, .36 s (stamp-in)
   rejudge: 4.28,
-  // The verdict flips to Eligible and the rows replay their entrance, held from 4.92 s for the Showcase's dissolve
+  // The verdict flips to Eligible and the rows replay their entrance, held from 4.92 s to the end
   flip: 4.5,
 }
 

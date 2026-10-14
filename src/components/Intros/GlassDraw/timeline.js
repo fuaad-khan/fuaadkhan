@@ -2,10 +2,11 @@ import { gsap } from '../../../hooks/useChapter'
 import { fill } from '../values'
 import { THEME_BUTTON } from './geometry'
 
-// Timeline length in seconds (PLAN §6.2); the driver's t maps linearly onto it
+// Timeline length in seconds (PLAN §6.2); the driver's t maps linearly onto it. The dark theme drops the night beat and ends sooner
 export const TOTAL = 3
+export const TOTAL_DARK = 2
 
-// Beats in timeline seconds: turf drawn .04–.46, concrete snapped and drawn .7–1.3, panel tallies, night 1.9–2.5, hold to 3
+// Beats in timeline seconds: turf drawn .04–.46, concrete snapped and drawn .7–1.3, panel tallies, night 1.9–2.5, hold to 3; dark: the pointer rests from 1.36, hold to 2
 const AT = {
   turf: [0.04, 0.46],
   turfCount: [0.5, 0.68],
@@ -19,6 +20,8 @@ const AT = {
   night: [1.9, 2.08],
   day: [2.32, 2.5],
   cursorOut: [2.5, 2.62],
+  rest: [1.36, 1.72],
+  restOut: [1.62, 1.8],
 }
 
 const DWELL = 0.012
@@ -131,7 +134,7 @@ function writer() {
 }
 
 // One paused timeline for the whole intro: tweens own opacity, scale and the theme mix; the painter derives everything that follows the cursor
-export function buildTimeline(root, { plan, values, rows, labels }) {
+export function buildTimeline(root, { plan, values, rows, labels, dark = false }) {
   const one = (key) => root.querySelector(`[data-gd="${key}"]`)
   const all = (key) => [...root.querySelectorAll(`[data-gd="${key}"]`)]
   const put = writer()
@@ -144,6 +147,8 @@ export function buildTimeline(root, { plan, values, rows, labels }) {
   const concrete = schedule(plan.concrete, AT.concrete)
   const start = [plan.turf[0][0] - 34, plan.turf[0][1] - 26]
   const near = [plan.snap[0] - 9, plan.snap[1] + 8]
+  const rest = restPoint(plan)
+  const leave = dark ? AT.restOut : AT.cursorOut
 
   const shapes = [
     { s: turf, line: one('turf-line'), guide: [one('turf-guide')], vertices: all('turf-vertex') },
@@ -158,13 +163,14 @@ export function buildTimeline(root, { plan, values, rows, labels }) {
   const rowValues = rows.map((_, i) => one(`row-value-${i}`))
   const rowPcts = rows.map((_, i) => one(`row-pct-${i}`))
 
-  // Where the pointer is at `time`: drawing, gliding to the shared corner, locking on, then off to the theme button
+  // Where the pointer is at `time`: drawing, gliding to the shared corner, locking on, then off to the theme button (dark: off the plan)
   function pointer(time) {
     if (time < AT.turf[0]) return mixPt(start, plan.turf[0], out(progress(time, [0, AT.turf[0]])))
     if (time <= AT.turf[1]) return along(turf, time, edge).p
     if (time < AT.lock[0]) return mixPt(plan.turf[0], near, glide(progress(time, AT.approach)))
     if (time < AT.concrete[0]) return mixPt(near, plan.snap, snapIn(progress(time, AT.lock)))
     if (time <= AT.concrete[1]) return along(concrete, time, edge).p
+    if (dark) return mixPt(plan.concrete[0], rest, glide(progress(time, AT.rest)))
     const drift = progress(time, AT.cursorOut)
     const p = mixPt(plan.concrete[0], THEME_BUTTON, glide(progress(time, AT.toTheme)))
     return [p[0] + 10 * drift, p[1] + 12 * drift]
@@ -173,7 +179,7 @@ export function buildTimeline(root, { plan, values, rows, labels }) {
   function paint(time) {
     const [px, py] = pointer(time)
     put(cursor, 'transform', `translate(${round1(px)} ${round1(py)})`)
-    put(cursor, 'opacity', String(round1(1 - progress(time, AT.cursorOut))))
+    put(cursor, 'opacity', String(round1(1 - progress(time, leave))))
 
     for (const { s, line, guide, vertices } of shapes) {
       const { placed, closed } = time >= s.clicks[0] ? along(s, time, edge) : { placed: 0 }
@@ -244,23 +250,32 @@ export function buildTimeline(root, { plan, values, rows, labels }) {
   tl.fromTo(one('areas'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, AT.turf[1] + 0.01)
     .fromTo(one('donut-fill'), { opacity: 0 }, { opacity: 1, duration: 0.06 }, AT.turfCount[0])
 
-  // Day → night → day: one mix variable drives every chrome token; the map under the glass never changes
-  tl.fromTo(root, { '--gd-night': 0 }, { '--gd-night': 1, duration: AT.night[1] - AT.night[0], ease: 'power1.inOut' }, AT.night[0])
-    .fromTo(root, { '--gd-night': 1 }, { '--gd-night': 0, duration: AT.day[1] - AT.day[0], ease: 'power1.inOut' }, AT.day[0])
-    .set({}, {}, TOTAL)
+  // Day → night → day: one mix variable drives every chrome token; the map under the glass never changes. The dark theme holds night throughout
+  if (!dark) {
+    tl.fromTo(root, { '--gd-night': 0 }, { '--gd-night': 1, duration: AT.night[1] - AT.night[0], ease: 'power1.inOut' }, AT.night[0])
+      .fromTo(root, { '--gd-night': 1 }, { '--gd-night': 0, duration: AT.day[1] - AT.day[0], ease: 'power1.inOut' }, AT.day[0])
+  }
+  tl.set({}, {}, dark ? TOTAL_DARK : TOTAL)
 
   // Record every tween's end and start once, so any later seek renders the same frame in either direction
   tl.progress(1).progress(0)
   return tl
 }
 
-// Click times for the ripple layer: every vertex click of both rings, the lock-on, and the two theme clicks
-export function clickTimes(plan) {
+// Click times for the ripple layer: every vertex click of both rings, the lock-on, and the two theme clicks (none in dark)
+export function clickTimes(plan, dark = false) {
   const t = schedule(plan.turf, AT.turf).clicks
   const c = schedule(plan.concrete, AT.concrete).clicks
   return [
     ...t.map((at, i) => ({ at, p: plan.turf[i % plan.turf.length] })),
     ...c.map((at, i) => ({ at, p: plan.concrete[i % plan.concrete.length] })),
-    ...AT.clicks.map((at) => ({ at, p: THEME_BUTTON })),
+    ...(dark ? [] : AT.clicks.map((at) => ({ at, p: THEME_BUTTON }))),
   ]
+}
+
+// Where the pointer settles in the dark theme: just past the concrete's lower right, clear of both shapes
+function restPoint(plan) {
+  const xs = plan.concrete.map(([x]) => x)
+  const ys = plan.concrete.map(([, y]) => y)
+  return [Math.max(...xs) + 44, Math.max(...ys) + 36]
 }
