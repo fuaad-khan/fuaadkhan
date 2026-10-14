@@ -83,7 +83,7 @@ async function lookup(ctx, shot) {
   await rec.live(1.1)
   const shown = await ctx.page.evaluate('document.getElementById("parcelQueryInput").value')
   const scrubs = [...SCRUBS['map-my-city'], `search suggestions blurred unless at City Hall's address (${shot.allow.join(', ')}, both public-agency records)`]
-  return rec.finish({ apn: shot.apn, typed: shot.type, offered, shown, basemap: 'nearmap', state: shot.state, path: shot.path, scrubs })
+  return rec.finish({ apn: shot.apn, typed: shot.type, offered, shown, basemap: shot.basemap ?? 'nearmap', state: shot.state, path: shot.path, scrubs })
 }
 
 // City Hall selected through ?apn=: lookup rows, the assessor sidebar and the legend open

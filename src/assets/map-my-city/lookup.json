@@ -6,9 +6,9 @@
   "height": 900,
   "dpr": 2,
   "fps": 30,
-  "frames": 246,
-  "seconds": 8.2,
-  "posterFrame": 204,
+  "frames": 253,
+  "seconds": 8.43,
+  "posterFrame": 0,
   "view": {
     "lat": 33.782270318423784,
     "lng": -116.95851778983089,
@@ -30,13 +30,20 @@
     "redact.js: In Care of always blurred",
     "redact.js: mailing labels blurred unless the owner is a public agency",
     "Code Enforcement Officer value set to \"—\" (lookup row and property report)",
-    "internal hosts, keys and local origins blurred if printed"
+    "internal hosts, keys and local origins blurred if printed",
+    "search suggestions blurred unless at City Hall's address (437076013, 437076014, both public-agency records)"
   ],
   "leaks": [],
   "appCommit": "b11772a",
-  "capturedAt": "2026-10-13T21:02:41.218Z",
+  "capturedAt": "2026-10-14T17:09:18.588Z",
   "apn": "437076013",
-  "basemap": "nearmap",
-  "state": "type 595 S San Jacinto, pick the suggestion, zoom, rows fill, open the property report",
-  "path": "/index.html?lat=33.78227&lon=-116.95852&z=18&panels=lookup"
+  "typed": "595 south san jacinto av",
+  "offered": [
+    "437076013",
+    "437076014"
+  ],
+  "shown": "595 S SAN JACINTO AVE SAN JACINTO CA 92583",
+  "basemap": "streets",
+  "state": "downtown on the streets basemap with nothing selected and the lookup open: City Hall's address typed loosely (595 south san jacinto av), its suggestion picked, the map zooms to City Hall, the lookup rows fill and the County Assessor panel opens, then Report opens the property report",
+  "path": "/index.html?lat=33.78227&lon=-116.95852&z=18&panels=lookup&base=streets"
 }
