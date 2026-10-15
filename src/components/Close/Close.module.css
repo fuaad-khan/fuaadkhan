@@ -21,10 +21,10 @@
   gap: var(--space-3);
 }
 
-/* Wide screens: the three addresses in one centred row, each column as wide as its value */
+/* Wide screens: the addresses in one centred row, each column as wide as its value, however many there are */
 @media (min-width: 900px) {
   .links {
-    grid-template-columns: repeat(3, auto);
+    grid-auto-flow: column;
     justify-content: center;
     column-gap: var(--space-7);
   }

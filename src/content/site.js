@@ -68,7 +68,6 @@ export const site = {
     body: 'Open to GIS development roles and collaborations: enterprise GIS architecture, web mapping applications, and geospatial data pipelines.',
     links: [
       { label: 'Email', text: 'fuaadetl@gmail.com', href: 'mailto:fuaadetl@gmail.com' },
-      { label: 'GitHub', text: 'github.com/fuaad-khan', href: 'https://github.com/fuaad-khan', external: true },
       {
         label: 'LinkedIn',
         text: 'linkedin.com/in/fuaad-khan-7b3549115',
