@@ -18,11 +18,11 @@ function nextFor(app) {
   }
 }
 
-// One app: its centred name, then the tagline with the status chip on the same line, then its highlight gallery, which rises in like the hub tiles
+// One app: its centred name, then the tagline with the status chip on the same line, then its highlight gallery; the three rise in one after another
 export default function AppSection({ app }) {
   const titleId = `${app.id}-title`
   const ref = useRef(null)
-  useRise(ref)
+  useRise(ref, { stagger: 0.15 })
 
   return (
     <section
@@ -34,10 +34,10 @@ export default function AppSection({ app }) {
       style={{ '--app-accent': accentVar(app.accent) }}
     >
       <header className={styles.header}>
-        <h2 id={titleId} className={styles.title}>
+        <h2 id={titleId} className={styles.title} data-reveal>
           {app.name}
         </h2>
-        <div className={styles.subline}>
+        <div className={styles.subline} data-reveal>
           {app.tagline && <p className={styles.tagline}>{app.tagline}</p>}
           <p className={styles.status}>{app.status}</p>
         </div>

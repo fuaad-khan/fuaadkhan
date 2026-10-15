@@ -172,12 +172,13 @@ function scrollToSection(id) {
   return Math.round(win.scrollY)
 }
 
-// Runs in the page: true once the section's rise-in wrapper (useRise) has landed, or when it has none
+// Runs in the page: true once every rise-in item in the section (useRise: title, subline, gallery) has landed
 function revealLanded(id) {
-  const el = globalThis.document.getElementById(id)?.querySelector('[data-reveal]')
-  if (!el) return true
-  const cs = globalThis.getComputedStyle(el)
-  return cs.opacity === '1' && (cs.transform === 'none' || new globalThis.DOMMatrix(cs.transform).m42 === 0)
+  const items = globalThis.document.getElementById(id)?.querySelectorAll('[data-reveal]') ?? []
+  return [...items].every((el) => {
+    const cs = globalThis.getComputedStyle(el)
+    return cs.opacity === '1' && (cs.transform === 'none' || new globalThis.DOMMatrix(cs.transform).m42 === 0)
+  })
 }
 
 // Runs in the page: the clips mounted in each gallery and their preload hints
