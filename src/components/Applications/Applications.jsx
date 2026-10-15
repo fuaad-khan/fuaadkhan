@@ -18,20 +18,24 @@ const NO_THUMB = { focus: 'center', zoom: 1 }
 // The zoomed image is about 1.7x its slot (265px in the desktop row, 235px in a tablet row, 70% of a phone tile), so sizes asks for that much
 const SIZES = '(min-width: 1024px) 450px, (min-width: 640px) 400px, 100vw'
 
-// My Applications: the centred heading and one tile per app; the whole tile links to that app's section
+// My Applications: the centred heading and one tile per app, each line and tile rising in as it scrolls into view; the whole tile links to that app's section
 export default function Applications({ content, apps }) {
-  const tilesRef = useRef(null)
-  useRise(tilesRef)
+  const ref = useRef(null)
+  useRise(ref)
 
   return (
-    <section id="applications" data-section="applications" className={styles.hub} aria-labelledby="applications-title">
+    <section ref={ref} id="applications" data-section="applications" className={styles.hub} aria-labelledby="applications-title">
       <div className="section-head">
-        <p className="eyebrow">{content.eyebrow}</p>
-        <h2 id="applications-title">{content.headline}</h2>
-        <p>{content.body}</p>
+        <p className="eyebrow" data-reveal>
+          {content.eyebrow}
+        </p>
+        <h2 id="applications-title" data-reveal>
+          {content.headline}
+        </h2>
+        <p data-reveal>{content.body}</p>
       </div>
 
-      <ul ref={tilesRef} className={styles.tiles}>
+      <ul className={styles.tiles}>
         {apps.map((app) => {
           const thumb = THUMB[app.id] ?? NO_THUMB
           return (

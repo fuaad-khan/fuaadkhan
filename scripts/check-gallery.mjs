@@ -172,6 +172,14 @@ function scrollToSection(id) {
   return Math.round(win.scrollY)
 }
 
+// Runs in the page: true once the section's rise-in wrapper (useRise) has landed, or when it has none
+function revealLanded(id) {
+  const el = globalThis.document.getElementById(id)?.querySelector('[data-reveal]')
+  if (!el) return true
+  const cs = globalThis.getComputedStyle(el)
+  return cs.opacity === '1' && (cs.transform === 'none' || new globalThis.DOMMatrix(cs.transform).m42 === 0)
+}
+
 // Runs in the page: the clips mounted in each gallery and their preload hints
 function readClips() {
   return [...globalThis.document.querySelectorAll('[aria-roledescription="carousel"] video')].map((v) => ({
@@ -314,7 +322,8 @@ async function runProfile(name, profile, opts, results) {
         names ? `track "${names.track}", dot 2 "${names.dots[1]}", ${names.tabStops} dot tab stop(s)` : 'no region',
       )
 
-      // Layout: two columns on a 1440x900 desktop, cards that hug their frames on phones; the section's controls stay on screen
+      // Layout: two columns on a 1440x900 desktop, cards that hug their frames on phones; the section's controls stay on screen, read once the rise-in has landed
+      await s.waitFor(`(${revealLanded})(${JSON.stringify(id)})`, 2000).catch(() => {})
       const layout = await s.evaluate(readLayout, id)
       const media = layout.cards.filter((c) => c.frame)
       if (!profile.mobile) {
