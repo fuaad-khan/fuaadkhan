@@ -1,5 +1,7 @@
+import { useRef } from 'react'
 import Gallery from '../Gallery/Gallery'
 import { fill } from '../Intros/values'
+import { useRise } from '../Journey/useRise'
 import { apps } from '../../content/apps'
 import { site } from '../../content/site'
 import { accentVar } from '../../styles/accent'
@@ -16,11 +18,15 @@ function nextFor(app) {
   }
 }
 
-// One app: its centred name, then the tagline with the status chip on the same line, then its highlight gallery
+// One app: its centred name, then the tagline with the status chip on the same line, then its highlight gallery; the three rise in one after another
 export default function AppSection({ app }) {
   const titleId = `${app.id}-title`
+  const ref = useRef(null)
+  useRise(ref, { stagger: 0.15 })
+
   return (
     <section
+      ref={ref}
       id={app.id}
       data-section={app.id}
       aria-labelledby={titleId}
@@ -28,15 +34,17 @@ export default function AppSection({ app }) {
       style={{ '--app-accent': accentVar(app.accent) }}
     >
       <header className={styles.header}>
-        <h2 id={titleId} className={styles.title}>
+        <h2 id={titleId} className={styles.title} data-reveal>
           {app.name}
         </h2>
-        <div className={styles.subline}>
+        <div className={styles.subline} data-reveal>
           {app.tagline && <p className={styles.tagline}>{app.tagline}</p>}
           <p className={styles.status}>{app.status}</p>
         </div>
       </header>
-      <Gallery app={app} next={nextFor(app)} />
+      <div data-reveal>
+        <Gallery app={app} next={nextFor(app)} />
+      </div>
     </section>
   )
 }

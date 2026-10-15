@@ -73,7 +73,7 @@ Each showcase follows the same beat so the rhythm is predictable:
 Content for each app lives in `src/content/apps.js`: `{ id, name, tagline, problem, audience, features[{title, body, media}], stack[], links{} }`.
 
 ### 4. Close
-- Brief "what I'm looking for" line (GIS development roles and collaborations), contact links (email, GitHub, LinkedIn), and a resume download.
+- Brief "what I'm looking for" line (GIS development roles and collaborations), contact links (email, LinkedIn), and a resume download.
 - The timeline line ends here with a final node.
 
 ## Visual and content rules

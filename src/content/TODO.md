@@ -37,7 +37,7 @@ What remains after the redesign (WP0–WP9). Resolve, then delete the line.
 - Repositories stay private, so showcases carry no repository links (`apps[].links` is empty).
 - Statuses: Map My City "In production · internal" (deployed as Map My San Jacinto), Yard Plan "In development", Green Check "Pilot · internal preview".
 - Every number on the page traces to the app sources or the measured captures (PLAN §11, Appendix B; the Yard Plan and Green Check intro values come from the capture sidecars, and `apps.js` keeps the same numbers as a fallback).
-- Résumé PDF is hosted in-repo at `public/Fuaad_Khan_Resume.pdf` and includes a phone number by the owner's choice; the page itself never prints it (only email, GitHub and LinkedIn).
+- Résumé PDF is hosted in-repo at `public/Fuaad_Khan_Resume.pdf` and includes a phone number by the owner's choice; the page itself never prints it (only email and LinkedIn).
 - Inter 800/600 is self-hosted from `public/fonts` (SIL OFL, `public/fonts/OFL.txt`); body text stays on the system font.
 - The career map is pre-rendered SVG, not Leaflet, to keep the bundle small and avoid tile requests.
 - Page background is a pre-generated contour SVG (`src/assets/topo-redlands.svg`): Redlands, Crafton Hills and San Timoteo Canyon, z13 terrain tiles, 20 m interval, drawn at about 1.8:1 against the background so it stays behind the copy. Regenerate with `npm run topo`.
