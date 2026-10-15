@@ -5,13 +5,13 @@ import { useDrawOnView } from './useDrawOnView'
 import { useRise } from './useRise'
 import styles from './Journey.module.css'
 
-// The Journey: a centred heading, the career map that draws its route once in view, and the three stops as cards below it
+// The Journey: a centred heading, the career map that draws its route once in view, and the three stops as cards below it; each rises in one after another
 export default function Journey({ site, stops }) {
+  const ref = useRef(null)
   const mapRef = useRef(null)
-  const cardsRef = useRef(null)
 
+  useRise(ref, { stagger: 0.15 })
   useDrawOnView(mapRef)
-  useRise(cardsRef)
 
   // Lights the pin of the stop whose card is under the pointer (null clears it)
   const pointStop = (index) => {
@@ -19,16 +19,20 @@ export default function Journey({ site, stops }) {
   }
 
   return (
-    <section id="journey" data-section="journey" className={styles.journey} aria-labelledby="journey-title">
+    <section ref={ref} id="journey" data-section="journey" className={styles.journey} aria-labelledby="journey-title">
       <div className="section-head">
-        <p className="eyebrow">{site.journey.eyebrow}</p>
-        <h2 id="journey-title">{site.journey.heading}</h2>
-        <p>{site.journey.body}</p>
+        <p className="eyebrow" data-reveal>
+          {site.journey.eyebrow}
+        </p>
+        <h2 id="journey-title" data-reveal>
+          {site.journey.heading}
+        </h2>
+        <p data-reveal>{site.journey.body}</p>
       </div>
-      <div className={styles.map}>
+      <div className={styles.map} data-reveal>
         <MapInset ref={mapRef} stops={stops} journey={site.journey} sep={site.ui.sep} />
       </div>
-      <div ref={cardsRef} className={styles.cards}>
+      <div className={styles.cards}>
         <Timeline stops={stops} label={site.ui.careerTimeline} onPointStop={pointStop} />
       </div>
     </section>

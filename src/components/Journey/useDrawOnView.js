@@ -10,6 +10,8 @@ const ARRIVE = 0.35
 const SAMPLES = 32
 // Share of the map that must be on screen before the route plays
 const SHOWN = 0.45
+// Opacity a map still rising in (useRise) must reach before its route plays, so the first leg is never drawn unseen
+const VISIBLE = 0.6
 
 // The paused route draw (about 3 s): per leg the line and the marker riding it, then the stop it reaches; a halo pulse on arrival
 function buildDraw(root) {
@@ -48,7 +50,7 @@ function buildDraw(root) {
     .to(halo, { opacity: 0.55, duration: 0.5, ease: 'power1.out' })
 }
 
-// Plays the Journey route once when the map comes into view; a map already scrolled past shows the finished route
+// Plays the Journey route once when the map comes into view and has faded in; a map already scrolled past shows the finished route
 export function useDrawOnView(ref) {
   useLayoutEffect(() => {
     const root = ref.current
@@ -63,16 +65,27 @@ export function useDrawOnView(ref) {
           tl.progress(1)
           return
         }
+        const wrap = root.closest('[data-reveal]')
+        const visible = () => !wrap || gsap.getProperty(wrap, 'opacity') >= VISIBLE
+        // Checked every frame until the rise has caught up (it may start a frame later, from its own observer)
+        const wait = () => {
+          if (!visible()) return
+          gsap.ticker.remove(wait)
+          tl.play()
+        }
         const io = new IntersectionObserver(
           ([entry]) => {
             if (entry.intersectionRatio < SHOWN - 0.01) return
             io.disconnect()
-            tl.play()
+            gsap.ticker.add(wait)
           },
           { threshold: [SHOWN] },
         )
         io.observe(root)
-        return () => io.disconnect()
+        return () => {
+          io.disconnect()
+          gsap.ticker.remove(wait)
+        }
       })
     })
 
