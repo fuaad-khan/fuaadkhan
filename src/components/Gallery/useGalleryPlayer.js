@@ -15,6 +15,24 @@ const STALL_SECONDS = 8
 // Clips play a little faster than they were recorded, so a full pass stays short without cutting a step
 const CLIP_RATE = 1.25
 
+// Galleries that qualify together (phones fit two on screen) play one at a time: the one showing the most of itself
+const onScreen = new Map()
+const screenListeners = new Set()
+let screenOwner = null
+
+// Records how many pixels of a gallery qualify (0 drops it); the owner changes only when another shows clearly more
+function claimScreen(key, px) {
+  if (px > 0) onScreen.set(key, px)
+  else onScreen.delete(key)
+  let best = onScreen.has(screenOwner) ? screenOwner : null
+  onScreen.forEach((v, k) => {
+    if (best === null || v > onScreen.get(best) + 1) best = k
+  })
+  if (best === screenOwner) return
+  screenOwner = best
+  screenListeners.forEach((fn) => fn())
+}
+
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
 const round4 = (v) => String(Math.round(clamp(v, 0, 1) * 1e4) / 1e4)
 
@@ -180,17 +198,18 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
     if (!e.currentTarget.contains(e.relatedTarget)) setHeld(false)
   }, [])
 
-  // The gallery counts as on screen while half of it (or half the viewport) shows and the tab is visible
+  // The gallery counts as on screen while half of it (or half the viewport) shows, no other qualifying gallery shows more, and the tab is visible
   useEffect(() => {
     const region = regionRef.current
     if (!region || typeof IntersectionObserver === 'undefined') return undefined
-    let visible = false
+    const key = {}
     let shown = document.visibilityState !== 'hidden'
-    const update = () => setInView(visible && shown)
+    const update = () => setInView(shown && screenOwner === key)
     const io = new IntersectionObserver(
       ([entry]) => {
         const h = Math.min(entry.boundingClientRect.height, entry.rootBounds?.height || window.innerHeight)
-        visible = entry.isIntersecting && entry.intersectionRect.height >= VISIBLE_AT * h - 1
+        const visible = entry.isIntersecting && entry.intersectionRect.height >= VISIBLE_AT * h - 1
+        claimScreen(key, visible ? entry.intersectionRect.height : 0)
         update()
       },
       { threshold: Array.from({ length: 21 }, (_, k) => k / 20) },
@@ -199,10 +218,13 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
       shown = document.visibilityState !== 'hidden'
       update()
     }
+    screenListeners.add(update)
     io.observe(region)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
       io.disconnect()
+      screenListeners.delete(update)
+      claimScreen(key, 0)
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [regionRef])
