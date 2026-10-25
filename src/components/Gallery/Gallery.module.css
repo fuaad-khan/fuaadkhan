@@ -8,20 +8,12 @@
   --pill: rgba(255, 255, 255, 0.1);
   --pill-hover: rgba(255, 255, 255, 0.16);
   --pill-h: 52px;
-  /* How far the frames' glow (.media .deviceFrame) reaches past a card: 70px blur plus 6px spread; stacked cards keep their frame deep enough that nothing spills above */
+  /* How far the frames' glow (.media .deviceFrame) reaches past a card's bottom edge: 70px blur plus 6px spread */
   --glow: 80px;
-  --glow-top: 0px;
 
   position: relative;
   width: 100%;
   container-type: inline-size;
-}
-
-/* Two-column cards put the frame near the card's top edge, so the glow needs room above as well */
-@media (min-width: 1024px) {
-  .gallery {
-    --glow-top: var(--glow);
-  }
 }
 
 /* Wide desktops: Apple's 612 px card, which keeps a two-column card's frame and caption column in balance */
@@ -45,9 +37,9 @@
   position: relative;
   display: flex;
   gap: var(--gap);
-  /* Vertical room for the glow, which overflow-y: hidden would otherwise cut at the cards' top and bottom edges; the negative margin keeps the layout where it was */
-  margin: calc(-1 * var(--glow-top)) 0 calc(-1 * var(--glow));
-  padding: var(--glow-top) calc((100cqw - var(--card-w)) / 2) var(--glow);
+  /* Room below for the glow, which overflow-y: hidden would otherwise cut at the cards' bottom edge; the negative margin keeps the layout where it was. No room above: the track's top edge is what the rise-in and the audits see */
+  margin: 0 0 calc(-1 * var(--glow));
+  padding: 0 calc((100cqw - var(--card-w)) / 2) var(--glow);
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
