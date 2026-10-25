@@ -6,8 +6,10 @@ const INTRO_HOLD = 1.2
 const ACTIVE_AT = 0.6
 // The active card has arrived (its clip and timer may start) once this share of it is inside the track
 const LANDED_AT = 0.99
-// Autoplay runs while this share of the gallery (or of the viewport, if the gallery is taller) is on screen
-const VISIBLE_AT = 0.5
+// An idle gallery starts once this share of it (or of the viewport, if the gallery is taller) is on screen
+const START_AT = 0.75
+// A started gallery keeps running while this share stays on screen, and pauses below it
+const HOLD_AT = 0.5
 // A jump that a swipe interrupted is settled from the scroll position after this long
 const SETTLE_MS = 1600
 // A clip that has not started after this many seconds plays out on its poster instead
@@ -64,6 +66,7 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
   const gesture = useRef(false)
   const retries = useRef(0)
   const failed = useRef(new Set())
+  const reclaim = useRef(null)
 
   // Keyboard focus inside the gallery holds autoplay without leaving the playing state
   const running = motionOK && mode === 'playing' && inView && !held
@@ -198,36 +201,51 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
     if (!e.currentTarget.contains(e.relatedTarget)) setHeld(false)
   }, [])
 
-  // The gallery counts as on screen while half of it (or half the viewport) shows, no other qualifying gallery shows more, and the tab is visible
+  // The gallery counts as on screen while enough of it shows (START_AT to start, HOLD_AT once started), no other qualifying gallery shows more, and the tab is visible
   useEffect(() => {
     const region = regionRef.current
     if (!region || typeof IntersectionObserver === 'undefined') return undefined
     const key = {}
     let shown = document.visibilityState !== 'hidden'
+    let px = 0
+    let need = Infinity
     const update = () => setInView(shown && screenOwner === key)
+    // The share is read at claim time, so a start or a finish moves the bar without waiting for the observer
+    const claim = () => {
+      const share = modeRef.current === 'idle' ? START_AT : HOLD_AT
+      claimScreen(key, px > 0 && px >= share * need - 1 ? px : 0)
+      update()
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
-        const h = Math.min(entry.boundingClientRect.height, entry.rootBounds?.height || window.innerHeight)
-        const visible = entry.isIntersecting && entry.intersectionRect.height >= VISIBLE_AT * h - 1
-        claimScreen(key, visible ? entry.intersectionRect.height : 0)
-        update()
+        need = Math.min(entry.boundingClientRect.height, entry.rootBounds?.height || window.innerHeight)
+        px = entry.isIntersecting ? entry.intersectionRect.height : 0
+        claim()
       },
-      { threshold: Array.from({ length: 21 }, (_, k) => k / 20) },
+      // 2.5% steps: both bars are exact crossings, and the pixel counts behind ownership go stale by less
+      { threshold: Array.from({ length: 41 }, (_, k) => k / 40) },
     )
     const onVisibility = () => {
       shown = document.visibilityState !== 'hidden'
       update()
     }
+    reclaim.current = claim
     screenListeners.add(update)
     io.observe(region)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
+      reclaim.current = null
       io.disconnect()
       screenListeners.delete(update)
       claimScreen(key, 0)
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [regionRef])
+
+  // A mode change moves the gallery's bar (idle needs START_AT, started needs HOLD_AT), so its claim is checked again
+  useEffect(() => {
+    reclaim.current?.()
+  }, [mode])
 
   // The active card follows the track (swipes, wheel, keyboard scrolling); cards a jump passes over are ignored, and a card fully in view has arrived
   useEffect(() => {
@@ -276,10 +294,13 @@ export function useGalleryPlayer({ cards, motionOK, near, regionRef, trackRef, d
     }
   }, [activate, setMode, settle, trackRef])
 
-  // First time on screen with motion allowed: start from the first card
+  // On screen with motion allowed: an idle gallery starts from the first card; goTo slides the track back if a stray swipe moved it, and the clock waits for the card to land
   useEffect(() => {
-    if (motionOK && inView && modeRef.current === 'idle') setMode('playing')
-  }, [inView, motionOK, setMode])
+    if (!motionOK || !inView || modeRef.current !== 'idle') return
+    activate(0, true)
+    setMode('playing')
+    goTo(0)
+  }, [activate, goTo, inView, motionOK, setMode])
 
   useEffect(() => {
     const timer = settleTimer

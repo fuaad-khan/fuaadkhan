@@ -1,4 +1,4 @@
-// Highlight gallery check (CONTRACTS-v2 §3): per app section, card layout, autoplay, start on arrival, advance, dot jump, pause, keyboard hold, off-screen pause and resume, end state; no clip preload before start; reduced motion; console errors
+// Highlight gallery check (CONTRACTS-v2 §3): per app section, card layout, autoplay, start gate and start on arrival, advance, dot jump, pause, keyboard hold, off-screen pause and resume, end state; no clip preload before start; reduced motion; console errors
 import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -17,6 +17,9 @@ const PROFILES = {
 // Gallery defaults (Gallery.jsx, useGalleryPlayer.js)
 const STILL_SECONDS = 5
 const CLIP_RATE = 1.25
+// An idle gallery starts at this share on screen and a started one holds down to this share (useGalleryPlayer.js)
+const START_AT = 0.75
+const HOLD_AT = 0.5
 // Two-column cards at 1440x900: the frame takes at least this share of the card's width
 const TWO_COLUMN_FILL = 0.55
 // A clip that waits for its card to arrive has played under half a second of video once the card is centred (one that starts with the slide is well past that)
@@ -115,6 +118,8 @@ function readState(id, labels) {
     focus: region.contains(focus) ? (focus === track ? 'track' : dots.includes(focus) ? `dot${dots.indexOf(focus)}` : focus === toggle ? 'toggle' : 'other') : null,
     regionTop: Math.round(rr.top),
     regionBottom: Math.round(rr.bottom),
+    // The share of the region on screen, measured as the player does (against the region, or the viewport if the region is taller)
+    shown: Math.round((Math.max(0, Math.min(rr.bottom, win.innerHeight) - Math.max(rr.top, 0)) / Math.min(rr.height, win.innerHeight)) * 1000) / 1000,
   }
 }
 
@@ -169,6 +174,14 @@ function scrollToSection(id) {
   const win = globalThis
   if (id) win.document.getElementById(id).scrollIntoView({ behavior: 'instant', block: 'start' })
   else win.scrollTo({ top: 0, behavior: 'instant' })
+  return Math.round(win.scrollY)
+}
+
+// Runs in the page: scrolls so that this share of a section's gallery shows, entering from the bottom of the viewport
+function scrollToShare(id, share) {
+  const win = globalThis
+  const r = win.document.getElementById(id).querySelector('[aria-roledescription="carousel"]').getBoundingClientRect()
+  win.scrollBy({ top: Math.round(r.top - (win.innerHeight - share * Math.min(r.height, win.innerHeight))), behavior: 'instant' })
   return Math.round(win.scrollY)
 }
 
@@ -282,6 +295,18 @@ async function runProfile(name, profile, opts, results) {
       await s.send('Input.dispatchKeyEvent', { type: 'keyUp', key: keyName, code, windowsVirtualKeyCode: vk, modifiers })
     }
     const shot = (app, step) => s.screenshot({ path: join(opts.out, `${name}-${app}-${step}.jpg`), quality: 80 })
+    // A raw touch drag leftwards across a gallery's track (headless ignores synthesized touch scrolls)
+    const swipe = async (id) => {
+      const r = await s.evaluate(targetRect, id, LABELS, 'track')
+      const y = Math.round(Math.min(r.y + r.height / 2, profile.height - 40))
+      const x0 = Math.round(r.x + r.width * 0.78)
+      await s.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y }] })
+      for (let step = 1; step <= 12; step++) {
+        await s.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 - step * 18, y }] })
+        await sleep(16)
+      }
+      await s.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    }
 
     // The hub on screen loads no clip: galleries buffer only once they start
     if (!profile.reduced) {
@@ -365,7 +390,11 @@ async function runProfile(name, profile, opts, results) {
 
       // Scroll in: autoplay starts on the first card and its progress moves
       const started = await until(id, (st) => st.state === 'playing' && st.running, 3000)
-      check('autoplay starts', !!started, started ? `card ${started.active + 1}, aria-live ${started.live}` : JSON.stringify(await state(id)))
+      check(
+        'autoplay starts on card 1',
+        !!started && started.active === 0 && started.offCenter < 4,
+        started ? `card ${started.active + 1}, off centre ${started.offCenter} px, aria-live ${started.live}` : JSON.stringify(await state(id)),
+      )
       const p0 = (await state(id)).progress
       await sleep(700)
       const p1 = (await state(id)).progress
@@ -412,15 +441,7 @@ async function runProfile(name, profile, opts, results) {
 
       // Arrow keys on desktop, a swipe on phones, move one card on; the swipe is a raw touch drag (headless ignores synthesized touch scrolls)
       if (profile.mobile) {
-        const r = await s.evaluate(targetRect, id, LABELS, 'track')
-        const y = Math.round(r.y + r.height / 2)
-        const x0 = Math.round(r.x + r.width * 0.78)
-        await s.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y }] })
-        for (let step = 1; step <= 12; step++) {
-          await s.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 - step * 18, y }] })
-          await sleep(16)
-        }
-        await s.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+        await swipe(id)
         const swiped = await until(id, (st) => st.active === k + 1 && st.offCenter < 4, 2500)
         check('swipe moves a card', !!swiped, swiped ? `card ${k + 2}` : JSON.stringify(await state(id)))
       } else {
@@ -502,6 +523,51 @@ async function runProfile(name, profile, opts, results) {
       await tap(id, 'toggle')
       const replay = await until(id, (st) => st.active === 0 && st.state === 'playing', 2000)
       check('replay restarts', !!replay, replay ? 'card 1, playing' : JSON.stringify(await state(id)))
+    }
+
+    // Phones fit two galleries on screen: scrolling naturally out of one, the next waits until START_AT of it shows, then starts on card 1
+    if (profile.mobile && !profile.reduced && apps.length >= 3 && apps.slice(0, 3).every((a) => opts.ids.includes(a.id))) {
+      const [from, to, probe] = apps.map((a) => a.id)
+      const check = (label, pass, detail) => record(results, name, to, label, pass, detail)
+      const checkProbe = (label, pass, detail) => record(results, name, probe, label, pass, detail)
+      // Every gallery above has started by now, so the page is loaded again
+      await s.navigate(opts.url, { waitUntil: 'load' })
+      await s.waitFor('document.fonts.status === "loaded"', 5000).catch(() => {})
+      await sleep(400)
+      await s.evaluate(scrollToSection, from)
+      await until(from, (st) => st.running, 3000)
+      const steps = []
+      let bad = null
+      let seen = null
+      for (let i = 0; i < 12 && !seen; i++) {
+        await s.evaluate(() => globalThis.scrollBy({ top: globalThis.innerHeight / 2, behavior: 'instant' }))
+        await sleep(1500)
+        const [a, b] = await Promise.all([state(from), state(to)])
+        steps.push(`${b.shown}:${b.state}/${b.active + 1}${b.running ? '>' : ''}`)
+        if (a.running && b.running) bad ??= `both running at step ${i + 1}`
+        if (b.shown < START_AT - 0.02 && (b.state !== 'idle' || b.active !== 0 || b.running)) bad ??= `${b.state} on card ${b.active + 1} at ${b.shown} shown`
+        if (b.shown >= START_AT + 0.02) seen = await until(to, (st) => st.running, 2000)
+      }
+      check('natural scroll: next gallery waits below START_AT', !bad, bad ?? `steps ${steps.join(' ')}`)
+      check('natural scroll: next gallery starts on card 1', !!seen && seen.active === 0 && seen.offCenter < 4, seen ? `card ${seen.active + 1}, off centre ${seen.offCenter} px at ${seen.shown} shown` : `never started: ${steps.join(' ')}`)
+
+      // The last gallery is still idle: it stays idle at a fixed 60%, a swipe before it starts does not start it, and at 90% it starts on card 1
+      await s.evaluate(scrollToShare, probe, (START_AT + HOLD_AT) / 2 - 0.025)
+      await sleep(2000)
+      const waiting = await state(probe)
+      checkProbe('stays idle at 60%', waiting.state === 'idle' && waiting.active === 0 && !waiting.running && !waiting.progress, `${waiting.state} on card ${waiting.active + 1} at ${waiting.shown} shown`)
+      await swipe(probe)
+      const moved = await until(probe, (st) => st.active === 1, 2500)
+      checkProbe('swipe before start stays idle', !!moved && moved.state === 'idle' && !moved.running, moved ? `${moved.state} on card ${moved.active + 1}` : JSON.stringify(await state(probe)))
+      await s.evaluate(scrollToShare, probe, 0.9)
+      const begun = await until(probe, (st) => st.running, 2000)
+      const begunLater = begun && (await until(probe, (st) => st.offCenter !== null && st.offCenter < 4, 1500))
+      checkProbe(
+        'starts on card 1 after a swipe',
+        !!begunLater && begunLater.active === 0 && begunLater.progress < 0.2,
+        begunLater ? `card ${begunLater.active + 1}, progress ${begunLater.progress} at ${begunLater.shown} shown` : JSON.stringify(await state(probe)),
+      )
+      await shot(probe, 'start-gate')
     }
 
     const messages = s.consoleMessages()
