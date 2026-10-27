@@ -1,0 +1,50 @@
+{
+  "app": "green-check",
+  "name": "guidelines",
+  "kind": "loop",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 322,
+  "seconds": 10.73,
+  "posterFrame": 0,
+  "view": {
+    "lat": 33.78264298570425,
+    "lng": -116.97456836700441,
+    "zoom": 17
+  },
+  "mapRect": [
+    251,
+    173,
+    912,
+    810
+  ],
+  "viewport": [
+    1600,
+    1000
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "neighbouring residence address blurred wherever a result row prints it",
+    "day-care and youth-center names blurred in result rows",
+    "sensitive-use compile notes hidden",
+    "internal hosts, keys and local origins blurred if printed",
+    "search suggestions other than the subject parcel blurred"
+  ],
+  "leaks": [],
+  "appCommit": "93f0a9c",
+  "capturedAt": "2026-10-27T16:48:40.810Z",
+  "basemap": "maptiler streets",
+  "types": [
+    "outdoorCultivation",
+    "bar"
+  ],
+  "shown": [
+    "Dispensary",
+    "Outdoor Cultivation",
+    "Bar / Lounge / Nightclub (on-sale)"
+  ],
+  "link": "Municipal Code Ch. 9.28 (opens in a new tab)",
+  "state": "Guidelines from the nav (Dispensary rules), the license type changed to Outdoor Cultivation, then to Bar / Lounge / Nightclub (the tab moves to Alcohol), then About scrolled to the Municipal Code Ch. 9.28 link, hovered and never clicked"
+}

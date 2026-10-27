@@ -57,7 +57,7 @@ export const apps = [
     highlights: [
       { id: 'intro', kind: 'intro', caption: 'Can a cannabis business go here? Ask the map.', duration: 8 },
       { id: 'lookup', kind: 'clip', caption: 'Pick a license type, search an address, get a verdict in about two seconds.' },
-      { id: 'buffer', kind: 'clip', caption: 'Every rule checked against schools, day cares, youth centers and homes, with the distance drawn on the map.' },
+      { id: 'guidelines', kind: 'clip', caption: 'Read the location rules for any license type in Guidelines, then find the municipal code in About.' },
       { id: 'chooser', kind: 'clip', caption: 'Several buildings on one parcel? Choose the one that will house the business.' },
       { id: 'verify', kind: 'clip', caption: 'Disagree with a distance? Measure it yourself, and the verdict updates.' },
       { id: 'glance', kind: 'glance', caption: 'Green Check at a glance.', duration: 5 },

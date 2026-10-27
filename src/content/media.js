@@ -50,8 +50,10 @@ import gcLookupPoster1 from '../assets/green-check/lookup-poster.webp'
 import gcLookupPoster2 from '../assets/green-check/lookup-poster@2x.webp'
 import gcLookupWebm from '../assets/green-check/lookup.webm'
 import gcLookupMp4 from '../assets/green-check/lookup.mp4'
-import gcBuffer1 from '../assets/green-check/buffer.webp'
-import gcBuffer2 from '../assets/green-check/buffer@2x.webp'
+import gcGuidelinesPoster1 from '../assets/green-check/guidelines-poster.webp'
+import gcGuidelinesPoster2 from '../assets/green-check/guidelines-poster@2x.webp'
+import gcGuidelinesWebm from '../assets/green-check/guidelines.webm'
+import gcGuidelinesMp4 from '../assets/green-check/guidelines.mp4'
 import gcChooserPoster1 from '../assets/green-check/chooser-poster.webp'
 import gcChooserPoster2 from '../assets/green-check/chooser-poster@2x.webp'
 import gcChooserWebm from '../assets/green-check/chooser.webm'
@@ -111,7 +113,7 @@ export const media = {
     base: still(APP, gcBase1, gcBase2, 'Aerial imagery around 438 S State St, the backdrop of the Green Check intro.', gcCamera),
     clips: {
       lookup: loop(APP, gcLookupPoster1, gcLookupPoster2, gcLookupWebm, gcLookupMp4, 'Green Check: Manufacturing is picked as the license type, a misspelled address is typed, the corrected suggestion for an industrial parcel is chosen, and the verdict reads Eligible with every requirement met.'),
-      buffer: still(APP, gcBuffer1, gcBuffer2, 'Green Check’s automatic verdict at 438 S State St: Not Eligible for Microbusiness, the building 95 feet from a residence, with the measured line and the 100-foot exclusion zone on the map.'),
+      guidelines: loop(APP, gcGuidelinesPoster1, gcGuidelinesPoster2, gcGuidelinesWebm, gcGuidelinesMp4, 'Green Check’s Guidelines: the location rules for a Dispensary, then for Outdoor Cultivation and for a bar or nightclub as the license type changes, then the About panel scrolled to the Municipal Code Chapter 9.28 button.'),
       chooser: loop(APP, gcChooserPoster1, gcChooserPoster2, gcChooserWebm, gcChooserMp4, 'Green Check at a commercial parcel with three buildings: hovering two rows of the list highlights their buildings on the map, hovering the largest building on the map highlights its row, then that building is chosen and the verdict reads Eligible.'),
       verify: loop(APP, gcVerifyPoster1, gcVerifyPoster2, gcVerifyWebm, gcVerifyMp4, 'Verifying a distance in Green Check: from Not Eligible at 95 feet, the line’s far endpoint is dragged to the property line, the distance reads 101 feet, and after Complete the verdict changes to Eligible.'),
     },

@@ -186,16 +186,9 @@
       1000
     ],
     "dpr": 2,
-    "basemap": "nearmap (hero, base, verify end); maptiler streets (buffer, lookup, chooser)",
+    "basemap": "nearmap (hero, base, verify end); maptiler streets (guidelines, lookup, chooser)",
     "seed": {},
     "shots": [
-      {
-        "name": "buffer",
-        "kind": "still",
-        "search": "438 S STATE ST",
-        "license": "microbusiness",
-        "state": "automatic verdict: Not Eligible, 95 ft line, exclusion ring, Why? rows"
-      },
       {
         "name": "hero",
         "kind": "still",
@@ -246,6 +239,18 @@
         ],
         "state": "a commercial-zoned, non-residential parcel with several buildings (picked from candidates): the chooser, hover-sync between the list and the map, the largest building chosen on the map, the verdict",
         "poster": "the building chooser after the search"
+      },
+      {
+        "name": "guidelines",
+        "kind": "loop",
+        "seconds": 10,
+        "order": "played once: the poster is the first frame",
+        "types": [
+          "outdoorCultivation",
+          "bar"
+        ],
+        "state": "Guidelines from the nav (Dispensary rules), the license type changed to Outdoor Cultivation, then to Bar / Lounge / Nightclub (the tab moves to Alcohol), then About scrolled to the Municipal Code Ch. 9.28 link, hovered and never clicked",
+        "poster": "the fresh app with Dispensary selected"
       }
     ]
   }
