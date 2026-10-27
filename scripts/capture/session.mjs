@@ -26,8 +26,13 @@ function commitOf(dir) {
   }
 }
 
-// Serves the app, launches Chrome and registers seeds and shims; virtualTime freezes timers, rAF and animations until stepped
-export async function openApp({ app, root, port, cdpPort, width, height, dpr = 2, virtualTime = false, seed = {}, reducedMotion = false, colorScheme = 'light' }) {
+// Sidecar fields that would locate a private shot's property; dropped, and the camera written as view: null
+const PRIVATE_KEYS = ['view', 'mapRect', 'apn', 'permalink', 'typed', 'suggestion', 'address', 'search']
+export const publicFields = (ctx, fields) => (ctx.private ? Object.fromEntries(Object.entries(fields).filter(([k]) => !PRIVATE_KEYS.includes(k))) : fields)
+export const cameraFields = async (ctx, read) => (ctx.private ? { view: null } : ((await read()) ?? {}))
+
+// Serves the app, launches Chrome and registers seeds and shims; virtualTime freezes timers, rAF and animations until stepped; private keeps the property's location out of every sidecar
+export async function openApp({ app, root, port, cdpPort, width, height, dpr = 2, virtualTime = false, seed = {}, reducedMotion = false, colorScheme = 'light', private: isPrivate = false }) {
   if (!existsSync(root)) throw new Error(`${app}: app folder not found: ${root}`)
   const server = await serve({ root, port })
   let page
@@ -69,6 +74,7 @@ export async function openApp({ app, root, port, cdpPort, width, height, dpr = 2
     dpr,
     width,
     height,
+    private: isPrivate,
     commit: commitOf(root),
     // Stops Chrome and the server; safe to call twice
     async close() {
@@ -116,7 +122,7 @@ export async function still(ctx, name, { clip, extra = {}, map = true } = {}) {
   const file = join(ctx.dir, `${name}.png`)
   await ctx.page.screenshot({ path: file, format: 'png', clip })
   await assertNoLeaks(ctx.page, `${ctx.app}/${name} (after)`)
-  const camera = map ? await mapState(ctx.page) : {}
+  const camera = map ? await cameraFields(ctx, () => mapState(ctx.page)) : {}
   const [vw, vh] = clip ? [clip.width, clip.height] : [ctx.width, ctx.height]
   const sidecar = {
     app: ctx.app,
@@ -132,10 +138,18 @@ export async function still(ctx, name, { clip, extra = {}, map = true } = {}) {
     leaks,
     appCommit: ctx.commit,
     capturedAt: new Date().toISOString(),
-    ...extra,
+    ...publicFields(ctx, extra),
   }
   writeFileSync(join(ctx.dir, `${name}.json`), JSON.stringify(sidecar, null, 2))
   await recordForbidden(ctx.page, FORBIDDEN_FILE)
   console.log(`  still ${ctx.app}/${name}.png  ${vw}x${vh} @${sidecar.dpr}x`)
   return sidecar
+}
+
+// Answers the page's next file chooser with `file` (a path), as if the person picked it; returns the unsubscribe
+export async function answerFileChooser(ctx, file) {
+  await ctx.page.send('Page.setInterceptFileChooserDialog', { enabled: true })
+  return ctx.page.on('Page.fileChooserOpened', ({ backendNodeId }) => {
+    ctx.page.send('DOM.setFileInputFiles', { files: [file], backendNodeId }).catch((err) => console.error(`  file chooser: ${err.message}`))
+  })
 }

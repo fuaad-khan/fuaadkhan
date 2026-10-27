@@ -83,8 +83,23 @@
     }
   }
 
+  // Yard Plan: the property card's address and APN lines are always blurred, whatever the runner put in them
+  const YP_CARD = '#prop-address, #prop-apn'
+  function scrubYardPlan() {
+    for (const el of document.querySelectorAll(YP_CARD)) {
+      if (el.textContent.trim() && !el.classList.contains('__redacted')) el.classList.add('__redacted')
+    }
+  }
+
+  // The owner's private strings (privacy.local.json, injected by the runner) must never be readable, in any app
+  const privateStrings = () => (window.__wp6Private || []).map((s) => s.toLowerCase())
+  const isPrivate = (t) => {
+    const low = t.toLowerCase()
+    return privateStrings().some((s) => low.includes(s))
+  }
+
   // Search suggestion rows ("ADDRESS (APN)") name other parcels; only those in window.__wp6AllowApns, set by the runner, stay readable
-  const SUGGESTIONS = { 'green-check': '#searchSuggestions li', 'map-my-city': '#parcelQuerySuggestions li' }[app]
+  const SUGGESTIONS = { 'green-check': '#searchSuggestions li', 'map-my-city': '#parcelQuerySuggestions li', 'yard-plan': '#suggestions li' }[app]
   const suggestionApn = (li) => (li.textContent.match(/\((\d{6,})\)\s*$/) || [])[1] || ''
   const allowedSuggestion = (li) => (window.__wp6AllowApns || []).includes(suggestionApn(li))
   const suggestions = () => (SUGGESTIONS ? document.querySelectorAll(SUGGESTIONS) : [])
@@ -104,6 +119,7 @@
     queued = false
     if (app === 'map-my-city') scrubOfficer()
     if (app === 'green-check') scrubGreenCheck()
+    if (app === 'yard-plan') scrubYardPlan()
     scrubSuggestions()
     scrubAlways()
   }
@@ -121,9 +137,11 @@
       ALWAYS.test(t) ||
       (app === 'map-my-city' && /Code Enforcement Officer:\s*(?!—|--)\S/.test(t)) ||
       (app === 'green-check' && (residence(t) || DEV_NOTE.test(t))) ||
+      isPrivate(t) ||
       secrets.some((s) => t.includes(s))
     for (const { text } of readable(suspicious)) {
       if (ALWAYS.test(text)) out.push('internal host, key or local origin')
+      else if (isPrivate(text)) out.push('owner-supplied private string')
       else if (app === 'map-my-city' && /Code Enforcement Officer/.test(text)) out.push('officer name')
       else if (app === 'green-check' && residence(text)) out.push('residence address')
       else if (DEV_NOTE.test(text)) out.push('compile note')
@@ -131,6 +149,18 @@
     }
     for (const li of suggestions()) {
       if (!allowedSuggestion(li) && !li.closest('.__redacted') && li.getClientRects().length) out.push('search suggestion for another parcel')
+    }
+    if (app === 'yard-plan') {
+      for (const el of document.querySelectorAll(YP_CARD)) {
+        if (el.textContent.trim() && !el.closest('.__redacted') && el.getClientRects().length) out.push('property card address or APN')
+      }
+      // Input values are not text nodes, so the search box is checked on its own
+      const box = document.getElementById('searchInput')
+      if (box && box.value.trim()) out.push('search box text')
+    }
+    // Any app: a private string typed into a field
+    for (const input of document.querySelectorAll('input, textarea')) {
+      if (input.value && isPrivate(input.value)) out.push('owner-supplied private string in a field')
     }
     return out
   }
