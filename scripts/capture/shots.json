@@ -126,52 +126,53 @@
         "name": "hero",
         "kind": "still",
         "apn": "437076013",
-        "state": "dark theme: City Hall parcel at z21, turf + concrete drawn (shapes injected through the app's own plEncode into the permalink hash), Draw panel with rows and donut"
+        "state": "dark theme: City Hall parcel at z21, turf + concrete drawn (shapes injected through the app’s own plEncode into the permalink hash), Draw panel with rows and donut; the Applications hub tile"
       },
       {
-        "name": "base",
-        "kind": "still",
-        "apn": "437076013",
-        "state": "dark theme: the hero view with the drawings, glass sheet and chrome hidden: the map under the glass"
+        "name": "digitize",
+        "kind": "loop",
+        "private": true,
+        "order": "played once: the poster is the first frame",
+        "location": "the owner’s chosen front yard, read from privacy.local.json (capture.yardPlan); never in a committed file",
+        "seconds": 11,
+        "state": "dark theme at z22: Add Concrete pressed, the driveway traced, then the curved concrete band, then Add Turf and the lawn around it, its edge snapping onto the band’s corners; rows and donut fill in",
+        "poster": "the front yard with nothing drawn, the parcel highlighted, the card’s address and APN blurred"
       },
       {
         "name": "draw",
         "kind": "loop",
-        "seconds": 10,
+        "private": true,
         "order": "played once: the poster is the first frame",
-        "apn": "437076013",
-        "state": "dark theme: Add Turf and its four corners, then Add Concrete, the third corner snapping to the turf's corner and the fourth to its edge; rows and donut update",
-        "poster": "City Hall with nothing drawn yet"
+        "location": "the owner’s chosen front yard, read from privacy.local.json (capture.yardPlan); never in a committed file",
+        "seconds": 10,
+        "state": "dark theme at z22: Add Concrete, then Add Turf picked in the panel; the right lawn traced, four corners snapping onto the driveway’s; then the porch walk removed from Drawn Areas",
+        "poster": "the driveway, porch walk, curved band and left lawn drawn"
       },
       {
-        "name": "composition",
+        "name": "edit",
         "kind": "loop",
-        "seconds": 7,
+        "private": true,
         "order": "played once: the poster is the first frame",
-        "apn": "437076013",
+        "location": "the owner’s chosen front yard, read from privacy.local.json (capture.yardPlan); never in a committed file",
+        "seconds": 8,
         "clip": [
           460,
           64,
           1120,
           700
         ],
-        "state": "dark theme close-up of the panel, the status toast and the drawings: Edit, then a concrete corner dragged out while the rows, total and donut follow live; Edit again to save",
-        "poster": "the restored plan beside the Yard Composition panel"
+        "state": "dark theme close-up: Edit, the right lawn’s top corner dragged up, a corner added from the side edge’s midpoint and clicked away again, then Edit to save; rows and donut follow live",
+        "poster": "the full plan beside the Yard Composition panel"
       },
       {
         "name": "share",
         "kind": "loop",
-        "seconds": 7,
+        "private": true,
         "order": "played once: the poster is the first frame",
-        "apn": "437076013",
-        "state": "dark theme close-up: Share in the Draw panel's Quick Actions, the Download & Share panel, Copy Link and its status toast (the clipboard write is stubbed; no PDF is generated or downloaded)",
-        "poster": "the restored plan beside the Draw panel",
-        "clip": [
-          480,
-          60,
-          1120,
-          700
-        ]
+        "location": "the owner’s chosen front yard, read from privacy.local.json (capture.yardPlan); never in a committed file",
+        "seconds": 10,
+        "state": "dark theme at z22: Share, PDF Report and GeoJSON hovered (never clicked), Copy Link and its toast (clipboard stubbed), then Clear All and Upload: front-yard.geojson (written under .cache) loads the plan back and the map fits it",
+        "poster": "the full plan with the Draw panel"
       }
     ]
   },

@@ -1,0 +1,38 @@
+{
+  "app": "yard-plan",
+  "name": "digitize",
+  "kind": "loop",
+  "width": 1600,
+  "height": 1000,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 350,
+  "seconds": 11.67,
+  "posterFrame": 0,
+  "view": null,
+  "viewport": [
+    1600,
+    1000
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "property card address and APN lines always blurred (the runner fills them with placeholders; the real address is never fetched)",
+    "search suggestions blurred and the search box kept empty",
+    "owner-supplied private strings (privacy.local.json) never readable",
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-27T17:18:27.513Z",
+  "basemap": "nearmap",
+  "theme": "dark",
+  "values": {
+    "turf": 392,
+    "concrete": 899,
+    "total": 1291,
+    "turfPct": 30,
+    "pct": 70
+  },
+  "state": "dark theme at z22: Add Concrete pressed, the driveway traced, then the curved concrete band, then Add Turf and the lawn around it, its edge snapping onto the band’s corners; rows and donut fill in"
+}

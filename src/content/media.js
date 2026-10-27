@@ -26,17 +26,18 @@ import mmcBufferWebm from '../assets/map-my-city/buffer.webm'
 import mmcBufferMp4 from '../assets/map-my-city/buffer.mp4'
 import ypHero1 from '../assets/yard-plan/hero.webp'
 import ypHero2 from '../assets/yard-plan/hero@2x.webp'
-import { view as ypView, mapRect as ypMapRect, viewport as ypViewport, intro as ypIntro } from '../assets/yard-plan/hero.json'
-import ypBase1 from '../assets/yard-plan/base.webp'
-import ypBase2 from '../assets/yard-plan/base@2x.webp'
+import ypDigitizePoster1 from '../assets/yard-plan/digitize-poster.webp'
+import ypDigitizePoster2 from '../assets/yard-plan/digitize-poster@2x.webp'
+import ypDigitizeWebm from '../assets/yard-plan/digitize.webm'
+import ypDigitizeMp4 from '../assets/yard-plan/digitize.mp4'
 import ypDrawPoster1 from '../assets/yard-plan/draw-poster.webp'
 import ypDrawPoster2 from '../assets/yard-plan/draw-poster@2x.webp'
 import ypDrawWebm from '../assets/yard-plan/draw.webm'
 import ypDrawMp4 from '../assets/yard-plan/draw.mp4'
-import ypCompositionPoster1 from '../assets/yard-plan/composition-poster.webp'
-import ypCompositionPoster2 from '../assets/yard-plan/composition-poster@2x.webp'
-import ypCompositionWebm from '../assets/yard-plan/composition.webm'
-import ypCompositionMp4 from '../assets/yard-plan/composition.mp4'
+import ypEditPoster1 from '../assets/yard-plan/edit-poster.webp'
+import ypEditPoster2 from '../assets/yard-plan/edit-poster@2x.webp'
+import ypEditWebm from '../assets/yard-plan/edit.webm'
+import ypEditMp4 from '../assets/yard-plan/edit.mp4'
 import ypSharePoster1 from '../assets/yard-plan/share-poster.webp'
 import ypSharePoster2 from '../assets/yard-plan/share-poster@2x.webp'
 import ypShareWebm from '../assets/yard-plan/share.webm'
@@ -85,7 +86,6 @@ const loop = ([width, height], x1, x2, webm, mp4, alt) => ({
 })
 
 const mmcCamera = { view: mmcView, mapRect: mmcMapRect, viewport: mmcViewport }
-const ypCamera = { view: ypView, mapRect: ypMapRect, viewport: ypViewport }
 const gcCamera = { view: gcView, mapRect: gcMapRect, viewport: gcViewport }
 
 export const media = {
@@ -100,12 +100,12 @@ export const media = {
     },
   },
   'yard-plan': {
-    hero: still(APP, ypHero1, ypHero2, 'Yard Plan in dark mode at City Hall: a turf strip and a concrete area traced on aerial imagery, with the Yard Composition panel showing their square footage and the concrete share.', { ...ypCamera, intro: ypIntro }),
-    base: still(APP, ypBase1, ypBase2, 'Aerial imagery of the City Hall parcel in Yard Plan’s dark mode, the backdrop of the Yard Plan intro.', ypCamera),
+    hero: still(APP, ypHero1, ypHero2, 'Yard Plan in dark mode at City Hall: a turf strip and a concrete area traced on aerial imagery, with the Yard Composition panel showing their square footage and the concrete share.'),
     clips: {
-      draw: loop(APP, ypDrawPoster1, ypDrawPoster2, ypDrawWebm, ypDrawMp4, 'Drawing in Yard Plan’s dark mode: four corners trace a turf strip, then a concrete area whose corner snaps to the turf’s corner, and the panel tallies 1,914 square feet of turf, 3,544 of concrete and 65 percent concrete.'),
-      composition: loop(CLOSE_UP, ypCompositionPoster1, ypCompositionPoster2, ypCompositionWebm, ypCompositionMp4, 'Close-up of Yard Plan’s Yard Composition panel in dark mode: a corner of the concrete area is dragged out while the rows, the total and the donut follow live, from 65 to 71 percent concrete.'),
-      share: loop(CLOSE_UP, ypSharePoster1, ypSharePoster2, ypShareWebm, ypShareMp4, 'Close-up of Yard Plan’s Download and Share panel in dark mode: PDF report, GeoJSON, Copy Link and Print, then Copy Link and the confirmation that the shareable link was copied.'),
+      digitize: loop(APP, ypDigitizePoster1, ypDigitizePoster2, ypDigitizeWebm, ypDigitizeMp4, 'Digitizing a front yard in Yard Plan’s dark mode on high resolution aerial imagery: the driveway and a curving concrete band are traced as concrete, then the lawn around them as turf, its edge snapping onto the band, while the panel tallies the square footage.'),
+      draw: loop(APP, ypDrawPoster1, ypDrawPoster2, ypDrawWebm, ypDrawMp4, 'Yard Plan’s drawing tools in dark mode: Add Concrete, then Add Turf is picked, the lawn beside the driveway is traced with its corners snapping onto the driveway’s, and the porch walk is removed from the Drawn Areas list as the totals update.'),
+      edit: loop(CLOSE_UP, ypEditPoster1, ypEditPoster2, ypEditWebm, ypEditMp4, 'Close-up of editing corners in Yard Plan’s dark mode: a lawn corner is dragged, a new corner is pulled out of an edge’s midpoint and clicked away again, and the Yard Composition panel follows live.'),
+      share: loop(APP, ypSharePoster1, ypSharePoster2, ypShareWebm, ypShareMp4, 'Yard Plan’s Download and Share panel in dark mode: PDF report and GeoJSON, then Copy Link and its confirmation; then Clear All empties the plan, and uploading a saved GeoJSON file loads it back onto the map.'),
     },
   },
   'green-check': {

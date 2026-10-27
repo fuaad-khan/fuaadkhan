@@ -1,0 +1,51 @@
+{
+  "app": "yard-plan",
+  "name": "edit",
+  "kind": "loop",
+  "width": 1120,
+  "height": 700,
+  "dpr": 2,
+  "fps": 30,
+  "frames": 241,
+  "seconds": 8.03,
+  "posterFrame": 0,
+  "view": null,
+  "viewport": [
+    1120,
+    700
+  ],
+  "clip": [
+    460,
+    64,
+    1120,
+    700
+  ],
+  "clock": "virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step",
+  "scrubs": [
+    "property card address and APN lines always blurred (the runner fills them with placeholders; the real address is never fetched)",
+    "search suggestions blurred and the search box kept empty",
+    "owner-supplied private strings (privacy.local.json) never readable",
+    "local origin and link host text blurred if printed",
+    "internal hosts and keys blurred if printed"
+  ],
+  "leaks": [],
+  "appCommit": "47b3eb9",
+  "capturedAt": "2026-10-27T17:27:13.927Z",
+  "basemap": "nearmap",
+  "theme": "dark",
+  "before": {
+    "turf": 946,
+    "concrete": 918,
+    "total": 1864,
+    "turfPct": 51,
+    "pct": 49
+  },
+  "values": {
+    "turf": 966,
+    "concrete": 918,
+    "total": 1884,
+    "turfPct": 51,
+    "pct": 49
+  },
+  "state": "dark theme close-up: Edit, the right lawn’s top corner dragged up, a corner added from the side edge’s midpoint and clicked away again, then Edit to save; rows and donut follow live"
+}
