@@ -1,4 +1,4 @@
-// Green Check shots (PLAN §3, §7, Appendix B2; PLAN-v2 Media): 438 S State St with Microbusiness (95 ft automatic fail, verified by hand to Eligible), a typo-tolerant lookup at an industrial parcel, and the building chooser at a commercial one
+// Green Check shots (PLAN §3, §7, Appendix B2; PLAN-v2 Media): 438 S State St with Microbusiness (95 ft automatic fail, verified by hand to Eligible), a typo-tolerant lookup at an industrial parcel, the building chooser at a commercial one, and the Guidelines and About tour
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { sleep } from '../lib/cdp.mjs'
@@ -198,12 +198,9 @@ async function harvest(ctx, autoLine, values) {
 }
 
 
-// buffer (automatic verdict), hero (verified, aerial) and base (hero view without overlays or verdict rows)
+// hero (verified, aerial) and base (hero view without overlays or verdict rows)
 async function verifyStills(ctx, names) {
   const auto = await automatic(ctx)
-  const common = { basemap: 'maptiler streets', search: SUBJECT, license: LICENSE }
-  if (names.has('buffer')) await still(ctx, 'buffer', { extra: { ...common, verdict: auto.verdict, feet: auto.feet, passed: auto.passed, state: 'automatic verdict: Not Eligible, the 95 ft line, exclusion zone and Why? rows' } })
-  if (!names.has('hero') && !names.has('base')) return null
   const hand = await verified(ctx)
   const values = { auto: auto.feet, hand: hand.feet }
   const intro = await harvest(ctx, auto.line, values)
@@ -486,14 +483,64 @@ async function chooserLoop(ctx, shot, pick) {
   return rec.finish({ basemap: 'maptiler streets', license: shot.license, ...pick, state: shot.state, scrubs: LOOP_SCRUBS })
 }
 
+// Guidelines loop (played once): Guidelines from the nav, two license types (the rules follow, and the tab moves to Alcohol on its own), then About, scrolled to the municipal code link, which the cursor rests on without clicking
+async function guidelinesLoop(ctx, shot) {
+  const rec = createRecorder(ctx, { name: 'guidelines' })
+  await loopApp(ctx, rec)
+  await ctx.page.evaluate('document.activeElement && document.activeElement.blur()')
+  await rec.settle({ min: 10 })
+  const nav = (id) => centre(ctx, `button.nav-item[data-nav="${id}"]`)
+  const lead = () => ctx.page.evaluate('(document.querySelector("#guidelinesPanel .panel-lead strong")?.textContent || "").trim()')
+  const tab = () => ctx.page.evaluate('(document.querySelector("#guidelinesPanel .panel-tab.active")?.dataset.tab || "")')
+  // At rest in the sidebar's empty lower half, never over the map (its pins show business tooltips on hover)
+  const rest = [125, 640]
+  await rec.place(...rest)
+  rec.mark('poster')
+  await rec.live(0.35)
+  const guide = await nav('guidelines')
+  await rec.clickAt(guide[0] - 40, guide[1], 0.5)
+  await rec.until('document.getElementById("guidelinesPanel")', { label: 'guidelines panel' })
+  await rec.live(0.85)
+  const shown = [await lead()]
+  for (const type of shot.types) {
+    const box = await centre(ctx, '#licenseType')
+    await rec.clickAt(box[0] - 30, box[1], 0.45)
+    await rec.until('document.getElementById("licenseType").getAttribute("aria-expanded") === "true"', { label: 'license list' })
+    await rec.live(0.25)
+    const option = await centre(ctx, `#licenseTypeList [data-value="${type}"]`)
+    await rec.clickAt(option[0] - 60, option[1], 0.4)
+    await rec.until('document.getElementById("licenseType").getAttribute("aria-expanded") !== "true"', { label: 'license picked' })
+    await rec.live(0.85)
+    shown.push(await lead())
+  }
+  if (new Set(shown).size !== shown.length) throw new Error(`green-check/guidelines: the rules did not change with the license type (${shown.join(' -> ')})`)
+  const lastTab = await tab()
+  if (lastTab !== 'alcohol') throw new Error(`green-check/guidelines: tab ${lastTab}, expected alcohol after an alcohol license type`)
+  const about = await nav('about')
+  await rec.clickAt(about[0] - 40, about[1], 0.5)
+  await rec.until('document.getElementById("aboutPanel")', { label: 'about panel' })
+  await rec.live(0.3)
+  const LINK = '#aboutPanel a.btn[href*="47020348"]'
+  // The scroll that brings the municipal code link to the column's middle
+  const to = await ctx.page.evaluate(`(() => { const col = document.querySelector('aside.right-col'); const a = document.querySelector(${JSON.stringify(LINK)}); const c = col.getBoundingClientRect(), r = a.getBoundingClientRect(); return col.scrollTop + r.top - c.top - (c.height - r.height) / 2 })()`)
+  await rec.scroll('aside.right-col', to, 1)
+  await rec.live(0.2)
+  const link = await centre(ctx, LINK)
+  await rec.moveTo(link[0], link[1], 0.6)
+  await rec.live(1)
+  if (!(await ctx.page.evaluate(`document.querySelector(${JSON.stringify(LINK)}).matches(':hover')`))) throw new Error('green-check/guidelines: the municipal code link is not under the cursor')
+  const label = await ctx.page.evaluate(`document.querySelector(${JSON.stringify(LINK)}).textContent.trim()`)
+  return rec.finish({ basemap: 'maptiler streets', types: shot.types, shown, link: label, state: shot.state, scrubs: LOOP_SCRUBS })
+}
+
 export async function capture({ app, config, shots }) {
   const names = new Set(shots.map((s) => s.name))
   const shot = (name) => shots.find((s) => s.name === name)
   let pick = null
-  if (['buffer', 'hero', 'base', 'chooser'].some((n) => names.has(n))) {
+  if (['hero', 'base', 'chooser'].some((n) => names.has(n))) {
     const ctx = await openSession({ app, config })
     try {
-      if (['buffer', 'hero', 'base'].some((n) => names.has(n))) {
+      if (['hero', 'base'].some((n) => names.has(n))) {
         const values = await verifyStills(ctx, names)
         if (values) console.log(`  measured: automatic ${values.auto} ft, by hand ${values.hand} ft`)
       }
@@ -505,7 +552,7 @@ export async function capture({ app, config, shots }) {
       await ctx.close()
     }
   }
-  const loops = { verify: (ctx) => verify(ctx, shot('verify')), lookup: (ctx) => lookupLoop(ctx, shot('lookup')), chooser: (ctx) => chooserLoop(ctx, shot('chooser'), pick) }
+  const loops = { verify: (ctx) => verify(ctx, shot('verify')), lookup: (ctx) => lookupLoop(ctx, shot('lookup')), chooser: (ctx) => chooserLoop(ctx, shot('chooser'), pick), guidelines: (ctx) => guidelinesLoop(ctx, shot('guidelines')) }
   for (const s of shots.filter((s) => s.kind === 'loop')) {
     const ctx = await openSession({ app, config }, { virtualTime: true })
     try {

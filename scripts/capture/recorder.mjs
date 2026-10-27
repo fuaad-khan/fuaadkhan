@@ -2,7 +2,7 @@
 import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { assertNoLeaks, recordForbidden, SCRUBS } from '../lib/privacy.mjs'
-import { FORBIDDEN_FILE } from './session.mjs'
+import { cameraFields, FORBIDDEN_FILE, publicFields } from './session.mjs'
 
 const pad = (n) => String(n).padStart(5, '0')
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
@@ -187,7 +187,7 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92, clip = null 
     async finish(extra = {}) {
       writeFileSync(join(dir, 'marks.json'), JSON.stringify({ fps, frames: count, marks }, null, 2))
       if (marks.poster === undefined) throw new Error(`${ctx.app}/${name}: no poster mark`)
-      const camera = await page.evaluate('window.__wp6.mapState()')
+      const camera = await cameraFields(ctx, () => page.evaluate('window.__wp6.mapState()'))
       const sidecar = {
         app: ctx.app,
         name,
@@ -199,7 +199,7 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92, clip = null 
         frames: count,
         seconds: Math.round((count / fps) * 100) / 100,
         posterFrame: marks.poster,
-        ...(camera ?? {}),
+        ...camera,
         viewport: area ? [area.width, area.height] : [ctx.width, ctx.height],
         ...(area ? { clip: [area.x, area.y, area.width, area.height], captureViewport: [ctx.width, ctx.height] } : {}),
         clock: 'virtual (C:\\dev\\mapMyCity\\video\\lib\\shim\\virtual-time.js), one frame per step',
@@ -207,7 +207,7 @@ export function createRecorder(ctx, { name, fps = 30, quality = 92, clip = null 
         leaks: [],
         appCommit: ctx.commit,
         capturedAt: new Date().toISOString(),
-        ...extra,
+        ...publicFields(ctx, extra),
       }
       writeFileSync(join(ctx.dir, `${name}.json`), JSON.stringify(sidecar, null, 2))
       await recordForbidden(page, FORBIDDEN_FILE)

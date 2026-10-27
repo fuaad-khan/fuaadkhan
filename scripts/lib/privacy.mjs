@@ -18,7 +18,13 @@ export const SCRUBS = {
     'Code Enforcement Officer value set to "—" (lookup row and property report)',
     'internal hosts, keys and local origins blurred if printed',
   ],
-  'yard-plan': ['local origin and link host text blurred if printed', 'internal hosts and keys blurred if printed'],
+  'yard-plan': [
+    'property card address and APN lines always blurred (the runner fills them with placeholders; the real address is never fetched)',
+    'search suggestions blurred and the search box kept empty',
+    'owner-supplied private strings (privacy.local.json) never readable',
+    'local origin and link host text blurred if printed',
+    'internal hosts and keys blurred if printed',
+  ],
   'green-check': [
     'neighbouring residence address blurred wherever a result row prints it',
     'day-care and youth-center names blurred in result rows',
@@ -34,10 +40,21 @@ export function redactSource() {
   return readFileSync(file, 'utf8')
 }
 
-// Registers the scrubs to run before any page script on every document the page loads
+// The owner's private strings and capture settings (gitignored privacy.local.json at the repo root); empty when the file is absent
+export const LOCAL_FILE = resolve(HERE, '..', '..', 'privacy.local.json')
+export function localPrivacy() {
+  try {
+    return JSON.parse(readFileSync(LOCAL_FILE, 'utf8'))
+  } catch {
+    return {}
+  }
+}
+
+// Registers the scrubs to run before any page script on every document the page loads; the local private strings ride along, so a readable one fails the frame
 export async function installPrivacy(page, app) {
   if (!SCRUBS[app]) throw new Error(`No privacy scrubs defined for ${app}`)
-  const parts = [`window.__wp6App = ${JSON.stringify(app)};`]
+  const strings = (localPrivacy().strings ?? []).filter((s) => typeof s === 'string' && s.length > 3)
+  const parts = [`window.__wp6App = ${JSON.stringify(app)};`, `window.__wp6Private = ${JSON.stringify(strings)};`]
   if (app === 'map-my-city') parts.push(redactSource())
   parts.push(readFileSync(SCRUB_SOURCE, 'utf8'))
   await page.send('Page.addScriptToEvaluateOnNewDocument', { source: parts.join('\n;\n') })

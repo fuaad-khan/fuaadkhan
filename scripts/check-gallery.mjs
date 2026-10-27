@@ -1,5 +1,5 @@
 // Highlight gallery check (CONTRACTS-v2 §3): per app section, card layout, autoplay, start gate and start on arrival, advance, dot jump, pause, keyboard hold, off-screen pause and resume, end state; no clip preload before start; reduced motion; console errors
-import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
@@ -63,6 +63,14 @@ function readOptions() {
 
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (m, k) => (values[k] == null ? m : String(values[k])))
 const seconds = (h) => h.duration ?? STILL_SECONDS
+
+// A card's length on the page: a clip runs its recording (the sidecar's seconds) at CLIP_RATE; anything else its seconds
+function cardSeconds(app, h) {
+  const file = join(ROOT, 'src', 'assets', app.id, `${h.id}.json`)
+  if (h.kind !== 'clip' || !existsSync(file)) return seconds(h)
+  const side = JSON.parse(readFileSync(file, 'utf8'))
+  return side.kind === 'loop' ? side.seconds / CLIP_RATE : seconds(h)
+}
 
 // UI strings the page must use, from site.js
 const UI = site.ui.gallery
@@ -408,8 +416,8 @@ async function runProfile(name, profile, opts, results) {
       check('next clip preloads once started', own.length === 0 || buffering >= 1, `${buffering} of ${own.length} clips preload=auto`)
 
       // Without input the active card advances when the first one ends; a clip waits for its card to arrive before it plays
-      const advanced = await until(id, (st) => st.active === 1, (seconds(app.highlights[0]) + 4) * 1000)
-      check('advances without input', !!advanced, advanced ? `card 2 after ~${seconds(app.highlights[0])} s` : JSON.stringify(await state(id)))
+      const advanced = await until(id, (st) => st.active === 1, (cardSeconds(app, app.highlights[0]) + 4) * 1000)
+      check('advances without input', !!advanced, advanced ? `card 2 after ~${Math.round(cardSeconds(app, app.highlights[0]) * 10) / 10} s` : JSON.stringify(await state(id)))
       if (advanced?.video) {
         let early = 0
         const arrived = await until(

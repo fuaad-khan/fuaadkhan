@@ -57,7 +57,7 @@ export const apps = [
     highlights: [
       { id: 'intro', kind: 'intro', caption: 'Can a cannabis business go here? Ask the map.', duration: 8 },
       { id: 'lookup', kind: 'clip', caption: 'Pick a license type, search an address, get a verdict in about two seconds.' },
-      { id: 'buffer', kind: 'clip', caption: 'Every rule checked against schools, day cares, youth centers and homes, with the distance drawn on the map.' },
+      { id: 'guidelines', kind: 'clip', caption: 'Read the location rules for any license type in Guidelines, then find the municipal code in About.' },
       { id: 'chooser', kind: 'clip', caption: 'Several buildings on one parcel? Choose the one that will house the business.' },
       { id: 'verify', kind: 'clip', caption: 'Disagree with a distance? Measure it yourself, and the verdict updates.' },
       { id: 'glance', kind: 'glance', caption: 'Green Check at a glance.', duration: 5 },
@@ -130,45 +130,13 @@ export const apps = [
       { value: '~1,200', label: 'characters to link a 10-shape plan' },
     ],
     highlights: [
-      { id: 'intro', kind: 'intro', caption: 'A front yard, drawn to scale on high resolution aerial imagery.', duration: 7 },
-      { id: 'draw', kind: 'clip', caption: 'Trace turf and concrete. Corners snap to each other.' },
-      { id: 'composition', kind: 'clip', caption: 'Square footage and concrete share update as you draw.' },
-      { id: 'share', kind: 'clip', caption: 'Download a PDF, or send a link that carries the whole plan.' },
+      { id: 'digitize', kind: 'clip', caption: 'A front yard, drawn to scale on high resolution aerial imagery.' },
+      { id: 'draw', kind: 'clip', caption: 'Pick turf or concrete, snap corners to what’s drawn, and remove any piece from the list.' },
+      { id: 'edit', kind: 'clip', caption: 'Drag, add or delete corners, and the square footage updates as you go.' },
+      { id: 'share', kind: 'clip', caption: 'Download a PDF or GeoJSON, copy a link, or upload a saved plan to pick up where you left off.' },
       { id: 'glance', kind: 'glance', caption: 'Yard Plan at a glance.', duration: 5 },
     ],
     stack: ['JavaScript', 'Leaflet', 'Leaflet Draw', 'Esri Leaflet', 'Turf.js', 'jsPDF', 'Nearmap imagery'],
-    intro: {
-      // The showcase uses the app's dark theme (GlassDraw holds its night palette)
-      theme: 'dark',
-      captions: [],
-      // Areas (sq ft) and shares (%) measured in the City Hall capture; its sidecar (hero.intro.values) carries the same numbers and wins
-      values: { turf: 1914, concrete: 3544, total: 5458, turfPct: 35, pct: 65 },
-      rows: [
-        { label: 'Turf', value: '{turf} sq ft', pct: '{turfPct}%' },
-        { label: 'Concrete', value: '{concrete} sq ft', pct: '{pct}%' },
-        { label: 'Total drawn', value: '{total} sq ft' },
-      ],
-      labels: {
-        turf: 'Turf 1',
-        turfArea: '{turf} sq ft',
-        concrete: 'Concrete 1',
-        concreteArea: '{concrete} sq ft',
-        donutValue: '{pct}%',
-        donutLabel: 'Concrete',
-      },
-      // The app's own interface text, which the intro redraws around the map (GlassDraw)
-      chrome: {
-        subtitle: 'City of San Jacinto — Planning Department',
-        search: 'Search by address or APN…',
-        rail: ['Draw', 'Share', 'Upload', 'About'],
-        basemap: 'Aerial',
-        sections: ['Yard Composition', 'Drawing Tools', 'Quick Actions', 'Drawn Areas'],
-        tools: ['Add Turf', 'Add Concrete', 'Edit', 'Undo', 'Redo', 'Snap to Shapes'],
-        quick: ['Clear All', 'Reset View', 'Share'],
-        legend: ['Turf', 'Concrete', 'Property'],
-        attribution: 'Leaflet | Powered by Esri | © Nearmap',
-      },
-    },
     links: {},
   },
 ]
